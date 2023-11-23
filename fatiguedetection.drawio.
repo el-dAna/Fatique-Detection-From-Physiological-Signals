@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2023-11-23T18:38:02.256Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" etag="3NFOysHc7hgup1gVTsuX" version="22.1.3" type="google">
+  <diagram id="R2lEEEUBdFMjLlhIrx00" name="Page-1">
+    <mxGraphModel dx="1434" dy="912" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" extFonts="Permanent Marker^https://fonts.googleapis.com/css?family=Permanent+Marker">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-4" value="Include a section where users can query llm about me andprojects&lt;br&gt;&lt;br&gt;Send audio messages and greetings" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="95" y="1710" width="240" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-54" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-6" target="Ghdy2tmpsrigpkDYVXB4-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-6">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="1590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-6" value="Deplozed model" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="410" y="1390" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-13" value="Fast Api documnetation" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="1550" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-14" target="Ghdy2tmpsrigpkDYVXB4-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-14" value="Users upload a folder(s)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="980" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-16" target="Ghdy2tmpsrigpkDYVXB4-27">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="1060" />
+              <mxPoint x="538" y="1060" />
+              <mxPoint x="538" y="1150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-16" value="step functions called&lt;br&gt;and data preprocessed" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="960" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-20" value="Inference displayed" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="575" y="1360" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-27" value="Output returned to users to see which sections are classified as what" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="575" y="1120" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-34" target="Ghdy2tmpsrigpkDYVXB4-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-34" value="s3 bucket A" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="220" y="860" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-38" target="Ghdy2tmpsrigpkDYVXB4-41">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-38" value="Model trained, monitored and versioned on MLFLOW" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="1150" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-41" value="Robust model chosen" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="1160" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-42" target="Ghdy2tmpsrigpkDYVXB4-43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-42" value="containerised on Elastic container Service" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="1290" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-43" target="Ghdy2tmpsrigpkDYVXB4-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-43" value="Served on App Runner" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="1400" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.433;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-41" target="Ghdy2tmpsrigpkDYVXB4-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.238;entryY=0.025;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-27" target="Ghdy2tmpsrigpkDYVXB4-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="635" y="1260" />
+              <mxPoint x="450" y="1260" />
+              <mxPoint x="450" y="1320" />
+              <mxPoint x="429" y="1320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-56" value="Click on ger inference" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Ghdy2tmpsrigpkDYVXB4-53">
+          <mxGeometry x="-0.2487" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-58" value="S3 Bucket B(Features)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="160" y="990" width="110" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.982;entryY=0.588;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-16" target="Ghdy2tmpsrigpkDYVXB4-58">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="1040" />
+              <mxPoint x="345" y="1040" />
+              <mxPoint x="345" y="1030" />
+              <mxPoint x="298" y="1030" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.333;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Ghdy2tmpsrigpkDYVXB4-58" target="Ghdy2tmpsrigpkDYVXB4-38">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="245" y="1090" />
+              <mxPoint x="370" y="1090" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ghdy2tmpsrigpkDYVXB4-64" value="Log&amp;nbsp; user inferences to Sagemaker and Mlflow" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="1590" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
