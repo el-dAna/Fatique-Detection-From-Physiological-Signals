@@ -3,6 +3,8 @@
 credentials.txt
 /utils/playground.ipynb
 
+/.venv/
+
 
 # # Ignore all files with .log extension
 # *.log
