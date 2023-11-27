@@ -5,6 +5,10 @@ credentials.txt
 
 /.venv/
 
+/data/Fatigue_Detection-main
+
+/data/HealthySubjectsBiosignalsDataSet
+
 
 # # Ignore all files with .log extension
 # *.log
