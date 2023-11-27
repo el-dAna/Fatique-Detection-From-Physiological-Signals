@@ -2,6 +2,11 @@ from dataclasses import dataclass
 import numpy as np
 #from typing import Tuple
 import tensorflow as tf
+import pandas as pd
+import mlflow
+from mlflow.models import infer_signature
+
+
 from common_functions import (
     train_stack,
     predict_stack,
@@ -27,7 +32,7 @@ from preprocessingfunctions import (
 from rnn_model import model
 from datetime import datetime
 import matplotlib.pyplot as plt
-#from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix #, classification_report
 
 
 tf.keras.backend.clear_session()  # clears internal variables so we start all initiations and assignments afresh
@@ -65,9 +70,10 @@ class G:
     TRAIN_RELAX_PROPORTION = int(PERCENT_OF_TRAIN * RELAX_PROPORTION)
     TRAIN_OTHERS_PROPORTION = int(PERCENT_OF_TRAIN * OTHERS_PROPORTION)
 
+
     TRAIN_FEATURES = train_stack(
         big_dict=WINDOW_SAMPLING_DICT,
-        train_ratio=PERCENT_OF_TRAIN,
+        #train_ratio=PERCENT_OF_TRAIN,
         sensitivity=SAMPLES_PER_SAMPLE,
         TRAIN_RELAX_PROPORTION=TRAIN_RELAX_PROPORTION,
         RELAX_PROPORTION=RELAX_PROPORTION,
@@ -79,7 +85,7 @@ class G:
     TOTAL_TRAIN_DATA = len(TRAIN_FEATURES)
     TRAIN_LABELS = train_stack(
         big_dict=WINDOW_SAMPLING_DICT,
-        train_ratio=PERCENT_OF_TRAIN,
+        #train_ratio=PERCENT_OF_TRAIN,
         sensitivity=SAMPLES_PER_SAMPLE,
         TRAIN_RELAX_PROPORTION=TRAIN_RELAX_PROPORTION,
         RELAX_PROPORTION=RELAX_PROPORTION,
@@ -90,7 +96,7 @@ class G:
 
     PREDICT_FEATURES = predict_stack(
         big_dict=WINDOW_SAMPLING_DICT,
-        train_ratio=PERCENT_OF_TRAIN,
+        #train_ratio=PERCENT_OF_TRAIN,
         sensitivity=SAMPLES_PER_SAMPLE,
         TRAIN_RELAX_PROPORTION=TRAIN_RELAX_PROPORTION,
         RELAX_PROPORTION=RELAX_PROPORTION,
@@ -102,7 +108,7 @@ class G:
 
     PREDICT_LABELS = predict_stack(
         big_dict=WINDOW_SAMPLING_DICT,
-        train_ratio=PERCENT_OF_TRAIN,
+        #train_ratio=PERCENT_OF_TRAIN,
         sensitivity=SAMPLES_PER_SAMPLE,
         TRAIN_RELAX_PROPORTION=TRAIN_RELAX_PROPORTION,
         RELAX_PROPORTION=RELAX_PROPORTION,
@@ -122,11 +128,11 @@ class G:
     lr = 0.0002
 
     """
-  dp1 = 0.1
-  dp2 = 0.5
-  dp3 = 0
-  lr = 0.0007
-  """
+    dp1 = 0.1
+    dp2 = 0.5
+    dp3 = 0
+    lr = 0.0007
+    """
 
     TRAIN_BATCH_SIZE = int(TOTAL_TRAIN_DATA / 8)  # /8
     assert (
@@ -200,8 +206,14 @@ class G:
 # Callbacks = [stop_training(), schedule_learningRate]
 Callbacks = [stop_training()]
 
+params_for_mlflow_log = {
+    "project_dataclass": G,
+    "dp1": G.dp1,
+    "dp2": G.dp2,
+    "dp3": G.dp3,
+}
 
-model = model(G, G.dp1, G.dp2, G.dp3, G.dp4)
+model = model(**params_for_mlflow_log)
 
 print("Traing model...")
 history = model.fit(
@@ -222,7 +234,7 @@ history = model.fit(
 print("Done!")
 
 
-import pandas as pd
+
 
 pd.DataFrame(history.history).plot(figsize=(8, 5))
 plt.title("hey")
@@ -253,3 +265,33 @@ print(confusion_matrix(pred_true, pred_1hot))
 
 
 # """
+
+
+# Set tracking server uri for logging
+mlflow.set_tracking_uri(uri="http://127.0.0.1:8080")
+
+# Create a new MLflow Experiment
+mlflow.set_experiment("MLflow Quickstart")
+
+# Start an MLflow run
+with mlflow.start_run():
+    # Log the hyperparameters
+    mlflow.log_params(params_for_mlflow_log)
+
+    # Log the loss metric
+    mlflow.log_metric("metrics", pd.DataFrame(history.history))
+
+    # Set a tag that we can use to remind ourselves what this run was for
+    mlflow.set_tag("First train", "rnn")
+
+    # Infer the model signature
+    signature = infer_signature(X_train, lr.predict(X_train))
+
+    # Log the model
+    model_info = mlflow.sklearn.log_model(
+        sk_model=lr,
+        artifact_path="iris_model",
+        signature=signature,
+        input_example=X_train,
+        registered_model_name="tracking-quickstart",
+    )
