@@ -12,7 +12,7 @@ from tensorflow.keras import layers
 # convert each recording into an a 3d image
 
 
-def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0):
+def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0, learning_rate=1e-05):
     """
     This function defines the model to be used for the raw sequence data
 
@@ -24,6 +24,8 @@ def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0):
     model1: keras model -> this model is compiled within this fucntion!!!!!!!!11
 
     """
+    optimiser = tf.keras.optimizers.Adam(learning_rate=learning_rate)  # (1e-05 == 0.00001)
+
     # dp1 = dropout rate 1
     input_shape = project_dataclass.MODEL_INPUT_SHAPE
     input_layer = tf.keras.layers.Input(input_shape)
@@ -38,7 +40,7 @@ def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0):
     )(input_layer)
     layer_c1_b = layers.BatchNormalization(epsilon=0.001)(layer_c1)
     layer_c1_m = layers.MaxPooling1D(padding="same")(layer_c1_b)  # ADDED
-    layer_d4 = layers.Dropout(dp4)(layer_c1_b)
+    layer_d4 = layers.Dropout(dp4)(layer_c1_m)
 
     layer_c2 = layers.Conv1D(
         filters=64,
@@ -50,7 +52,7 @@ def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0):
     )(layer_d4)
     layer_c2_b = layers.BatchNormalization(epsilon=0.001)(layer_c2)
     layer_c2_m = layers.MaxPooling1D(padding="same")(layer_c2_b)  # ADDED
-    layer_d3 = layers.Dropout(dp1)(layer_c2_b)
+    layer_d3 = layers.Dropout(dp1)(layer_c2_m)
    
 
     layer_c3 = layers.Conv1D(
@@ -63,7 +65,7 @@ def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0):
     )(layer_d3)
     layer_c3_b = layers.BatchNormalization(epsilon=0.001)(layer_c3)
     layer_c3_m = layers.MaxPooling1D(padding="same")(layer_c3_b)  # ADDED
-    layer_d1 = layers.Dropout(dp2)(layer_c3_b)
+    layer_d1 = layers.Dropout(dp2)(layer_c3_m)
 
 
     # second
@@ -88,7 +90,7 @@ def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0):
     model1 = tf.keras.Model(inputs=input_layer, outputs=l3)
     model1.compile(
         loss=project_dataclass.LOSS,
-        optimizer=project_dataclass.OPTIMIZER,
+        optimizer=optimiser,
         metrics=["accuracy"],
     )
 

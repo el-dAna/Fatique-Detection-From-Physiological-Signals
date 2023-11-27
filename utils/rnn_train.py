@@ -5,6 +5,8 @@ import tensorflow as tf
 import pandas as pd
 import mlflow
 from mlflow.models import infer_signature
+from mlflow import MlflowClient
+from pprint import pprint
 
 
 from common_functions import (
@@ -119,20 +121,13 @@ class G:
 
     MODEL_INPUT_SHAPE = TRAIN_FEATURES[0].shape
 
-    EPOCHS = 80
+    EPOCHS = 10
 
     dp4 = 0.0
     dp1 = 0.3
     dp2 = 0.3
     dp3 = 0.0
-    lr = 0.0002
-
-    """
-    dp1 = 0.1
-    dp2 = 0.5
-    dp3 = 0
-    lr = 0.0007
-    """
+    learning_rate = 0.0002
 
     TRAIN_BATCH_SIZE = int(TOTAL_TRAIN_DATA / 8)  # /8
     assert (
@@ -149,71 +144,18 @@ class G:
     LOSS = tf.keras.losses.Huber()
     # LOSS = tf.keras.losses.CategoricalCrossentropy()
 
-    # OPTIMIZER = tf.keras.optimizers.SGD(learning_rate = 0.01, momentum = 0.0)
-    OPTIMIZER = tf.keras.optimizers.Adam(learning_rate=lr)  # (1e-05 == 0.00001)
-    # OPTIMIZER = tf.keras.optimizers.RMSprop(learning_rate = 0.001)#, clipvalue = 0.01)
-
-
-# train_data = PhysioDatagenerator(G.TOTAL_TRAIN_DATA, # 140
-#                                   G.TRAIN_FEATURES,
-#                                   G.LABELS_TO_NUMBERS_DICT,
-#                                   G.NUMBERS_TO_LABELS_DICT,
-#                                   batch_size = G.TRAIN_BATCH_SIZE,
-#                                   shuffle = True,
-#                                   input_dimention = G.MODEL_INPUT_SHAPE,
-#                                   augment_data = False,
-#                                   steps_per_epoch = G.TRAIN_STEPS,
-#                                   )
-
-# train_data_2 = PhysioDatagenerator(G.TOTAL_TRAIN_DATA,
-#                                   G.TRAIN_FEATURES,
-#                                   G.LABELS_TO_NUMBERS_DICT,
-#                                   G.NUMBERS_TO_LABELS_DICT,
-#                                   batch_size = G.TRAIN_BATCH_SIZE,
-#                                   shuffle = False,
-#                                   input_dimention = G.MODEL_INPUT_SHAPE,
-#                                   augment_data = False,
-#                                   steps_per_epoch = G.TRAIN_STEPS,
-#                                   )
-
-# val_data = PhysioDatagenerator(G.TOTAL_VAL_DATA,
-#                                 G.PREDICT_FEATURES,
-#                                 G.LABELS_TO_NUMBERS_DICT,
-#                                 G.NUMBERS_TO_LABELS_DICT,
-#                                 batch_size = G.VAL_BATCH_SIZE,
-#                                 shuffle = False,
-#                                 input_dimention = G.MODEL_INPUT_SHAPE,
-#                                 augment_data = False,
-#                                 )
-
-
-# d = iter(train_data)
-# samp1 = next(d)
-# samp2 = next(d)
-# samp1 = next(d)
-# samp2 = next(d)
-
-# samp1 = next(d)
-# samp2 = next(d)
-# samp1 = next(d)
-# print(samp2[1])
-# print(G.TRAIN_FEATURES.shape)
-# samp2 = next(d)
-# print((samp2[1]))
-
-# """
 
 # Callbacks = [stop_training(), schedule_learningRate]
 Callbacks = [stop_training()]
 
 params_for_mlflow_log = {
-    "project_dataclass": G,
     "dp1": G.dp1,
     "dp2": G.dp2,
     "dp3": G.dp3,
+    "learning_rate":G.learning_rate
 }
 
-model = model(**params_for_mlflow_log)
+model = model(G, **params_for_mlflow_log)
 
 print("Traing model...")
 history = model.fit(
@@ -235,12 +177,12 @@ print("Done!")
 
 
 
-
+artifact_path = "/workspaces/Fatique-Detection-From-Physiological-Signals/data/artifacts/1.png"
 pd.DataFrame(history.history).plot(figsize=(8, 5))
 plt.title("hey")
-# plt.savefig('./Plots/Base_model/7.')
-plt.show()
-print("\n\n")
+plt.savefig(artifact_path)
+# plt.show()
+# print("\n\n")
 
 
 print("----------Confusion matrix on Training samples-----------------")
@@ -264,34 +206,30 @@ print(confusion_matrix(pred_true, pred_1hot))
 # print(classification_report(pred_true, pred_1hot))
 
 
-# """
+mlflow.set_tracking_uri("http://127.0.0.1:8080")
+rnn_experiment = mlflow.set_experiment("rnn_models")
+run_name = "First Run"
+
+metrics = pd.DataFrame(history.history)
+# print(metrics.describe())
+
+metrics = {"loss": metrics['loss'][1], "accuracy": metrics['accuracy'][1], "val_loss": metrics['val_loss'][1], "val_accuracy": metrics['val_accuracy'][1]}
 
 
-# Set tracking server uri for logging
-mlflow.set_tracking_uri(uri="http://127.0.0.1:8080")
+#Initiate the MLflow run context
+with mlflow.start_run(run_name=run_name) as run:
+    # Log parameters
+    # mlflow.log_param("epochs", 5)
+    # mlflow.log_param("optimizer", "adam")
+    # mlflow.log_params(params_for_mlflow_log)
 
-# Create a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
+    # Log metrics
+    mlflow.log_metric("accuracy", history.history['accuracy'][-1])
+    mlflow.log_metric("loss", history.history['loss'][-1])
 
-# Start an MLflow run
-with mlflow.start_run():
-    # Log the hyperparameters
-    mlflow.log_params(params_for_mlflow_log)
+    # Log artifacts (e.g., saved plots, etc.)
+    mlflow.log_artifact(artifact_path)
 
-    # Log the loss metric
-    mlflow.log_metric("metrics", pd.DataFrame(history.history))
-
-    # Set a tag that we can use to remind ourselves what this run was for
-    mlflow.set_tag("First train", "rnn")
-
-    # Infer the model signature
-    signature = infer_signature(X_train, lr.predict(X_train))
-
-    # Log the model
-    model_info = mlflow.sklearn.log_model(
-        sk_model=lr,
-        artifact_path="iris_model",
-        signature=signature,
-        input_example=X_train,
-        registered_model_name="tracking-quickstart",
-    )
+    # Save the model in a format that can be loaded later
+    model.save("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")
+    mlflow.log_artifact("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")

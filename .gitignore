@@ -6,8 +6,13 @@ credentials.txt
 /.venv/
 
 /data/Fatigue_Detection-main
-
 /data/HealthySubjectsBiosignalsDataSet
+/data/artifacts/
+/data/models/
+
+/mlartifacts
+/mlruns
+/utils/mlruns
 
 
 # # Ignore all files with .log extension
