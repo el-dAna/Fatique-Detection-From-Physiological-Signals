@@ -1,5 +1,7 @@
 # Fatique-Detection-From-Physiological-Signals
 
+[![Python application test with Github Actions](https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/actions/workflows/main.yml/badge.svg)](https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/actions/workflows/main.yml)
+
 ## Data
 The  first things is to host the data reliably, transfrom it and make it ready for inferencing using the developed models. This is not done on github but on aws.
 1. First an s3 bucket is created. US West (N. California) us-west-1 servers used.
