@@ -9,6 +9,7 @@ pandas==2.0.3
 pylint
 black
 
+
 #access s3 bucket data
 s3fs==2023.10.0
 boto3
