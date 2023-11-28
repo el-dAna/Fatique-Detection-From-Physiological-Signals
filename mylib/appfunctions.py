@@ -1,6 +1,8 @@
 import streamlit as st
-# import os
+import os
 import pandas as pd
+from tempfile import NamedTemporaryFile
+
 # import boto3
 # from io import BytesIO
 
@@ -12,29 +14,34 @@ def upload_files():
     Returns:
     - list or None: List of uploaded files or None if no files are uploaded.
     """
+    file_names = []
+    uploaded_files_dict = {}
     uploaded_files = st.file_uploader(
         "Upload files", type="csv", accept_multiple_files=True
     )
 
-    if uploaded_files:
-        st.write("Uploaded files:")
-        file_names = [file.name for file in uploaded_files]
-        st.write("\n".join(file_names))
+    st.write(uploaded_files)
+    if uploaded_files:        
+        for file in uploaded_files:
+            file_names.append(file.name)
+            uploaded_files_dict[file.name] = file
+        
 
-        # file_name = uploaded_file.name
-        # file_path = os.path.join(tempfile.gettempdir(), file_name)
-        # st.write(f"File path: {file_path}")
+            # with NamedTemporaryFile() as temp:
+            #     temp.write(file.getvalue())
+            #     temp.flush()
+            #     file_paths.append(temp.name)
+            #     st.write(f"File path: {file_paths}")
 
         if len(file_names) % 2 != 0:
             st.error("Please upload an even number of files.")
             return None
+        return uploaded_files_dict
 
-        return file_names
-
-    return None
+    return []
 
 
-def read_files(file_paths):
+def read_files(uploaded_files_dict):
     """
     Function to read CSV files from the given file paths.
 
@@ -44,15 +51,22 @@ def read_files(file_paths):
     Returns:
     - list or None: List of DataFrames or None if an error occurs.
     """
+    
+    selected_file = st.selectbox("Select an option:", uploaded_files_dict.keys())
+    
+    
+    selected_file=uploaded_files_dict[selected_file]
+    #file_path = os.path.join(tempfile.gettempdir(), selected_file)
+    # st.write(f"File path: {selected_file}")
+    dataframe = pd.read_csv(selected_file)
+    st.write(dataframe)
 
-    selected_file = st.selectbox("Select an option:", file_paths)
-
-    try:
-        data = pd.read_csv(selected_file)
-        st.write(data.describe())
-    except FileNotFoundError as e:
-        st.error(f"Error reading file {selected_file}: {e}")
-        return None
+    # try:
+    #     data = pd.read_csv(selected_file)
+    #     st.write(data.describe())
+    # except FileNotFoundError as e:
+    #     st.error(f"Error reading file {selected_file}: {e}")
+    #     return None
 
     # def load_data_from_s3_bucket(bucket_name, object_key, s3_client=boto3.client('s3')):
     #     response = s3_client.get_object(Bucket=bucket_name, Key=object_key)

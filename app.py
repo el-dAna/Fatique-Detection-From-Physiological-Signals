@@ -13,13 +13,14 @@ st.markdown(
     """
 )
 
-test_folder = upload_files()
-if test_folder:
+uploaded_files_dict = upload_files()
+if uploaded_files_dict:
     st.session_state.files_upload = True
 
 if st.session_state.files_upload:
     view_data_button = st.button("View")
-    read_files(test_folder)
+    st.write(uploaded_files_dict.keys())
+    read_files(uploaded_files_dict=uploaded_files_dict)
 
 
 st.sidebar.markdown("# Data ❄️")
