@@ -3,18 +3,18 @@ install:
 	pip install --upgrade pip && \
 		pip install -r requirements.txt
 
-
 test:
 	echo "TESTING CODE"
 	python -m pytest -vv --cov=cli --cov=mlib --cov=utilscli --cov=app test_mlib.py
 
 format:
 	echo "FORMATING CODE"
-	black *.py utils
+	black *.py ./mylib/appfunctions.py
 
 lint:
 	echo "LINTING CODE"
-	pylint --disable=R,C,W1203,E1101 utils #cli utilscli
+	pylint --disable=R,C,W1203,E1101 app.py
+	#pylint --disable=R,C,W1203,E1101 utils #cli #utilscli
 	#python -m pytest -vv test_main.py
 	#pylint --disable=R,C,W1203,E1101 mlib cli utilscli
 	#lint Dockerfile
