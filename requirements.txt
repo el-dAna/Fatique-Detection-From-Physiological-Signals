@@ -6,6 +6,8 @@ Cython==3.0.5
 keras==2.13.1
 tensorflow== 2.13.1
 pandas==2.0.3
+pylint
+black
 
 #access s3 bucket data
 s3fs==2023.10.0
