@@ -8,6 +8,7 @@ tensorflow== 2.13.1
 pandas==2.0.3
 pylint
 black
+pytest
 
 #access s3 bucket data
 s3fs==2023.10.0
