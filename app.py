@@ -9,8 +9,8 @@ st.sidebar.markdown("# Home Page 🎈")
 
 st.markdown(
     """
-This is an mlops portforlio project. The project uses data collected from participants and a machine learning model trained to detecth fatigue.
-"""
+    This is an mlops portforlio project. The project uses data collected from participants and a machine learning model trained to detecth fatigue.
+    """
 )
 
 test_folder = upload_files()
