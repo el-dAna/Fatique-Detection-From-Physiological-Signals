@@ -18,8 +18,7 @@ if uploaded_files_dict:
     st.session_state.files_upload = True
 
 if st.session_state.files_upload:
-    view_data_button = st.button("View")
-    st.write(uploaded_files_dict.keys())
+    # view_data_button = st.button("View")
     read_files(uploaded_files_dict=uploaded_files_dict)
 
 

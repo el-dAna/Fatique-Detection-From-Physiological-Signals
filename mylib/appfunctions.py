@@ -1,7 +1,11 @@
 import streamlit as st
-import os
+
+# import os
 import pandas as pd
-from tempfile import NamedTemporaryFile
+
+# from tempfile import NamedTemporaryFile
+# import seaborn as sns
+import matplotlib.pyplot as plt
 
 # import boto3
 # from io import BytesIO
@@ -12,26 +16,19 @@ def upload_files():
     Function to upload files using Streamlit file_uploader.
 
     Returns:
-    - list or None: List of uploaded files or None if no files are uploaded.
+    - dict or []: dict of file names and uploaded file object from the streamlit file_uploader or [] if no files are uploaded.
     """
+
     file_names = []
     uploaded_files_dict = {}
     uploaded_files = st.file_uploader(
         "Upload files", type="csv", accept_multiple_files=True
     )
 
-    st.write(uploaded_files)
-    if uploaded_files:        
+    if uploaded_files:
         for file in uploaded_files:
             file_names.append(file.name)
             uploaded_files_dict[file.name] = file
-        
-
-            # with NamedTemporaryFile() as temp:
-            #     temp.write(file.getvalue())
-            #     temp.flush()
-            #     file_paths.append(temp.name)
-            #     st.write(f"File path: {file_paths}")
 
         if len(file_names) % 2 != 0:
             st.error("Please upload an even number of files.")
@@ -43,61 +40,60 @@ def upload_files():
 
 def read_files(uploaded_files_dict):
     """
-    Function to read CSV files from the given file paths.
+    Function to read CSV files from and plot data based on the selected files.
 
     Args:
-    - file_paths (list): List of file paths.
+    - uploaded_filees_dict (dict): dict of file names as values and uploaded file object from calling st.file_uploader().
 
     Returns:
-    - list or None: List of DataFrames or None if an error occurs.
+    - None: List of DataFrames or None if an error occurs.
     """
-    
-    selected_file = st.selectbox("Select an option:", uploaded_files_dict.keys())
-    
-    
-    selected_file=uploaded_files_dict[selected_file]
-    #file_path = os.path.join(tempfile.gettempdir(), selected_file)
-    # st.write(f"File path: {selected_file}")
-    dataframe = pd.read_csv(selected_file)
-    st.write(dataframe)
 
-    # try:
-    #     data = pd.read_csv(selected_file)
-    #     st.write(data.describe())
-    # except FileNotFoundError as e:
-    #     st.error(f"Error reading file {selected_file}: {e}")
-    #     return None
+    # selected_file = st.selectbox("Select an option:", uploaded_files_dict.keys())
 
-    # def load_data_from_s3_bucket(bucket_name, object_key, s3_client=boto3.client('s3')):
-    #     response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
-    #     #data = pd.read_csv(response['Body'])
+    selected_files = st.multiselect("Select subject data", uploaded_files_dict.keys())
+    if selected_files:
+        # Create columns for plots
+        graph_cols = st.columns(int(len(selected_files)))
+        pandas_cols = st.columns(int(len(selected_files)))
 
-    #     return type(data)
-
-
-# # AWS credentials (replace with your own credentials)
-# aws_access_key_id = "your_access_key_id"
-# aws_secret_access_key = "your_secret_access_key"
-# aws_region = "your_region"
-
-# # S3 bucket and file details
-# bucket_name = "physiologicalsignals"
-# file_key = "HealthySubjectsBiosignalsDataSet/Subject1/Subject1AccTempEDA.csv"
-
-
-# # Function to load data from S3
-# def load_data_from_s3():
-#     s3 = boto3.client(
-#         "s3",
-#         aws_access_key_id=aws_access_key_id,
-#         aws_secret_access_key=aws_secret_access_key,
-#         region_name=aws_region,
-#     )
-#     try:
-#         # Download the file from S3
-#         obj = s3.get_object(Bucket=bucket_name, Key=file_key)
-#         # data = pd.read_csv(BytesIO(obj['Body'].read()))
-#         return obj
-#     except Exception as e:
-#         st.error(f"Error loading data from S3: {str(e)}")
-#         return None
+        for i, file in enumerate(selected_files):
+            with pandas_cols[i]:
+                # Create pandas dataframe
+                selected_file_1 = uploaded_files_dict[file]
+                dataframe = pd.read_csv(selected_file_1)
+                st.write(dataframe)
+                time_steps = range(len(dataframe["Second"]))
+            with graph_cols[i]:
+                if "EDA" in file:
+                    # dataframe.plot(x='Second', y=['AccX', 'AccY', 'AccZ', 'Temp', 'EDA'])
+                    plt.plot(
+                        time_steps,
+                        dataframe["AccX"],
+                        time_steps,
+                        dataframe["AccY"],
+                        time_steps,
+                        dataframe["AccZ"],
+                        time_steps,
+                        dataframe["Temp"],
+                        time_steps,
+                        dataframe["EDA"],
+                    )
+                    plt.xlabel("Seconds")
+                    plt.ylabel("Recorded value")
+                    plt.title(f"Plot of recorded signals of {file}")
+                    st.pyplot(plt)
+                    plt.close()
+                else:
+                    # dataframe.plot(x='Second', y=['HeartRate', 'SpO2'])
+                    plt.plot(
+                        time_steps,
+                        dataframe["HeartRate"],
+                        time_steps,
+                        dataframe["SpO2"],
+                    )
+                    plt.xlabel("Seconds")
+                    plt.ylabel("Recorded value")
+                    plt.title(f"Plot of recorded signals of {file}")
+                    st.pyplot(plt)
+                    plt.close()
