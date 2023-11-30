@@ -1,4 +1,5 @@
 import streamlit as st
+from dataclasses import dataclass
 
 # import os
 import pandas as pd
@@ -9,6 +10,12 @@ import matplotlib.pyplot as plt
 
 # import boto3
 # from io import BytesIO
+
+
+@dataclass
+class TEXT:
+    dataset_description1 = "As shown in the graphs above the total recoding time for AccTempEDA and SpO2HR files is diiferent. The signals were sampled at different frequencies. One other challenge is that sessions for Relax, PhysicalStress, CognitiveStress, EmotionalStress are all contained in one file. So to have distinct classes each needs to be extracted."
+    # https://physionet.org/content/noneeg/1.0.0/
 
 
 def upload_files():
@@ -64,36 +71,36 @@ def read_files(uploaded_files_dict):
                 dataframe = pd.read_csv(selected_file_1)
                 st.write(dataframe)
                 time_steps = range(len(dataframe["Second"]))
+                dataframe['Second_modified'] = time_steps
             with graph_cols[i]:
                 if "EDA" in file:
-                    # dataframe.plot(x='Second', y=['AccX', 'AccY', 'AccZ', 'Temp', 'EDA'])
-                    plt.plot(
-                        time_steps,
-                        dataframe["AccX"],
-                        time_steps,
-                        dataframe["AccY"],
-                        time_steps,
-                        dataframe["AccZ"],
-                        time_steps,
-                        dataframe["Temp"],
-                        time_steps,
-                        dataframe["EDA"],
-                    )
+                    dataframe.plot(x='Second_modified', y=['AccX', 'AccY', 'AccZ', 'Temp', 'EDA'])
                     plt.xlabel("Seconds")
                     plt.ylabel("Recorded value")
                     plt.title(f"Plot of recorded signals of {file}")
                     st.pyplot(plt)
                     plt.close()
                 else:
-                    # dataframe.plot(x='Second', y=['HeartRate', 'SpO2'])
-                    plt.plot(
-                        time_steps,
-                        dataframe["HeartRate"],
-                        time_steps,
-                        dataframe["SpO2"],
-                    )
+                    dataframe.plot(x='Second_modified', y=['HeartRate', 'SpO2'])
                     plt.xlabel("Seconds")
                     plt.ylabel("Recorded value")
                     plt.title(f"Plot of recorded signals of {file}")
                     st.pyplot(plt)
                     plt.close()
+
+
+def get_numerical_labels(dataframe):
+    labels = dataframe['Labels']
+    # (dataframe.Labels.values == 'PhysicalStress').argmin()
+    # (dataframe.Labels.values == 'CognitiveStress').argmin()
+    # (dataframe.Labels.values == 'EmotionalStress').argmin()
+    labels = ['Relax', 'PhysicalStress', 'CognitiveStress', 'EmotionalStress']
+    labels_dict = dict(zip(labels, range(0,4)))
+    dataframe['labels'].map(labels_dict, na_action='ignore')
+    return dataframe
+
+
+def group_dataframe_by(dataframe, column_name="Label"):
+    session_grp = dataframe.groupby(column_name)
+    return session_grp
+    

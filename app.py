@@ -1,5 +1,6 @@
 import streamlit as st
-from mylib.appfunctions import upload_files, read_files
+from mylib.appfunctions import upload_files, read_files, TEXT, get_numerical_labels
+import numpy as np
 
 st.session_state.files_upload = False
 
@@ -20,7 +21,11 @@ if uploaded_files_dict:
 if st.session_state.files_upload:
     # view_data_button = st.button("View")
     read_files(uploaded_files_dict=uploaded_files_dict)
+    st.write(TEXT.dataset_description1)
 
+    e = get_numerical_labels(dataframe=)
+
+    
 
 st.sidebar.markdown("# Data ❄️")
 
