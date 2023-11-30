@@ -11,11 +11,30 @@ import matplotlib.pyplot as plt
 # import boto3
 # from io import BytesIO
 
+"""
+Relax = 5*60 secs
+PhysicalStress = 6*60
+Relax = 5*60
+MiniCognitiveStress = 40
+CognitiveStress = 5*60
+Relax = 5*60
+EmotionalStress = 5*60
+Relax = 5*60
+"""
+
 
 @dataclass
 class TEXT:
     dataset_description1 = "As shown in the graphs above the total recoding time for AccTempEDA and SpO2HR files is diiferent. The signals were sampled at different frequencies. One other challenge is that sessions for Relax, PhysicalStress, CognitiveStress, EmotionalStress are all contained in one file. So to have distinct classes each needs to be extracted."
     # https://physionet.org/content/noneeg/1.0.0/
+
+@dataclass
+class DATA_VARIABLES:
+    Relax = 5
+    PhysicalStress = 6
+    MiniCognitiveStress = 40
+    CognitiveStress = 5
+    EmotionalStress = 5
 
 
 def upload_files():
@@ -70,6 +89,7 @@ def read_files(uploaded_files_dict):
                 selected_file_1 = uploaded_files_dict[file]
                 dataframe = pd.read_csv(selected_file_1)
                 st.write(dataframe)
+                st.write("adfa", len(dataframe["Label"]))
                 time_steps = range(len(dataframe["Second"]))
                 dataframe['Second_modified'] = time_steps
             with graph_cols[i]:
@@ -78,15 +98,28 @@ def read_files(uploaded_files_dict):
                     plt.xlabel("Seconds")
                     plt.ylabel("Recorded value")
                     plt.title(f"Plot of recorded signals of {file}")
+                    plot_vertical_lines(plot=plt, freq=14)
                     st.pyplot(plt)
+                    
                     plt.close()
                 else:
                     dataframe.plot(x='Second_modified', y=['HeartRate', 'SpO2'])
                     plt.xlabel("Seconds")
                     plt.ylabel("Recorded value")
                     plt.title(f"Plot of recorded signals of {file}")
+                    plot_vertical_lines(plot=plt)
                     st.pyplot(plt)
                     plt.close()
+
+def plot_vertical_lines(plot, freq=1):
+    plot.axvline(x = (5*60)*freq, color = 'b', label = 'axvline - full height')
+    plot.axvline(x = (5*60+6*60)*freq, color = 'b', label = 'axvline - full height')
+    plot.axvline(x = (5*60+6*60+40)*freq, color = 'b', label = 'axvline - full height')
+    plot.axvline(x = (5*60+6*60+40+5*60)*freq, color = 'b', label = 'axvline - full height')
+    plot.axvline(x = (5*60+6*60+40+5*60+5*60)*freq, color = 'b', label = 'axvline - full height')
+    plot.axvline(x = (5*60+6*60+40+5*60+5*60+5*60)*freq, color = 'b', label = 'axvline - full height')
+    plot.axvline(x = (5*60+6*60+40+5*60+5*60+5*60+5*60)*freq, color = 'b', label = 'axvline - full height')
+
 
 
 def get_numerical_labels(dataframe):
@@ -94,9 +127,9 @@ def get_numerical_labels(dataframe):
     # (dataframe.Labels.values == 'PhysicalStress').argmin()
     # (dataframe.Labels.values == 'CognitiveStress').argmin()
     # (dataframe.Labels.values == 'EmotionalStress').argmin()
-    labels = ['Relax', 'PhysicalStress', 'CognitiveStress', 'EmotionalStress']
-    labels_dict = dict(zip(labels, range(0,4)))
-    dataframe['labels'].map(labels_dict, na_action='ignore')
+    # labels = ['Relax', 'PhysicalStress', 'CognitiveStress', 'EmotionalStress']
+    # labels_dict = dict(zip(labels, range(0,4)))
+    # dataframe['labels'].map(labels_dict, na_action='ignore')
     return dataframe
 
 

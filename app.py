@@ -23,7 +23,7 @@ if st.session_state.files_upload:
     read_files(uploaded_files_dict=uploaded_files_dict)
     st.write(TEXT.dataset_description1)
 
-    e = get_numerical_labels(dataframe=)
+    #e = get_numerical_labels(dataframe=)
 
     
 
