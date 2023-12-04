@@ -1,0 +1,14 @@
+"""
+Sessions outline 
+
+Relax = 5*60 secs
+PhysicalStress = 6*60
+Relax = 5*60
+MiniCognitiveStress = 40
+CognitiveStress = 5*60
+Relax = 5*60
+EmotionalStress = 5*60
+Relax = 5*60
+"""
+
+

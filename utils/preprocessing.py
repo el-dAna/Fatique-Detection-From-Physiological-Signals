@@ -26,7 +26,7 @@ class PREPROCESSING_VARS:
         -Subject2AccTempEDA.csv
         -Subject2SpO2HR.csv
     """
-    BASE_DIR = "/workspaces/Fatique-Detection-From-Physiological-Signals/data/HealthySubjectsBiosignalsDataSet"
+    BASE_DIR = "/workspaces/Fatique-Detection-From-Physiological-Signals/data/Fatigue_Detection-main/HealthySubjectsBiosignalsDataSet"
 
     # percent of data to be used for training
     PERCENT_OF_TRAIN = 1
