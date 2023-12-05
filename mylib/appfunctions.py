@@ -4,6 +4,7 @@ from dataclasses import dataclass
 # import os
 import pandas as pd
 import numpy as np
+import copy
 
 # from tempfile import NamedTemporaryFile
 # import seaborn as sns
@@ -47,6 +48,25 @@ class DATA_VARIABLES:
     freq_eda_files = 18230 / Total_time_seconds
     # freq_spo2_files =
 
+def write_expandable_text_app(title, detailed_description, img_path=False, variable=False):
+    """
+    Displays a callapsed image/variable(dict, list, dataframe)
+    str title: Text to display on collapsed bar
+    str detailed_description: detailed description to display when uncollapsed
+    str img_path: path of image to show when uncollapsed
+    str variable: varialbe to display(if any)
+    """
+    with st.expander(title):
+        st.write(detailed_description)
+        if img_path:
+            st.image(img_path)
+        if variable:
+            st.write(variable)
+
+
+def display_collapsed_dict_app(dictionary):
+    with st.expander("Dictionary"):
+        st.write(dictionary)
 
 def upload_files():
     """
@@ -388,3 +408,387 @@ def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
                 AccTempEDA[i][j].append(temp_dict2[i + j])
 
     return AccTempEDA, AccTempEDA_attributes_dict
+
+
+
+def necessary_variables_app():
+    """
+    This fucntion returns major variables to be used in the training file.
+    Some variables are declared and initiated within this function.
+    This is done for better organisation and debugging.
+    """
+    # here were 4 relax stages each of 5 mins each at 1Hz = 4*5*60 = 1200, so the standard total recoding time for relax must equal 1200
+    # There was 1 stage for the remaing 3 categories, 5min each at 1Hz = 1*5*60 = 300
+    SPO2HR_target_size = {
+        "Relax": 1200,
+        "PhysicalStress": 300,
+        "EmotionalStress": 300,
+        "CognitiveStress": 300,
+    }  # 300 set for EmotionalStress cos most
+
+    # There were 4 relax stages each of 5 mins each at 8Hz = 4*5*60*8 = 9600, so the standard total recoding time for relax at 8Hz must equal 9600
+    # There was 1 stage for the remaing 3 categories, 5min each at 8Hz = 1*5*60*8 = 2400
+    AccTempEDA_target_size = {
+        "Relax": 9600,
+        "PhysicalStress": 2400,
+        "EmotionalStress": 3000,
+        "CognitiveStress": 2400,
+    }
+
+    SPO2HR_attributes = ["Spo2", "HeartRate"]
+    AccTempEDA_attributes = ["AccX", "AccY", "AccZ", "Temp", "EDA"]
+    categories = ["Relax", "PhysicalStress", "EmotionalStress", "CognitiveStress"]
+    attributes_dict = {
+        "SPO2HR_attributes": SPO2HR_attributes,
+        "AccTempEDA_attributes": AccTempEDA_attributes,
+    }
+
+    relax_indices = {
+        [i * 8 for i in range(1200)][i]: j
+        for i, j in enumerate([((i + 1) * 8) - 1 for i in range(1200)])
+    }
+    phy_emo_cog_indices = {
+        [i * 8 for i in range(300)][i]: j
+        for i, j in enumerate([((i + 1) * 8) - 1 for i in range(300)])
+    }
+
+    all_attributes = {
+        i: j
+        for i, j in enumerate(
+            ["SpO2", "HeartRate", "AccX", "AccY", "AccZ", "Temp", "EDA"]
+        )
+    }
+
+    return (
+        SPO2HR_target_size,
+        AccTempEDA_target_size,
+        SPO2HR_attributes,
+        AccTempEDA_attributes,
+        categories,
+        attributes_dict,
+        relax_indices,
+        phy_emo_cog_indices,
+        all_attributes,
+    )
+
+
+
+
+
+
+def resize_data_to_uniform_lengths_app(
+    total_subject_num,
+    categories,
+    attributes_dict,
+    SPO2HR_target_size,
+    SPO2HR,
+    AccTempEDA_target_size,
+    AccTempEDA,
+):
+    """
+    This function resizes the varying recorded total times for the various categories to the targetted recording time.
+    For example, total relax recording time for Subject1 = 1203, but the targetted = 1200. So this function removes the excesses or appends the last recorded values
+
+    INPUTS:
+    total_subject_num: (int) the total suject number
+    categories: a list -> contains the category names
+    attributes_dict: a dict -> contains the attributes[Spo2, HeartRate, Acc(X-Z), Temp, EDA] of the dataset
+    SPO2HR_target_size: a dict -> contains the theoritical lengths(number of recorded values) that each category should be in the SPO2HR.csv folder. 1Hz
+    SPO2HR: A dictionary of the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
+          The value of each key is a dictionary with Spo2 and HeartRate as keys.
+          The values of each key is a list containing the measured voltages from a subject
+
+    AccTempEDA_target_size: a dict -> contains the theorical lengths(number of recorded values) that each category should be in the AccTempEDA.csv folder. 8Hz
+    AccTempEDA: a dictionary with the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
+                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
+                The value of each sencond key is a list.
+                The list contains the extracted values of attributes for each subject
+                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
+
+    RETURNS:
+    SPO2HR: A dictionary of the RESIZED TO UNIFORM LENGTH categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
+          The value of each key is a dictionary with Spo2 and HeartRate as keys.
+          The values of each key is a list containing the measured voltages from a subject
+
+    AccTempEDA: a dictionary with the RESIZED TO UNIFORM LENGHT categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
+                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
+                The value of each sencond key is a list.
+                The list contains the extracted values of attributes for each subject
+                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
+
+    """
+    SPO2HR_temp = copy.deepcopy(SPO2HR)
+    AccTempEDA_temp = copy.deepcopy(AccTempEDA)
+
+    for (
+        Class
+    ) in categories:  # Relax', 'CognitiveStress', 'PhysicalStress', 'EmotionalStress'
+        for (
+            attributes_dict_key
+        ) in attributes_dict.keys():  # SPO2HR_parameters, AccTempEDA_parameters
+            target_attributes = attributes_dict_key
+            # print((attributes_dict_key))
+            for attribute in attributes_dict[
+                attributes_dict_key
+            ]:  # 'Spo2', 'HeartRate', ||| 'AccX', 'AccY', 'AccZ', 'Temp', 'EDA'
+                if target_attributes == "SPO2HR_attributes":
+                    # print("IN SPO2HR NOW!!")
+                    target_size = SPO2HR_target_size[Class]
+                    for subject_number in range(total_subject_num):
+                        temp_list = SPO2HR_temp[Class][attribute][subject_number]
+                        offset = len(temp_list) - target_size
+                        if offset > 0:
+                            del temp_list[-offset:]
+                            assert len(temp_list) == target_size
+                        elif offset < 0:
+                            last_elmt = temp_list[-1]
+                            for i in range(-offset):
+                                temp_list.append(last_elmt)
+                            assert len(temp_list) == target_size
+                        elif offset == 0:
+                            assert len(temp_list) == target_size
+                            # pass
+
+                elif target_attributes == "AccTempEDA_attributes":
+                    # print("IN AccTempEDA NOW!!")
+                    target_size = AccTempEDA_target_size[Class]
+                    for index in range(total_subject_num):
+                        temp_list = AccTempEDA_temp[Class][attribute][index]
+                        offset = len(temp_list) - target_size
+                        if offset > 0:
+                            del temp_list[-offset:]
+                            assert len(temp_list) == target_size
+                        elif offset < 0:
+                            last_elmt = temp_list[-1]
+                            for i in range(-offset):
+                                temp_list.append(last_elmt)
+                            assert len(temp_list) == target_size
+                        elif offset == 0:
+                            assert len(temp_list) == target_size
+                            # pass
+                    # break
+                # break
+            # break
+        # break
+    return SPO2HR_temp, AccTempEDA_temp
+
+
+def sanity_check_2_and_DownSamplingAccTempEDA_app(
+    total_subject_num,
+    categories,
+    attributes_dict,
+    SPO2HR_target_size,
+    SPO2HR,
+    AccTempEDA_target_size,
+    AccTempEDA,
+    relax_indices,
+    phy_emo_cog_indices,
+):
+    """
+    This function checks the accuracy of the preprocessed data so far by comparing the preprocessed values with the originals.
+    In order not to define a second function, the 8Hz Acc(X-Z), Temp and EDA lenghts were downsampled to match the 1Hz sampling of Spo2 and HeartRate
+
+    INPUTS:
+    total_subject_num: (int) the total suject number
+    categories: a list -> contains the category names
+    attributes_dict: a dict -> contains the attributes[Spo2, HeartRate, Acc(X-Z), Temp, EDA] of the dataset
+    SPO2HR_target_size: a dict -> contains the theoritical lengths(number of recorded values) that each category should be in the SPO2HR.csv folder. 1Hz
+    SPO2HR: A dictionary of the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
+          The value of each key is a dictionary with Spo2 and HeartRate as keys.
+          The values of each key is a list containing the measured voltages from a subject
+
+    AccTempEDA_target_size: a dict -> contains the theorical lengths(number of recorded values) that each category should be in the AccTempEDA.csv folder. 8Hz
+    AccTempEDA: a dictionary with the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
+                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
+                The value of each sencond key is a list.
+                The list contains the extracted values of attributes for each subject
+                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
+    relax_indices: a dict -> contains the indices of values of relax. This allows easy sampling by direct referencing.
+    phy_emo_cog_indices: a dict -> contains the indices of values of PhysicalStress, EmotionalStress and Cognitive Stress for easy sampling by referencing
+
+
+    RETURNS:
+    AccTempEDA: a dictionary with the DOWNSAMPLED categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
+                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
+                The value of each sencond key is a list.
+                The list contains the extracted values of attributes for each subject
+                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
+
+
+    """
+    for (
+        Class
+    ) in categories:  # Relax', 'CognitiveStress', 'PhysicalStress', 'EmotionalStress'
+        for (
+            attributes_dict_key
+        ) in attributes_dict.keys():  # SPO2HR_parameters, AccTempEDA_parameters
+            target_file = attributes_dict_key
+            for parameter in attributes_dict[
+                attributes_dict_key
+            ]:  # 'Spo2', 'HeartRate', ||| 'AccX', 'AccY', 'AccZ', 'Temp', 'EDA'
+                if target_file == "SPO2HR_attributes":
+                    # print("IN SPO2HR NOW!!")
+                    target_size = SPO2HR_target_size[Class]
+                    for index in range(total_subject_num):
+                        temp_list = SPO2HR[Class][parameter][index]
+                        temp_list2 = SPO2HR[Class][parameter][-index]
+                        assert len(temp_list) == len(temp_list2)
+
+                elif target_file == "AccTempEDA_attributes":
+                    # print("IN AccTempEDA NOW!!")
+                    target_size = AccTempEDA_target_size[Class]
+                    for index in range(
+                        total_subject_num
+                    ):  # use this line for the resizing
+                        temp_list = AccTempEDA[Class][parameter][index]
+                        offset = len(temp_list) - target_size
+
+                        temp_list2 = AccTempEDA[Class][parameter][-index]
+                        if Class == "Relax" and len(temp_list) == target_size:
+                            holding_list = []
+                            for (
+                                key
+                            ) in (
+                                relax_indices.keys()
+                            ):  # dict for downsapmling of the AccTempEDA values sampled at 8HZ
+                                temp_value = (
+                                    sum(temp_list[key : relax_indices[key]])
+                                ) / 8
+                                holding_list.append(temp_value)
+                            AccTempEDA[Class][parameter][index] = holding_list
+                        elif Class != "Relax" and len(temp_list) == target_size:
+                            holding_list = []
+                            for (
+                                key
+                            ) in (
+                                phy_emo_cog_indices.keys()
+                            ):  # this dict is same as the relax_indices but shorter in length. This only spans 300 values. The relax is 4 times this one.
+                                temp_value = (
+                                    sum(temp_list[key : phy_emo_cog_indices[key]])
+                                ) / 8
+                                holding_list.append(temp_value)
+                            AccTempEDA[Class][parameter][index] = holding_list
+                        else:
+                            print("Passing")
+                        # """
+                    # break
+                # break
+            # break
+        # break
+    return AccTempEDA
+
+
+
+
+def get_data_dict_app(total_subject_num, categories, attributes_dict, SPO2HR, AccTempEDA):
+    """
+    This function orgainises the extracted data for easy represention
+
+    total_subject_num: int. specifies the total subject number
+    categories: a list of categorry names
+    attributes_dict: a dictionary containing all the attributes of both SpO2HR.csv and AccTempEDA.csv files
+    SPO2HR_resized: dictionary containing resized values for Spo2 and HeartRate
+    AccTemEDA_downSampled: dictionary containing resized and downsampled values for Acc(X-Z), Temp, EDA
+
+    RETURNS:
+    ALL_DATA_DICT: a dictionary with integers as keys and numpy arrays as keys
+                  first 20 keys: the extracted attributes labelled Relax.
+                  second 20 keys: the extracted attributes labelled PhysicalStress
+                  third 20 keys: the extracted attributes labelled EmotionalStress
+                  fourth 20 keys: the extracted attributes labelled CognitiveStress
+    """
+    DATA = {
+        "Relax": {i + 1: [] for i in range(total_subject_num)},
+        "PhysicalStress": {i + 1: [] for i in range(total_subject_num)},
+        "EmotionalStress": {i + 1: [] for i in range(total_subject_num)},
+        "CognitiveStress": {i + 1: [] for i in range(total_subject_num)},
+    }
+
+    DATA_VSTACKS = {
+        "Relax": [],
+        "PhysicalStress": [],
+        "EmotionalStress": [],
+        "CognitiveStress": [],
+    }
+
+    for (
+        Class
+    ) in categories:  # Relax', 'CognitiveStress', 'PhysicalStress', 'EmotionalStress'
+        for i in range(total_subject_num):
+            for (
+                attributes_dict_key
+            ) in attributes_dict.keys():  # SPO2HR_parameters, AccTempEDA_parameters
+                target_file = attributes_dict_key
+                for parameter in attributes_dict[
+                    attributes_dict_key
+                ]:  # 'Spo2', 'HeartRate', ||| 'AccX', 'AccY', 'AccZ', 'Temp', 'EDA'
+                    if target_file == "SPO2HR_attributes":
+                        DATA[Class][i + 1].extend(SPO2HR[Class][parameter][i])
+                    elif target_file == "AccTempEDA_attributes":
+                        DATA[Class][i + 1].extend(AccTempEDA[Class][parameter][i])
+            if Class == "Relax":
+                DATA[Class][i + 1] = np.array(DATA[Class][i + 1]).reshape(
+                    7, 1200
+                )  # this first 'joins' all samples into a long 1-D array and then reshapes into a 2-D array
+
+                # the total relax of shape (7,1200) would be broken vertically into 4 to give (7,300) compatible samples with the other classes
+                # a random number is used to select one out of the 4 samples with which to work with. This ensures our traind dataset is balanced and makes it more robust
+                # nth_sample = np.random.randint(0,4)
+                DATA[Class][i + 1] = np.array(np.hsplit(DATA[Class][i + 1], 4))
+                """
+                RUN THE FOLLOWING CODE TO UNDERSTAND THE WORKING OF THE THREE LINES ABOVE
+                num = np.random.randint(0,4)
+                a = np.array(np.hsplit((np.arange(84).reshape(7,12)), 4))[num]
+                print(a)
+                """
+            else:
+                DATA[Class][i + 1] = np.array(DATA[Class][i + 1]).reshape(7, 300)
+            # break
+        # break
+
+    DATA_VSTACKS["Relax"] = np.vstack(
+        [DATA["Relax"][i + 1] for i in range(total_subject_num)]
+    ).reshape(
+        total_subject_num * 4, 7, 300
+    )  # all the 4 Relax stages used. So first 80 samples are relax
+    DATA_VSTACKS["PhysicalStress"] = np.vstack(
+        [DATA["PhysicalStress"][i + 1] for i in range(total_subject_num)]
+    ).reshape(total_subject_num, 7, 300)
+    DATA_VSTACKS["EmotionalStress"] = np.vstack(
+        [DATA["EmotionalStress"][i + 1] for i in range(total_subject_num)]
+    ).reshape(total_subject_num, 7, 300)
+    DATA_VSTACKS["CognitiveStress"] = np.vstack(
+        [DATA["CognitiveStress"][i + 1] for i in range(total_subject_num)]
+    ).reshape(total_subject_num, 7, 300)
+
+    # """
+    # RUN THE FOLLOWING CODE TO UNDERSTAND THE WORKING OF THE FOUR LINES ABOVE
+    # DATA_VSTACKS_physicalStress = np.array(np.hsplit((np.arange(84).reshape(7,12)), 4)) # this has the data of 4 subjects with recording lenght of 12, like 1200 :)
+    # subject1 = DATA_VSTACKS_physical[0]
+    # subject2 = DATA_VSTACKS_physical[1]
+    # subject3 = DATA_VSTACKS_physical[2]
+    # subject4 = DATA_VSTACKS_physical[3]
+    # stack = np.vstack([subject1 ,subject2 ,subject3 ,subject4 ]).reshape(4,7,3) # 4 for number of subjects, 7 for channels, and 3(like 300) for the 5-minute recording
+    # print(stack)
+    # """
+
+    #  THE ORDER OF STACKINF IS IMPORTANT FOR DETERMINING THE LABELS LABELS. TAKE NOTE
+    ALL_DATA = np.vstack(
+        [
+            DATA_VSTACKS["Relax"],
+            DATA_VSTACKS["PhysicalStress"],
+            DATA_VSTACKS["EmotionalStress"],
+            DATA_VSTACKS["CognitiveStress"],
+        ]
+    )
+
+    ALL_DATA_DICT = {i: j for i, j in enumerate(ALL_DATA)}
+    # """
+    # nOTE!!!
+    # IF ALL DATASET IS USED, FIRST 80 KEYS OF ALL_DATA_DICT ARE OF CLASS 'Relax'
+    # NEXT 20 OF CLASS 'PhysicalStress', then 'EmotionalStress' and 'CognitiveStress'
+    # By this reasoning, value at key 0 with shape (7, 300) is entirely from the 'first' samples subject
+    # The 7-rows are (Spo2, HeartRate, AccX, AccY, AccY, Temp, EDA) extracted in the relaxed state.
+    # """
+
+    return ALL_DATA_DICT

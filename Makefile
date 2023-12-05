@@ -1,7 +1,7 @@
 install:
 	echo "INSTALLING PACKAGES"
 	pip install --upgrade pip && \
-		pip install -r requirements.txt
+		pip install -r requirements.txt --user
 
 test:
 	echo "TESTING CODE"
