@@ -180,13 +180,7 @@ def plot_vertical_lines(plot, freq=1):
 
 
 def get_numerical_labels(dataframe):
-    # labels = dataframe["Labels"]
-    # (dataframe.Labels.values == 'PhysicalStress').argmin()
-    # (dataframe.Labels.values == 'CognitiveStress').argmin()
-    # (dataframe.Labels.values == 'EmotionalStress').argmin()
-    # labels = ['Relax', 'PhysicalStress', 'CognitiveStress', 'EmotionalStress']
-    # labels_dict = dict(zip(labels, range(0,4)))
-    # dataframe['labels'].map(labels_dict, na_action='ignore')
+
     return dataframe
 
 
