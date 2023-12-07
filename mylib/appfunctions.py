@@ -1,5 +1,5 @@
-import streamlit as st
 from dataclasses import dataclass
+import streamlit as st
 
 # import os
 import pandas as pd
@@ -641,7 +641,7 @@ def sanity_check_2_and_DownSamplingAccTempEDA_app(
                         total_subject_num
                     ):  # use this line for the resizing
                         temp_list = AccTempEDA[Class][parameter][index]
-                        offset = len(temp_list) - target_size
+                        ### offset = len(temp_list) - target_size
 
                         temp_list2 = AccTempEDA[Class][parameter][-index]
                         if Class == "Relax" and len(temp_list) == target_size:
@@ -734,13 +734,13 @@ def get_data_dict_app(total_subject_num, categories, attributes_dict, SPO2HR, Ac
                 # the total relax of shape (7,1200) would be broken vertically into 4 to give (7,300) compatible samples with the other classes
                 # a random number is used to select one out of the 4 samples with which to work with. This ensures our traind dataset is balanced and makes it more robust
                 # nth_sample = np.random.randint(0,4)
-                DATA[Class][i + 1] = np.array(np.hsplit(DATA[Class][i + 1], 4))
-                """
-                RUN THE FOLLOWING CODE TO UNDERSTAND THE WORKING OF THE THREE LINES ABOVE
-                num = np.random.randint(0,4)
-                a = np.array(np.hsplit((np.arange(84).reshape(7,12)), 4))[num]
-                print(a)
-                """
+                # DATA[Class][i + 1] = np.array(np.hsplit(DATA[Class][i + 1], 4))
+                # """
+                # RUN THE FOLLOWING CODE TO UNDERSTAND THE WORKING OF THE THREE LINES ABOVE
+                # num = np.random.randint(0,4)
+                # a = np.array(np.hsplit((np.arange(84).reshape(7,12)), 4))[num]
+                # print(a)
+                # """
             else:
                 DATA[Class][i + 1] = np.array(DATA[Class][i + 1]).reshape(7, 300)
             # break
