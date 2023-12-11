@@ -35,7 +35,7 @@ class G:
 
     # """3
     BASE_DIR = "./HealthySubjectsBiosignalsDataSet"
-    PATH_TO_SAVED_VARIABLES = "./saved_vars.py"
+    PATH_TO_SAVED_VARIABLES = "./utils/saved_vars.py"
 
     # caliing saved variables
     (
@@ -67,13 +67,19 @@ class G:
     # train_stack(big_dict, train_ratio, TRAIN_RELAX_PROPORTION, RELAX_PROPORTION, OTHERS_PROPORTION, TRAIN_OTHERS_PROPORTION, sensitivity = False, features = True ):
     TRAIN_FEATURES = train_stack(
         big_dict=WINDOW_SAMPLING_DICT,
-        train_ratio=PERCENT_OF_TRAIN,
+        TRAIN_RELAX_PROPORTION=40,
+        RELAX_PROPORTION=80,
+        OTHERS_PROPORTION=20,
+        TRAIN_OTHERS_PROPORTION=10,
         sensitivity=SAMPLES_PER_SAMPLE,
         features=True,
     )
     TRAIN_LABELS = train_stack(
-        WINDOW_SAMPLING_DICT,
-        PERCENT_OF_TRAIN,
+        big_dict=WINDOW_SAMPLING_DICT,
+        TRAIN_RELAX_PROPORTION=40,
+        RELAX_PROPORTION=80,
+        OTHERS_PROPORTION=20,
+        TRAIN_OTHERS_PROPORTION=10,
         sensitivity=SAMPLES_PER_SAMPLE,
         features=False,
     )

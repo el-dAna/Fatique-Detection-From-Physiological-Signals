@@ -43,7 +43,7 @@ tf.keras.backend.clear_session()  # clears internal variables so we start all in
 @dataclass
 class G:
     BASE_DIR = "./HealthySubjectsBiosignalsDataSet/"
-    PATH_TO_SAVED_VARIABLES = "./saved_vars.py"
+    PATH_TO_SAVED_VARIABLES = "./utils/saved_vars.py"
 
     (
         WHOLE_DICT,
@@ -66,11 +66,11 @@ class G:
     SAMPLES_PER_SAMPLE = int(TOTAL_GEN_SAMPLES / len(WHOLE_DICT.keys()))
     PERCENT_OF_TRAIN = 0.80
 
-    RELAX_PROPORTION = 80 * SAMPLES_PER_SAMPLE
-    OTHERS_PROPORTION = 20 * SAMPLES_PER_SAMPLE
+    RELAX_PROPORTION = 80 * SAMPLES_PER_SAMPLE #there are originally 80 features labeled as relax
+    OTHERS_PROPORTION = 20 * SAMPLES_PER_SAMPLE #there are originally 20 features labeled as others(physicalstress, emotionalstress and cognituvestress)
 
-    TRAIN_RELAX_PROPORTION = int(PERCENT_OF_TRAIN * RELAX_PROPORTION)
-    TRAIN_OTHERS_PROPORTION = int(PERCENT_OF_TRAIN * OTHERS_PROPORTION)
+    TRAIN_RELAX_PROPORTION = int(PERCENT_OF_TRAIN * RELAX_PROPORTION) #how many of the (number of relax sampled to generate a dataset) are used for training 
+    TRAIN_OTHERS_PROPORTION = int(PERCENT_OF_TRAIN * OTHERS_PROPORTION) #how many of the (number of other labels sampled to generate a dataset) are used for training 
 
 
     TRAIN_FEATURES = train_stack(

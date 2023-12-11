@@ -195,7 +195,7 @@ class WaveletDatagenerator(tf.keras.utils.Sequence):
     last 20 cognitive
     We know this from the cration of the dictionary in get_data_dict() function where we stacked them in a specific order
     """
-        Y = keras.utils.np_utils.to_categorical(y, num_classes=self.num_classes)
+        Y = keras.utils.to_categorical(y, num_classes=self.num_classes)
         return X, Y
 
 
