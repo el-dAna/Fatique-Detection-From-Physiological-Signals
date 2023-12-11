@@ -48,7 +48,10 @@ class DATA_VARIABLES:
     freq_eda_files = 18230 / Total_time_seconds
     # freq_spo2_files =
 
-def write_expandable_text_app(title, detailed_description, img_path=False, variable=False):
+
+def write_expandable_text_app(
+    title, detailed_description, img_path=False, variable=False
+):
     """
     Displays a callapsed image/variable(dict, list, dataframe)
     str title: Text to display on collapsed bar
@@ -67,6 +70,7 @@ def write_expandable_text_app(title, detailed_description, img_path=False, varia
 def display_collapsed_dict_app(dictionary):
     with st.expander("Dictionary"):
         st.write(dictionary)
+
 
 def upload_files():
     """
@@ -180,7 +184,6 @@ def plot_vertical_lines(plot, freq=1):
 
 
 def get_numerical_labels(dataframe):
-
     return dataframe
 
 
@@ -404,7 +407,6 @@ def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
     return AccTempEDA, AccTempEDA_attributes_dict
 
 
-
 def necessary_variables_app():
     """
     This fucntion returns major variables to be used in the training file.
@@ -464,10 +466,6 @@ def necessary_variables_app():
         phy_emo_cog_indices,
         all_attributes,
     )
-
-
-
-
 
 
 def resize_data_to_uniform_lengths_app(
@@ -672,9 +670,9 @@ def sanity_check_2_and_DownSamplingAccTempEDA_app(
     return AccTempEDA
 
 
-
-
-def get_data_dict_app(total_subject_num, categories, attributes_dict, SPO2HR, AccTempEDA):
+def get_data_dict_app(
+    total_subject_num, categories, attributes_dict, SPO2HR, AccTempEDA
+):
     """
     This function orgainises the extracted data for easy represention
 

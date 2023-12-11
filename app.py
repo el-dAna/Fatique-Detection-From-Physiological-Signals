@@ -1,5 +1,6 @@
-
 import streamlit as st
+from keras.models import load_model
+
 from mylib.appfunctions import (
     upload_files,
     read_files,
@@ -10,7 +11,7 @@ from mylib.appfunctions import (
     resize_data_to_uniform_lengths_app,
     write_expandable_text_app,
     sanity_check_2_and_DownSamplingAccTempEDA_app,
-    get_data_dict_app
+    get_data_dict_app,
 )
 
 # import numpy as np
@@ -41,7 +42,9 @@ if uploaded_files_dict:
     st.session_state.uploaded_files_dict_keys = (
         st.session_state.uploaded_files_dict.keys()
     )
-    st.session_state.uploaded_subject_names = set([key[:8] for key in st.session_state.uploaded_files_dict_keys])
+    st.session_state.uploaded_subject_names = set(
+        [key[:8] for key in st.session_state.uploaded_files_dict_keys]
+    )
 
 
 if st.session_state.files_upload:
@@ -66,8 +69,10 @@ if st.session_state.files_upload:
         uploaded_files_dict=st.session_state.uploaded_files_dict,
         uploaded_tempEda_files=st.session_state.uploaded_tempEda_files,
     )
-    
-    st.session_state.selected_inference_subjects = st.multiselect("Select subject to run inference", st.session_state.uploaded_subject_names)
+
+    st.session_state.selected_inference_subjects = st.multiselect(
+        "Select subject to run inference", st.session_state.uploaded_subject_names
+    )
 
     if st.session_state.selected_inference_subjects:
         st.write("selected_inference", st.session_state.selected_inference_subjects)
@@ -85,17 +90,20 @@ if st.session_state.files_upload:
         ) = necessary_variables_app()
 
         SPO2HR_resized, AccTempEDA_resized = resize_data_to_uniform_lengths_app(
-                total_subject_num=total_selected,
-                categories=categories,
-                attributes_dict=attributes_dict,
-                SPO2HR_target_size=SPO2HR_target_size,
-                SPO2HR=SPO2HR,
-                AccTempEDA_target_size=AccTempEDA_target_size,
-                AccTempEDA=AccTempEDA,
-            )
+            total_subject_num=total_selected,
+            categories=categories,
+            attributes_dict=attributes_dict,
+            SPO2HR_target_size=SPO2HR_target_size,
+            SPO2HR=SPO2HR,
+            AccTempEDA_target_size=AccTempEDA_target_size,
+            AccTempEDA=AccTempEDA,
+        )
 
-        write_expandable_text_app(title="SPO2HR_resized",
-                                    detailed_description="Details", variable=SPO2HR_resized)
+        write_expandable_text_app(
+            title="SPO2HR_resized",
+            detailed_description="Details",
+            variable=SPO2HR_resized,
+        )
 
         AccTempEDA_DownSampled = sanity_check_2_and_DownSamplingAccTempEDA_app(
             total_selected,
@@ -109,8 +117,11 @@ if st.session_state.files_upload:
             phy_emo_cog_indices,
         )
 
-        write_expandable_text_app(title="AccTempEDA_DownSampled",
-            detailed_description="More details", variable=AccTempEDA_DownSampled)
+        write_expandable_text_app(
+            title="AccTempEDA_DownSampled",
+            detailed_description="More details",
+            variable=AccTempEDA_DownSampled,
+        )
 
         ALL_DATA_DICT = get_data_dict_app(
             total_selected,
@@ -123,10 +134,18 @@ if st.session_state.files_upload:
         LABELS_TO_NUMBERS_DICT = {j: i for i, j in enumerate(categories)}
         NUMBERS_TO_LABELS_DICT = {i: j for i, j in enumerate(categories)}
 
-        write_expandable_text_app(title="All_DATA_DICT",
-            detailed_description="More details", variable=ALL_DATA_DICT)
+        write_expandable_text_app(
+            title="All_DATA_DICT",
+            detailed_description="More details",
+            variable=ALL_DATA_DICT,
+        )
 
+        st.write(
+            "For every subject, there are 4 Relax sessions and just 1 session fot the other classes. This makes the ratio of Relax to any given class 4:1. The All_DATA_DICT stores the extracted values for the sessions. The keys of the dict do not represent the subject number. The keys are only indices of the samples generated. If only 1 subject, 7 samples are extracted(first 4 for Relax and the last 3 for the physical, emotional cognitive stress in that order)."
+        )
 
+        loaded_model = load_model("./data/models/model.h5")
+        # predictions = loaded_model.predict(data)
 
 
 st.sidebar.markdown("# Data ❄️")

@@ -175,6 +175,7 @@ history = model.fit(
 
 print("Done!")
 
+model.save("./data/models/model.h5")
 
 
 artifact_path = "/workspaces/Fatique-Detection-From-Physiological-Signals/data/artifacts/1.png"
@@ -206,30 +207,30 @@ print(confusion_matrix(pred_true, pred_1hot))
 # print(classification_report(pred_true, pred_1hot))
 
 
-mlflow.set_tracking_uri("http://127.0.0.1:8080")
-rnn_experiment = mlflow.set_experiment("rnn_models")
-run_name = "First Run"
+# mlflow.set_tracking_uri("http://127.0.0.1:8080")
+# rnn_experiment = mlflow.set_experiment("rnn_models")
+# run_name = "First Run"
 
-metrics = pd.DataFrame(history.history)
-# print(metrics.describe())
+# metrics = pd.DataFrame(history.history)
+# # print(metrics.describe())
 
-metrics = {"loss": metrics['loss'][1], "accuracy": metrics['accuracy'][1], "val_loss": metrics['val_loss'][1], "val_accuracy": metrics['val_accuracy'][1]}
+# metrics = {"loss": metrics['loss'][1], "accuracy": metrics['accuracy'][1], "val_loss": metrics['val_loss'][1], "val_accuracy": metrics['val_accuracy'][1]}
 
 
-#Initiate the MLflow run context
-with mlflow.start_run(run_name=run_name) as run:
-    # Log parameters
-    # mlflow.log_param("epochs", 5)
-    # mlflow.log_param("optimizer", "adam")
-    # mlflow.log_params(params_for_mlflow_log)
+# #Initiate the MLflow run context
+# with mlflow.start_run(run_name=run_name) as run:
+#     # Log parameters
+#     # mlflow.log_param("epochs", 5)
+#     # mlflow.log_param("optimizer", "adam")
+#     # mlflow.log_params(params_for_mlflow_log)
 
-    # Log metrics
-    mlflow.log_metric("accuracy", history.history['accuracy'][-1])
-    mlflow.log_metric("loss", history.history['loss'][-1])
+#     # Log metrics
+#     mlflow.log_metric("accuracy", history.history['accuracy'][-1])
+#     mlflow.log_metric("loss", history.history['loss'][-1])
 
-    # Log artifacts (e.g., saved plots, etc.)
-    mlflow.log_artifact(artifact_path)
+#     # Log artifacts (e.g., saved plots, etc.)
+#     mlflow.log_artifact(artifact_path)
 
-    # Save the model in a format that can be loaded later
-    model.save("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")
-    mlflow.log_artifact("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")
+#     # Save the model in a format that can be loaded later
+#     # model.save("./data/models/model.h5")
+#     mlflow.log_artifact("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")
