@@ -7,9 +7,14 @@ import mlflow
 from mlflow.models import infer_signature
 from mlflow import MlflowClient
 from pprint import pprint
+from utils.rnn_model import model
+from datetime import datetime
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix #, classification_report
 
 
-from common_functions import (
+
+from utils.common_functions import (
     train_stack,
     predict_stack,
     #adjust_sensitivity,
@@ -20,7 +25,7 @@ from common_functions import (
     #plot_learnRate_epoch,
     #plot_loss_accuracy,
 )
-from preprocessingfunctions import (
+from utils.preprocessingfunctions import (
     #SortSPO2HR,
     #SortAccTempEDA,
     #sanity_check_1,
@@ -31,17 +36,13 @@ from preprocessingfunctions import (
     plot_varying_recording_time,
     get_variables,
 )
-from rnn_model import model
-from datetime import datetime
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix #, classification_report
-
 
 tf.keras.backend.clear_session()  # clears internal variables so we start all initiations and assignments afresh
 
 
+
 @dataclass
-class G:
+class RNN_TRAIN_DATACLASS:
     BASE_DIR = "./HealthySubjectsBiosignalsDataSet/"
     PATH_TO_SAVED_VARIABLES = "./utils/saved_vars.py"
 
@@ -144,93 +145,94 @@ class G:
     LOSS = tf.keras.losses.Huber()
     # LOSS = tf.keras.losses.CategoricalCrossentropy()
 
+if __name__ == "__main__":
 
-# Callbacks = [stop_training(), schedule_learningRate]
-Callbacks = [stop_training()]
+    # Callbacks = [stop_training(), schedule_learningRate]
+    Callbacks = [stop_training()]
 
-params_for_mlflow_log = {
-    "dp1": G.dp1,
-    "dp2": G.dp2,
-    "dp3": G.dp3,
-    "learning_rate":G.learning_rate
-}
+    params_for_mlflow_log = {
+        "dp1": RNN_TRAIN_DATACLASS.dp1,
+        "dp2": RNN_TRAIN_DATACLASS.dp2,
+        "dp3": RNN_TRAIN_DATACLASS.dp3,
+        "learning_rate":RNN_TRAIN_DATACLASS.learning_rate
+    }
 
-model = model(G, **params_for_mlflow_log)
+    model = model(RNN_TRAIN_DATACLASS, **params_for_mlflow_log)
 
-print("Traing model...")
-history = model.fit(
-    x=G.TRAIN_FEATURES,
-    y=G.TRAIN_LABELS,  # batch_size = G.BATCH_SIZE,
-    steps_per_epoch=G.TRAIN_STEPS,
-    shuffle=True,
-    # callbacks = Callbacks,
-    epochs=G.EPOCHS,
-    # validation_data = train_data_2,
-    # validation_data = (G.TRAIN_FEATURES, G.TRAIN_LABELS),
-    validation_data=(G.PREDICT_FEATURES, G.PREDICT_LABELS),
-    # validation_steps = G.TRAIN_STEPS,
-    # validation_batch_size= G.BATCH_SIZE,
-    verbose=1,
-)
+    print("Traing model...")
+    history = model.fit(
+        x=RNN_TRAIN_DATACLASS.TRAIN_FEATURES,
+        y=RNN_TRAIN_DATACLASS.TRAIN_LABELS,  # batch_size = RNN_TRAIN_DATACLASS.BATCH_SIZE,
+        steps_per_epoch=RNN_TRAIN_DATACLASS.TRAIN_STEPS,
+        shuffle=True,
+        # callbacks = Callbacks,
+        epochs=RNN_TRAIN_DATACLASS.EPOCHS,
+        # validation_data = train_data_2,
+        # validation_data = (RNN_TRAIN_DATACLASS.TRAIN_FEATURES, RNN_TRAIN_DATACLASS.TRAIN_LABELS),
+        validation_data=(RNN_TRAIN_DATACLASS.PREDICT_FEATURES, RNN_TRAIN_DATACLASS.PREDICT_LABELS),
+        # validation_steps = RNN_TRAIN_DATACLASS.TRAIN_STEPS,
+        # validation_batch_size= RNN_TRAIN_DATACLASS.BATCH_SIZE,
+        verbose=1,
+    )
 
-print("Done!")
+    print("Done!")
 
-model.save("./data/models/model.h5")
-
-
-artifact_path = "/workspaces/Fatique-Detection-From-Physiological-Signals/data/artifacts/1.png"
-pd.DataFrame(history.history).plot(figsize=(8, 5))
-plt.title("hey")
-plt.savefig(artifact_path)
-# plt.show()
-# print("\n\n")
+    model.save("./data/models/model.h5")
 
 
-print("----------Confusion matrix on Training samples-----------------")
-features2 = G.TRAIN_FEATURES
-labs2 = G.TRAIN_LABELS
-predictions = model.predict(features2)
-pred_1hot = np.argmax(predictions, axis=1)
-pred_true = np.argmax(labs2, axis=1)
-print(confusion_matrix(pred_true, pred_1hot))
-# print(classification_report(pred_true, pred_1hot))
-print("\n\n")
-
-print("----------Confusion matrix on validation samples-----------------")
-
-features = G.PREDICT_FEATURES
-labs = G.PREDICT_LABELS
-predictions = model.predict(features)
-pred_1hot = np.argmax(predictions, axis=1)
-pred_true = np.argmax(labs, axis=1)
-print(confusion_matrix(pred_true, pred_1hot))
-# print(classification_report(pred_true, pred_1hot))
+    artifact_path = "/workspaces/Fatique-Detection-From-Physiological-Signals/data/artifacts/1.png"
+    pd.DataFrame(history.history).plot(figsize=(8, 5))
+    plt.title("hey")
+    plt.savefig(artifact_path)
+    # plt.show()
+    # print("\n\n")
 
 
-# mlflow.set_tracking_uri("http://127.0.0.1:8080")
-# rnn_experiment = mlflow.set_experiment("rnn_models")
-# run_name = "First Run"
+    print("----------Confusion matrix on Training samples-----------------")
+    features2 = RNN_TRAIN_DATACLASS.TRAIN_FEATURES
+    labs2 = RNN_TRAIN_DATACLASS.TRAIN_LABELS
+    predictions = model.predict(features2)
+    pred_1hot = np.argmax(predictions, axis=1)
+    pred_true = np.argmax(labs2, axis=1)
+    print(confusion_matrix(pred_true, pred_1hot))
+    # print(classification_report(pred_true, pred_1hot))
+    print("\n\n")
 
-# metrics = pd.DataFrame(history.history)
-# # print(metrics.describe())
+    print("----------Confusion matrix on validation samples-----------------")
 
-# metrics = {"loss": metrics['loss'][1], "accuracy": metrics['accuracy'][1], "val_loss": metrics['val_loss'][1], "val_accuracy": metrics['val_accuracy'][1]}
+    features = RNN_TRAIN_DATACLASS.PREDICT_FEATURES
+    labs = RNN_TRAIN_DATACLASS.PREDICT_LABELS
+    predictions = model.predict(features)
+    pred_1hot = np.argmax(predictions, axis=1)
+    pred_true = np.argmax(labs, axis=1)
+    print(confusion_matrix(pred_true, pred_1hot))
+    # print(classification_report(pred_true, pred_1hot))
 
 
-# #Initiate the MLflow run context
-# with mlflow.start_run(run_name=run_name) as run:
-#     # Log parameters
-#     # mlflow.log_param("epochs", 5)
-#     # mlflow.log_param("optimizer", "adam")
-#     # mlflow.log_params(params_for_mlflow_log)
+    # mlflow.set_tracking_uri("http://127.0.0.1:8080")
+    # rnn_experiment = mlflow.set_experiment("rnn_models")
+    # run_name = "First Run"
 
-#     # Log metrics
-#     mlflow.log_metric("accuracy", history.history['accuracy'][-1])
-#     mlflow.log_metric("loss", history.history['loss'][-1])
+    # metrics = pd.DataFrame(history.history)
+    # # print(metrics.describe())
 
-#     # Log artifacts (e.g., saved plots, etc.)
-#     mlflow.log_artifact(artifact_path)
+    # metrics = {"loss": metrics['loss'][1], "accuracy": metrics['accuracy'][1], "val_loss": metrics['val_loss'][1], "val_accuracy": metrics['val_accuracy'][1]}
 
-#     # Save the model in a format that can be loaded later
-#     # model.save("./data/models/model.h5")
-#     mlflow.log_artifact("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")
+
+    # #Initiate the MLflow run context
+    # with mlflow.start_run(run_name=run_name) as run:
+    #     # Log parameters
+    #     # mlflow.log_param("epochs", 5)
+    #     # mlflow.log_param("optimizer", "adam")
+    #     # mlflow.log_params(params_for_mlflow_log)
+
+    #     # Log metrics
+    #     mlflow.log_metric("accuracy", history.history['accuracy'][-1])
+    #     mlflow.log_metric("loss", history.history['loss'][-1])
+
+    #     # Log artifacts (e.g., saved plots, etc.)
+    #     mlflow.log_artifact(artifact_path)
+
+    #     # Save the model in a format that can be loaded later
+    #     # model.save("./data/models/model.h5")
+    #     mlflow.log_artifact("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")
