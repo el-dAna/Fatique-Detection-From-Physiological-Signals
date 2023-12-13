@@ -12,8 +12,6 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix #, classification_report
 
-
-
 from utils.common_functions import (
     train_stack,
     predict_stack,

@@ -7,9 +7,10 @@ from utils.common_functions import (
     train_stack,
     window_sampling,
 )
-from utils.preprocessingfunctions import (
-    get_variables,
-)
+
+# from preprocessingfunctions import (
+#     get_variables,
+# )
 
 from utils.rnn_train import RNN_TRAIN_DATACLASS
 
@@ -20,13 +21,13 @@ from utils.rnn_train import RNN_TRAIN_DATACLASS
 
 
 
-def predict_from_streamlit_data(streamlit_all_data_dict, PATH_TO_SAVED_VARIABLES=RNN_TRAIN_DATACLASS.PATH_TO_SAVED_VARIABLES, NUMBER_CLASSES=RNN_TRAIN_DATACLASS.NUMBER_CLASSES, WINDOW = RNN_TRAIN_DATACLASS.WINDOW, OVERLAP = RNN_TRAIN_DATACLASS.OVERLAP):
-    (
-        _ ,
-        CATEGORIES,
-        LABELS_TO_NUMBERS_DICT,
-        NUMBERS_TO_LABELS_DICT,
-    ) = get_variables(PATH_TO_SAVED_VARIABLES)
+def predict_from_streamlit_data(streamlit_all_data_dict, WINDOW = RNN_TRAIN_DATACLASS.WINDOW, OVERLAP = RNN_TRAIN_DATACLASS.OVERLAP):
+    # (
+    #     _ ,
+    #     _ ,
+    #     _ ,
+    #     _ ,
+    # ) = get_variables(PATH_TO_SAVED_VARIABLES)
 
     
     WINDOW_SAMPLING_DICT = {

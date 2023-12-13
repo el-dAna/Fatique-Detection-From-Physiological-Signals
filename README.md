@@ -8,3 +8,9 @@ The  first things is to host the data reliably, transfrom it and make it ready f
 ACLs was not enabled .(Objects in this bucket can be owned by other AWS accounts. Access to this bucket and its objects can be specified using ACLs.)
 2. Data uploaded
 3. Custom preprossing done using lambda and step funcions.
+
+`docker build .`
+`docker image ls`
+`docker run -p 127.0.0.1:8080:8080 image_id`
+
+started docker image build but encountered errors. 
