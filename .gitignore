@@ -13,7 +13,8 @@ credentials.txt
 /data/artifacts/
 /data/models/
 
-
+/aws/
+awscliv2.zip
 
 # # Ignore all files with .log extension
 # *.log
