@@ -16,15 +16,34 @@ from mylib.appfunctions import (
 )
 
 # import numpy as np
+session_states = {
+    "files_upload": False,
+    "uploaded_files_dict": 0,
+    "uploaded_files_dict_keys": 0,
+    "uploaded_spo2_files": 0,
+    "uploaded_tempEda_files": 0,
+    "uploaded_subject_names": 0,
+    "selected_inference_subjects": " ",
+}
 
-st.session_state.files_upload = False
-st.session_state.uploaded_files_dict = 0
-st.session_state.uploaded_files_dict_keys = 0
-st.session_state.uploaded_spo2_files = 0
-st.session_state.uploaded_tempEda_files = 0
-st.session_state.uploaded_subject_names = 0
-st.session_state.selected_inference_subjects = " "
 
+@st.cache_data
+def initialise_session_states():
+    for key, value in session_states.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+
+initialise_session_states()
+st.write("All session states", st.session_state)
+# for state in session_states:
+#     st.session_state.files_upload = False
+#     st.session_state.uploaded_files_dict = 0
+#     st.session_state.uploaded_files_dict_keys = 0
+#     st.session_state.uploaded_spo2_files = 0
+#     st.session_state.uploaded_tempEda_files = 0
+#     st.session_state.uploaded_subject_names = 0
+#     st.session_state.selected_inference_subjects = " "
 
 st.markdown("# Fatigue Detection from Physiological Signals🎈")
 st.sidebar.markdown("# Home Page 🎈")
@@ -147,9 +166,6 @@ if st.session_state.files_upload:
 
         Confusion_matrix = predict_from_streamlit_data(ALL_DATA_DICT)
         st.write(Confusion_matrix)
-
-
-
 
 
 st.sidebar.markdown("# Data ❄️")

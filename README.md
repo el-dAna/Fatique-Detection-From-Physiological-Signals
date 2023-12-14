@@ -9,8 +9,14 @@ ACLs was not enabled .(Objects in this bucket can be owned by other AWS accounts
 2. Data uploaded
 3. Custom preprossing done using lambda and step funcions.
 
-`docker build .`
+`docker build -t image_tag .`
 `docker image ls`
 `docker run -p 127.0.0.1:8080:8080 image_id`
+`docker rmi image_id --force`
+`docker stop container`
 
 started docker image build but encountered errors. 
+
+
+Challenges.
+Running a standalone streamlit app was smooth. Packaging and running docker image had some session states apparently not initialised! uff! I changed the running port to default streamlit 8501 and it worked. 
