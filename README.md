@@ -21,4 +21,6 @@ started docker image build but encountered errors.
 Challenges.
 Running a standalone streamlit app was smooth. Packaging and running docker image had some session states apparently not initialised! uff! I changed the running port to default streamlit 8501 and it worked. 
 
-authenticating codespaces with ecs in order to build and push image. codepaces is not a non TTY device. So i used local env to communicate with my ecs repositories. Cloud9 was not used because space on the free tier devices was not enough for pakages in requirements.txt. I got "WARNING! Using --password via the CLI is insecure. Use --password-stdin." Will use IAM role/policies in future.
+authenticating codespaces with ecs in order to build and push image. codepaces is not a non TTY device. So i used local env to communicate with my ecs repositories. Cloud9 was not used because space on the free tier devices was not enough for pakages in requirements.txt. I got "WARNING! Using --password via the CLI is insecure. Use --password-stdin." Will use IAM role/policies in future. 
+
+Tried today still
