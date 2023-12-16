@@ -9,7 +9,7 @@ ACLs was not enabled .(Objects in this bucket can be owned by other AWS accounts
 2. Data uploaded
 3. Custom preprossing done using lambda and step funcions.
 
- .`
+`docker build -t tag_name .`
 `docker image ls`
 `docker run -p 127.0.0.1:8080:8080 image_id`
 `docker rmi image_id --force`
@@ -26,4 +26,4 @@ Running a standalone streamlit app was smooth. Packaging and running docker imag
 authenticating codespaces with ecs in order to build and push image. codepaces is not a non TTY device. So i used local env to communicate with my ecs repositories. Cloud9 was not used because space on the free tier devices was not enough for pakages in requirements.txt. I got "WARNING! Using --password via the CLI is insecure. Use --password-stdin." Will use IAM role/policies in future. 
 The solution was to create IAM role and attach needed policies(full access to ecs registry), then save the ID and secrete access keys of the role by running aws config on cli. Then after commands from the private ecs repository were run. Boom!
 
-Deploy container to AWS Apprunner
+Deploy container to AWS Apprunner. Check that the port specified in the docker file is same in app runner config.
