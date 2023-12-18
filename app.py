@@ -15,6 +15,7 @@ from mylib.appfunctions import (
     get_data_dict_app,
 )
 
+
 # import numpy as np
 session_states = {
     "files_upload": False,
@@ -55,7 +56,8 @@ st.markdown(
     """
 )
 
-uploaded_files_dict = upload_files()
+uploaded_files_dict = upload_files(from_s3=True)
+
 if uploaded_files_dict:
     st.session_state.files_upload = True
     st.session_state.uploaded_files_dict = uploaded_files_dict

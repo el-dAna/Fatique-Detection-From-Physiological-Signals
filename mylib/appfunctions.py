@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import copy
 
+
 # from tempfile import NamedTemporaryFile
 # import seaborn as sns
 import matplotlib.pyplot as plt
@@ -72,7 +73,7 @@ def display_collapsed_dict_app(dictionary):
         st.write(dictionary)
 
 
-def upload_files():
+def upload_files(from_s3=False):
     """
     Function to upload files using Streamlit file_uploader.
 
@@ -82,18 +83,42 @@ def upload_files():
 
     file_names = []
     uploaded_files_dict = {}
-    uploaded_files = st.file_uploader(
-        "Upload files", type="csv", accept_multiple_files=True
-    )
+    if from_s3:
+        for i in range(20):
+            file_names.append("Subject" + str(i + 1))
+        uploaded_files = st.multiselect(
+            "Select subjects whose data you want to load", file_names
+        )
+
+    else:
+        uploaded_files = st.file_uploader(
+            "Upload files", type="csv", accept_multiple_files=True
+        )
 
     if uploaded_files:
         for file in uploaded_files:
-            file_names.append(file.name)
-            uploaded_files_dict[file.name] = pd.read_csv(file)
+            if from_s3:
+                bucket_name = "physiologicalsignals"
+                folder_name = "HealthySubjectsBiosignalsDataSet"
+                file_path1 = f"{bucket_name}/{folder_name}/{file}/{file}SpO2HR.csv"
+                file_path2 = f"{bucket_name}/{folder_name}/{file}/{file}AccTempEDA.csv"
 
-        if len(file_names) % 2 != 0:
-            st.error("Please upload an even number of files.")
-            return None
+                # Read the CSV file
+                # data = pd.read_csv(s3_object)
+                data1 = pd.read_csv(f"s3://{file_path1}")
+                data2 = pd.read_csv(f"s3://{file_path2}")
+
+                uploaded_files_dict[f"{file}SpO2HR.csv"] = data1
+                uploaded_files_dict[f"{file}AccTempEDA.csv"] = data2
+
+            else:
+                file_names.append(file.name)
+                uploaded_files_dict[file.name] = pd.read_csv(file)
+
+                if len(file_names) % 2 != 0:
+                    st.error("Please upload an even number of files.")
+                    return None
+
         return uploaded_files_dict
 
     return []
