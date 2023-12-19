@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from clearml import Task
 import numpy as np
 #from typing import Tuple
 import tensorflow as tf
@@ -94,6 +95,7 @@ class RNN_TRAIN_DATACLASS:
         TRAIN_OTHERS_PROPORTION=TRAIN_OTHERS_PROPORTION,
         features=False,
     )
+    
 
     PREDICT_FEATURES = predict_stack(
         big_dict=WINDOW_SAMPLING_DICT,
@@ -144,6 +146,8 @@ class RNN_TRAIN_DATACLASS:
     # LOSS = tf.keras.losses.CategoricalCrossentropy()
 
 if __name__ == "__main__":
+    
+    task = Task.init(project_name='portfolioproject', task_name='first setup')
 
     # Callbacks = [stop_training(), schedule_learningRate]
     Callbacks = [stop_training()]
@@ -176,9 +180,8 @@ if __name__ == "__main__":
     print("Done!")
 
     model.save("./data/models/model.h5")
-
-
-    artifact_path = "/workspaces/Fatique-Detection-From-Physiological-Signals/data/artifacts/1.png"
+    
+    artifact_path = "./data/artifacts/1.png"
     pd.DataFrame(history.history).plot(figsize=(8, 5))
     plt.title("hey")
     plt.savefig(artifact_path)
@@ -206,6 +209,16 @@ if __name__ == "__main__":
     print(confusion_matrix(pred_true, pred_1hot))
     # print(classification_report(pred_true, pred_1hot))
 
+
+
+
+
+
+
+
+
+
+    
 
     # mlflow.set_tracking_uri("http://127.0.0.1:8080")
     # rnn_experiment = mlflow.set_experiment("rnn_models")

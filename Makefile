@@ -13,7 +13,7 @@ format:
 
 lint:
 	echo "LINTING CODE"
-	pylint --disable=R,C,W1203,E1101,E0401,W0612 *.py ./mylib/appfunctions.py ./pages ./utils/rnn_predict.py
+	pylint --disable=R,C,W1203,E1101,E0401,W0612 *.py ./mylib/appfunctions.py ./pages ./utils/rnn_predict.py ./utils/clearmlsdk_functions.py
 
 #pylint --disable=R,C,W1203,E1101 utils #cli #utilscli
 #python -m pytest -vv test_main.py

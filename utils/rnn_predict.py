@@ -22,6 +22,7 @@ from utils.rnn_train import RNN_TRAIN_DATACLASS
 
 def predict_from_streamlit_data(
     streamlit_all_data_dict,
+    inference_model="./data/models/model.h5",
     WINDOW=RNN_TRAIN_DATACLASS.WINDOW,
     OVERLAP=RNN_TRAIN_DATACLASS.OVERLAP,
 ):
@@ -82,7 +83,7 @@ def predict_from_streamlit_data(
         features=False,
     )
 
-    loaded_model = load_model("./data/models/model.h5")
+    loaded_model = load_model(inference_model)
     predictions = loaded_model.predict(INFERENCE_FEATURES)
 
     prediction_1hot = np.argmax(predictions, axis=1)
