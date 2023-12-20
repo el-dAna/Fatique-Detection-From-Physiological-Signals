@@ -8,12 +8,15 @@ import mlflow
 from mlflow.models import infer_signature
 from mlflow import MlflowClient
 from pprint import pprint
-from utils.rnn_model import model
 from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix #, classification_report
+import sys
+import datetime
 
-from utils.common_functions import (
+
+from .rnn_model import model
+from .common_functions import (
     train_stack,
     predict_stack,
     #adjust_sensitivity,
@@ -24,7 +27,7 @@ from utils.common_functions import (
     #plot_learnRate_epoch,
     #plot_loss_accuracy,
 )
-from utils.preprocessingfunctions import (
+from .preprocessingfunctions import (
     #SortSPO2HR,
     #SortAccTempEDA,
     #sanity_check_1,
@@ -145,9 +148,14 @@ class RNN_TRAIN_DATACLASS:
     LOSS = tf.keras.losses.Huber()
     # LOSS = tf.keras.losses.CategoricalCrossentropy()
 
-if __name__ == "__main__":
+
+# Get the current date and time
+current_datetime = datetime.datetime.now()
     
-    task = Task.init(project_name='portfolioproject', task_name='first setup')
+
+def train_model(model_name, project_name='portfolioproject', clearml_task_name=current_datetime):
+
+    train_task = Task.init(project_name=project_name, task_name=clearml_task_name)
 
     # Callbacks = [stop_training(), schedule_learningRate]
     Callbacks = [stop_training()]
@@ -159,10 +167,10 @@ if __name__ == "__main__":
         "learning_rate":RNN_TRAIN_DATACLASS.learning_rate
     }
 
-    model = model(RNN_TRAIN_DATACLASS, **params_for_mlflow_log)
+    model_to_train = model(RNN_TRAIN_DATACLASS, **params_for_mlflow_log)
 
     print("Traing model...")
-    history = model.fit(
+    history = model_to_train.fit(
         x=RNN_TRAIN_DATACLASS.TRAIN_FEATURES,
         y=RNN_TRAIN_DATACLASS.TRAIN_LABELS,  # batch_size = RNN_TRAIN_DATACLASS.BATCH_SIZE,
         steps_per_epoch=RNN_TRAIN_DATACLASS.TRAIN_STEPS,
@@ -179,11 +187,15 @@ if __name__ == "__main__":
 
     print("Done!")
 
-    model.save("./data/models/model.h5")
+    model_to_train.save("./data/models/model.h5")
+    # log_model_task = Task.create(f'{model_name}-log')
+    # log_model_task.log_model(model_name=model_name, model=model_to_train)
+    # log_model_task.close()
+    
     
     artifact_path = "./data/artifacts/1.png"
     pd.DataFrame(history.history).plot(figsize=(8, 5))
-    plt.title("hey")
+    plt.title("Plot of model metrics")
     plt.savefig(artifact_path)
     # plt.show()
     # print("\n\n")
@@ -192,7 +204,7 @@ if __name__ == "__main__":
     print("----------Confusion matrix on Training samples-----------------")
     features2 = RNN_TRAIN_DATACLASS.TRAIN_FEATURES
     labs2 = RNN_TRAIN_DATACLASS.TRAIN_LABELS
-    predictions = model.predict(features2)
+    predictions = model_to_train.predict(features2)
     pred_1hot = np.argmax(predictions, axis=1)
     pred_true = np.argmax(labs2, axis=1)
     print(confusion_matrix(pred_true, pred_1hot))
@@ -203,11 +215,14 @@ if __name__ == "__main__":
 
     features = RNN_TRAIN_DATACLASS.PREDICT_FEATURES
     labs = RNN_TRAIN_DATACLASS.PREDICT_LABELS
-    predictions = model.predict(features)
+    predictions = model_to_train.predict(features)
     pred_1hot = np.argmax(predictions, axis=1)
     pred_true = np.argmax(labs, axis=1)
     print(confusion_matrix(pred_true, pred_1hot))
     # print(classification_report(pred_true, pred_1hot))
+
+    train_task.close()
+    
 
 
 

@@ -2,6 +2,7 @@ import streamlit as st
 
 from utils.rnn_predict import predict_from_streamlit_data
 from utils.clearmlsdk_functions import clearml_model_list
+from utils.rnn_train import train_model
 
 from mylib.appfunctions import (
     upload_files,
@@ -170,6 +171,10 @@ if st.session_state.files_upload:
                 streamlit_all_data_dict=ALL_DATA_DICT,
             )
             st.write(Confusion_matrix)
+
+            if st.button("Train model", type='primary'):
+                train_model(model_name='test model', clearml_task_name='new user task2')
+                
 
 
 st.sidebar.markdown("# Data ❄️")

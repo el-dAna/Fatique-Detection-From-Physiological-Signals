@@ -3,7 +3,7 @@ from keras.models import load_model
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
-from utils.common_functions import (
+from .common_functions import (
     train_stack,
     window_sampling,
 )
@@ -12,7 +12,7 @@ from utils.common_functions import (
 #     get_variables,
 # )
 
-from utils.rnn_train import RNN_TRAIN_DATACLASS
+from .rnn_train import RNN_TRAIN_DATACLASS
 
 # from rnn_model import model
 # from datetime import datetime
