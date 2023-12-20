@@ -28,7 +28,7 @@ The solution was to create IAM role and attach needed policies(full access to ec
 
 Deploy container to AWS Apprunner. Check that the port specified in the docker file is same in app runner config.
 
-### Running inference
+## Running inference
 The idea is for users to train a new model
 Save it to clearml / s3 bucket
 And reload the model
@@ -36,6 +36,8 @@ Run inference.
 
 I think saving on clearml is more practical since models on s3 would have to be downloaded and saved explicitly in a file system. Clearml handles all this by calling a method. Will fully swith to clearml
 
+## Next session
+parameterize training new model
 
 ---------------------------------------------------------------
 ## TO DOs before full deployment
