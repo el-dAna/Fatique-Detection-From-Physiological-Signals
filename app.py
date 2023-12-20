@@ -1,7 +1,8 @@
 import streamlit as st
 
 from utils.rnn_predict import predict_from_streamlit_data
-from utils.clearmlsdk_functions import clearml_model_list
+
+# from utils.clearmlsdk_functions import clearml_model_list
 from utils.rnn_train import train_model
 
 from mylib.appfunctions import (
@@ -15,6 +16,8 @@ from mylib.appfunctions import (
     write_expandable_text_app,
     sanity_check_2_and_DownSamplingAccTempEDA_app,
     get_data_dict_app,
+    get_s3_bucket_files,
+    download_s3_file,
 )
 
 
@@ -161,20 +164,26 @@ if st.session_state.files_upload:
             "For every subject, there are 4 Relax sessions and just 1 session fot the other classes. This makes the ratio of Relax to any given class 4:1. The All_DATA_DICT stores the extracted values for the sessions. The keys of the dict do not represent the subject number. The keys are only indices of the samples generated. If only 1 subject, 7 samples are extracted(first 4 for Relax and the last 3 for the physical, emotional cognitive stress in that order)."
         )
 
+        models_on_s3 = get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
         st.selected_model = st.selectbox(
-            "Select a trained and saved model on clearml for inference",
-            options=clearml_model_list,
+            "Select a(your) trained and saved model from s3 for inference",
+            options=models_on_s3,
         )
+
+        download_s3_file(s3_file_path=st.selected_model)
+        model_local_path = "./data/models/downloaded_model.h5"
+
         if st.selected_model != " ":
             Confusion_matrix = predict_from_streamlit_data(
-                inference_model=st.selected_model.get_local_copy(),
+                inference_model=model_local_path,
                 streamlit_all_data_dict=ALL_DATA_DICT,
             )
             st.write(Confusion_matrix)
 
-            if st.button("Train model", type='primary'):
-                train_model(model_name='test model', clearml_task_name='new user task2')
-                
+            if st.button("Train model", type="primary"):
+                train_model(
+                    model_name="very_last_test", clearml_task_name="time_to_sleep"
+                )
 
 
 st.sidebar.markdown("# Data ❄️")

@@ -27,3 +27,16 @@ authenticating codespaces with ecs in order to build and push image. codepaces i
 The solution was to create IAM role and attach needed policies(full access to ecs registry), then save the ID and secrete access keys of the role by running aws config on cli. Then after commands from the private ecs repository were run. Boom! To communicate with s3 bucket I added corresponding policy to the same IAM role created for ecs access. I just added full access to s3 bucket policy. I will change this later to readonly when published.
 
 Deploy container to AWS Apprunner. Check that the port specified in the docker file is same in app runner config.
+
+### Running inference
+The idea is for users to train a new model
+Save it to clearml / s3 bucket
+And reload the model
+Run inference. 
+
+I think saving on clearml is more practical since models on s3 would have to be downloaded and saved explicitly in a file system. Clearml handles all this by calling a method. Will fully swith to clearml
+
+
+---------------------------------------------------------------
+## TO DOs before full deployment
+put physilogicalsignalsbuket in a global variable, preferably in a dataclass in app.py

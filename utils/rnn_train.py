@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix #, classification_report
 import sys
 import datetime
+import s3fs
+import boto3
 
 
 from .rnn_model import model
@@ -38,6 +40,8 @@ from .preprocessingfunctions import (
     plot_varying_recording_time,
     get_variables,
 )
+
+from mylib.appfunctions import upload_file_to_s3
 
 tf.keras.backend.clear_session()  # clears internal variables so we start all initiations and assignments afresh
 
@@ -150,10 +154,10 @@ class RNN_TRAIN_DATACLASS:
 
 
 # Get the current date and time
-current_datetime = datetime.datetime.now()
+current_datetime = str(datetime.datetime.now())
     
 
-def train_model(model_name, project_name='portfolioproject', clearml_task_name=current_datetime):
+def train_model(model_name, project_name='portfolioproject', clearml_task_name=current_datetime, model_local_path="./data/models/model.h5", bucket_name='physiologicalsignalsbucket'):
 
     train_task = Task.init(project_name=project_name, task_name=clearml_task_name)
 
@@ -187,12 +191,11 @@ def train_model(model_name, project_name='portfolioproject', clearml_task_name=c
 
     print("Done!")
 
-    model_to_train.save("./data/models/model.h5")
-    # log_model_task = Task.create(f'{model_name}-log')
-    # log_model_task.log_model(model_name=model_name, model=model_to_train)
-    # log_model_task.close()
-    
-    
+    model_to_train.save(model_local_path)
+
+    upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_name)
+
+
     artifact_path = "./data/artifacts/1.png"
     pd.DataFrame(history.history).plot(figsize=(8, 5))
     plt.title("Plot of model metrics")

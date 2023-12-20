@@ -5,7 +5,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import copy
-
+import boto3
 
 # from tempfile import NamedTemporaryFile
 # import seaborn as sns
@@ -809,3 +809,36 @@ def get_data_dict_app(
     # """
 
     return ALL_DATA_DICT
+
+
+def get_s3_bucket_files(bucket_name):
+    s3 = boto3.resource("s3")
+    bucket = s3.Bucket(bucket_name)
+    buckets = []
+    for obj in bucket.objects.all():
+        buckets.append(obj.key)
+    return buckets
+
+
+def download_s3_file(
+    s3_file_path,
+    bucket_name="physiologicalsignalsbucket",
+    model_local_path="./data/models/downloaded_model.h5",
+):
+    s3 = boto3.client("s3")
+    s3.download_file(bucket_name, s3_file_path, model_local_path)
+
+
+def upload_file_to_s3(
+    file_path="./data/models/model.h5",
+    bucket_name="physiologicalsignalsbucket",
+    object_name=None,
+):
+    s3_client = boto3.client("s3")
+    if object_name is None:
+        object_name = file_path.split("/")[-1]  # Use the file name as the object name
+    try:
+        s3_client.upload_file(file_path, bucket_name, f"{object_name}.h5")
+        print(f"File uploaded successfully to S3 bucket: {bucket_name}")
+    except Exception as e:
+        print(f"Error uploading file to S3 bucket: {e}")
