@@ -12,12 +12,11 @@ from tensorflow.keras import layers
 # convert each recording into an a 3d image
 
 
-def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0, learning_rate=1e-05):
+def model(MODEL_INPUT_SHAPE, dp1=0, dp2=0, dp3=0, dp4=0, learning_rate=1e-05,LOSS=tf.keras.losses.Huber(), NUMBER_CLASSES=4):
     """
     This function defines the model to be used for the raw sequence data
 
     INPUTS:
-    project_dataclass: dataclass -> contains global variables to be used throughout the project
     dp1, dp2, dp3, dp4: ints -> tunable drop out rates for various layers in the model
 
     RETURNS:
@@ -27,7 +26,7 @@ def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0, learning_rate=1e-05):
     optimiser = tf.keras.optimizers.Adam(learning_rate=learning_rate)  # (1e-05 == 0.00001)
 
     # dp1 = dropout rate 1
-    input_shape = project_dataclass.MODEL_INPUT_SHAPE
+    input_shape = MODEL_INPUT_SHAPE
     input_layer = tf.keras.layers.Input(input_shape)
 
     layer_c1 = layers.Conv1D(
@@ -85,11 +84,11 @@ def model(project_dataclass, dp1=0, dp2=0, dp3=0, dp4=0, learning_rate=1e-05):
 
     l1 = layers.Flatten()(layer_conc)
     l2 = layers.Dense(64, activation="softmax")(l1)
-    l3 = layers.Dense(project_dataclass.NUMBER_CLASSES)(l2)
+    l3 = layers.Dense(NUMBER_CLASSES)(l2)
 
     model1 = tf.keras.Model(inputs=input_layer, outputs=l3)
     model1.compile(
-        loss=project_dataclass.LOSS,
+        loss=LOSS,
         optimizer=optimiser,
         metrics=["accuracy"],
     )

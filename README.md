@@ -30,6 +30,7 @@ Deploy container to AWS Apprunner. Check that the port specified in the docker f
 
 ### Running inference
 The idea is for users to train a new model
+[change model parameters like input shape, dropout rates, loss, optimiser, epochs, train steps....] and data processing options like sampling window, degree of overlap beteen samples. Users can also determine percent of train data to use. All this via an api on the fly and see results on clearml
 Save it to clearml / s3 bucket
 And reload the model
 Run inference. 

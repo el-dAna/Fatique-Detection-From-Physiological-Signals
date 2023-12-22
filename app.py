@@ -3,7 +3,15 @@ import streamlit as st
 from utils.rnn_predict import predict_from_streamlit_data
 
 # from utils.clearmlsdk_functions import clearml_model_list
-from utils.rnn_train import train_model
+
+from utils.rnn_train import (
+    init_clearml_task,
+    initialise_training_variables,
+    initialise_train_model,
+    train_model,
+    save_trained_model_s3bucket_and_log_artifacts,
+    get_trained_model_confusionM,
+)
 
 from mylib.appfunctions import (
     upload_files,
@@ -31,6 +39,9 @@ session_states = {
     "uploaded_subject_names": 0,
     "selected_inference_subjects": " ",
     "selected_model": " ",
+    "sampling_window": 60,
+    "degree_of_overlap": 0.5,
+    "PERCENT_OF_TRAIN": 0.8,
 }
 
 
@@ -177,16 +188,74 @@ if st.session_state.files_upload:
             Confusion_matrix = predict_from_streamlit_data(
                 inference_model=model_local_path,
                 streamlit_all_data_dict=ALL_DATA_DICT,
+                WINDOW=st.session_state.sampling_window,
+                OVERLAP=st.session_state.degree_of_overlap,
             )
             st.write(Confusion_matrix)
 
             if st.button("Train model", type="primary"):
-                train_model(
-                    model_name="very_last_test", clearml_task_name="time_to_sleep"
+                train_task = init_clearml_task("portfolioproject", "test-22122023")
+                (
+                    TRAIN_FEATURES,
+                    TRAIN_LABELS,
+                    TOTAL_TRAIN_DATA,
+                    PREDICT_FEATURES,
+                    PREDICT_LABELS,
+                    TOTAL_VAL_DATA,
+                    INPUT_FEATURE_SHAPE,
+                    TRAIN_BATCH_SIZE,
+                    TRAIN_STEPS,
+                ) = initialise_training_variables(
+                    sample_window=st.session_state.sampling_window,
+                    degree_of_overlap=st.session_state.degree_of_overlap,
+                    PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
                 )
+
+                model_to_train = initialise_train_model(
+                    MODEL_INPUT_SHAPE=INPUT_FEATURE_SHAPE,
+                    dp1=0.3,
+                    dp2=0.3,
+                    dp3=0.0,
+                    dp4=0.0,
+                    learning_rate=0.0002,
+                )
+
+                trained_model, history = train_model(
+                    model_to_train,
+                    TRAIN_FEATURES,
+                    TRAIN_LABELS,
+                    TRAIN_STEPS,
+                    PREDICT_FEATURES,
+                    PREDICT_LABELS,
+                    EPOCHS=10,
+                )
+
+                save_trained_model_s3bucket_and_log_artifacts(
+                    trained_model,
+                    history,
+                    model_local_path="./data/models/model.h5",
+                    bucket_name="physiologicalsignalsbucket",
+                    model_s3_name="a_name_i_liked",
+                )
+
+                get_trained_model_confusionM(
+                    trained_model,
+                    TRAIN_FEATURES,
+                    TRAIN_LABELS,
+                    PREDICT_FEATURES,
+                    PREDICT_LABELS,
+                )
+
+                train_task.close()
 
 
 st.sidebar.markdown("# Data ❄️")
 
 
 st.sidebar.markdown("# Model❄️")
+
+
+# Get the current date and time
+# current_datetime = str(datetime.datetime.now())
+# clearml_task_name=RNN_TRAIN_DATACLASS.current_datetime, model_local_path="./data/models/model.h5", bucket_name='physiologicalsignalsbucket',
+# train_task = Task.init(project_name=project_name, task_name=clearml_task_name)

@@ -12,7 +12,7 @@ from .common_functions import (
 #     get_variables,
 # )
 
-from .rnn_train import RNN_TRAIN_DATACLASS
+#from .rnn_train import RNN_TRAIN_DATACLASS
 
 # from rnn_model import model
 # from datetime import datetime
@@ -22,9 +22,9 @@ from .rnn_train import RNN_TRAIN_DATACLASS
 
 def predict_from_streamlit_data(
     streamlit_all_data_dict,
+    WINDOW,
+    OVERLAP,
     inference_model="./data/models/model.h5",
-    WINDOW=RNN_TRAIN_DATACLASS.WINDOW,
-    OVERLAP=RNN_TRAIN_DATACLASS.OVERLAP,
 ):
     # (
     #     _ ,

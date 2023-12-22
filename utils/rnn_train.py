@@ -52,6 +52,8 @@ class RNN_TRAIN_DATACLASS:
     BASE_DIR = "./HealthySubjectsBiosignalsDataSet/"
     PATH_TO_SAVED_VARIABLES = "./utils/saved_vars.py"
 
+    print("Running RNN_TRAIN_.... eventhough not called directly")
+
     (
         WHOLE_DICT,
         CATEGORIES,
@@ -59,22 +61,28 @@ class RNN_TRAIN_DATACLASS:
         NUMBERS_TO_LABELS_DICT,
     ) = get_variables(PATH_TO_SAVED_VARIABLES)
     # SAVED_CWT_DICT = {i:j/255. for i,j in enumerate(SAVED_CWT_DICT['features'])}
+
     NUMBER_CLASSES = 4
 
-    WINDOW = 60
-    OVERLAP = 0.5
+
+def init_clearml_task(project_name, task_name):
+    task_name = Task.init(project_name=project_name, task_name=task_name)
+    return task_name
+
+
+def initialise_training_variables(sample_window=60, degree_of_overlap=0.5, WHOLE_DICT=RNN_TRAIN_DATACLASS.WHOLE_DICT,
+                                  PERCENT_OF_TRAIN=0.8):
     WINDOW_SAMPLING_DICT = {
         i: j
         for i, j in enumerate(
-            window_sampling(WHOLE_DICT, window_size=WINDOW, overlap=OVERLAP)
+            window_sampling(WHOLE_DICT, window_size=sample_window, overlap=degree_of_overlap)
         )
     }
     TOTAL_GEN_SAMPLES = len(WINDOW_SAMPLING_DICT.keys())
     SAMPLES_PER_SAMPLE = int(TOTAL_GEN_SAMPLES / len(WHOLE_DICT.keys()))
-    PERCENT_OF_TRAIN = 0.80
 
     RELAX_PROPORTION = 80 * SAMPLES_PER_SAMPLE #there are originally 80 features labeled as relax
-    OTHERS_PROPORTION = 20 * SAMPLES_PER_SAMPLE #there are originally 20 features labeled as others(physicalstress, emotionalstress and cognituvestress)
+    OTHERS_PROPORTION = 20 * SAMPLES_PER_SAMPLE #there are originally 20 features labeled for each of the remaining classes (physicalstress, emotionalstress and cognituvestress)
 
     TRAIN_RELAX_PROPORTION = int(PERCENT_OF_TRAIN * RELAX_PROPORTION) #how many of the (number of relax sampled to generate a dataset) are used for training 
     TRAIN_OTHERS_PROPORTION = int(PERCENT_OF_TRAIN * OTHERS_PROPORTION) #how many of the (number of other labels sampled to generate a dataset) are used for training 
@@ -82,7 +90,6 @@ class RNN_TRAIN_DATACLASS:
 
     TRAIN_FEATURES = train_stack(
         big_dict=WINDOW_SAMPLING_DICT,
-        #train_ratio=PERCENT_OF_TRAIN,
         sensitivity=SAMPLES_PER_SAMPLE,
         TRAIN_RELAX_PROPORTION=TRAIN_RELAX_PROPORTION,
         RELAX_PROPORTION=RELAX_PROPORTION,
@@ -90,8 +97,9 @@ class RNN_TRAIN_DATACLASS:
         TRAIN_OTHERS_PROPORTION=TRAIN_OTHERS_PROPORTION,
         features=True,
     )
-
     TOTAL_TRAIN_DATA = len(TRAIN_FEATURES)
+    INPUT_FEATURE_SHAPE = TRAIN_FEATURES[0].shape
+
     TRAIN_LABELS = train_stack(
         big_dict=WINDOW_SAMPLING_DICT,
         #train_ratio=PERCENT_OF_TRAIN,
@@ -127,16 +135,6 @@ class RNN_TRAIN_DATACLASS:
         features=False,
     )
 
-    MODEL_INPUT_SHAPE = TRAIN_FEATURES[0].shape
-
-    EPOCHS = 10
-
-    dp4 = 0.0
-    dp1 = 0.3
-    dp2 = 0.3
-    dp3 = 0.0
-    learning_rate = 0.0002
-
     TRAIN_BATCH_SIZE = int(TOTAL_TRAIN_DATA / 8)  # /8
     assert (
         TOTAL_TRAIN_DATA % TRAIN_BATCH_SIZE == 0
@@ -145,57 +143,72 @@ class RNN_TRAIN_DATACLASS:
     # VAL_BATCH_SIZE = int(TOTAL_VAL_DATA) # /4
     # assert(TOTAL_VAL_DATA % VAL_BATCH_SIZE == 0), "Ensure teh val_batch_size is perfectly divisible by the total_val_data"
 
-    # NUMBER_CLASSES = 4
     TRAIN_STEPS = int(TOTAL_TRAIN_DATA // TRAIN_BATCH_SIZE)
     # VAL_STEPS = int(TOTAL_VAL_DATA // VAL_BATCH_SIZE)
 
-    LOSS = tf.keras.losses.Huber()
-    # LOSS = tf.keras.losses.CategoricalCrossentropy()
+
+    return TRAIN_FEATURES, TRAIN_LABELS, TOTAL_TRAIN_DATA, PREDICT_FEATURES, PREDICT_LABELS, TOTAL_VAL_DATA, INPUT_FEATURE_SHAPE, TRAIN_BATCH_SIZE, TRAIN_STEPS
 
 
-# Get the current date and time
-current_datetime = str(datetime.datetime.now())
-    
 
-def train_model(model_name, project_name='portfolioproject', clearml_task_name=current_datetime, model_local_path="./data/models/model.h5", bucket_name='physiologicalsignalsbucket'):
+def initialise_train_model(MODEL_INPUT_SHAPE, 
+                dp1 = 0.3,
+                dp2 = 0.3,
+                dp3 = 0.0,
+                dp4 = 0.0,
+                learning_rate = 0.0002,
+                LOSS=tf.keras.losses.Huber(),
+                NUMBER_CLASSES=RNN_TRAIN_DATACLASS.NUMBER_CLASSES):
 
-    train_task = Task.init(project_name=project_name, task_name=clearml_task_name)
+   
 
     # Callbacks = [stop_training(), schedule_learningRate]
     Callbacks = [stop_training()]
 
-    params_for_mlflow_log = {
-        "dp1": RNN_TRAIN_DATACLASS.dp1,
-        "dp2": RNN_TRAIN_DATACLASS.dp2,
-        "dp3": RNN_TRAIN_DATACLASS.dp3,
-        "learning_rate":RNN_TRAIN_DATACLASS.learning_rate
-    }
+    # params_for_mlflow_log = {
+    #     "dp1": RNN_TRAIN_DATACLASS.dp1,
+    #     "dp2": RNN_TRAIN_DATACLASS.dp2,
+    #     "dp3": RNN_TRAIN_DATACLASS.dp3,
+    #     "learning_rate":RNN_TRAIN_DATACLASS.learning_rate
+    # }
 
-    model_to_train = model(RNN_TRAIN_DATACLASS, **params_for_mlflow_log)
+    model_to_train = model(MODEL_INPUT_SHAPE=MODEL_INPUT_SHAPE,
+                           dp1=dp1,
+                           dp2=dp2,
+                           dp3=dp3,
+                           dp4=dp4,
+                           learning_rate=learning_rate,
+                           LOSS=LOSS,
+                           NUMBER_CLASSES=NUMBER_CLASSES)
 
+    return model_to_train
+
+
+def train_model(model_to_train, TRAIN_FEATURES, TRAIN_LABELS, TRAIN_STEPS, PREDICT_FEATURES, PREDICT_LABELS, EPOCHS=10):
     print("Traing model...")
     history = model_to_train.fit(
-        x=RNN_TRAIN_DATACLASS.TRAIN_FEATURES,
-        y=RNN_TRAIN_DATACLASS.TRAIN_LABELS,  # batch_size = RNN_TRAIN_DATACLASS.BATCH_SIZE,
-        steps_per_epoch=RNN_TRAIN_DATACLASS.TRAIN_STEPS,
+        x=TRAIN_FEATURES,
+        y=TRAIN_LABELS,  # batch_size = BATCH_SIZE,
+        steps_per_epoch=TRAIN_STEPS,
         shuffle=True,
         # callbacks = Callbacks,
-        epochs=RNN_TRAIN_DATACLASS.EPOCHS,
+        epochs=EPOCHS,
         # validation_data = train_data_2,
-        # validation_data = (RNN_TRAIN_DATACLASS.TRAIN_FEATURES, RNN_TRAIN_DATACLASS.TRAIN_LABELS),
-        validation_data=(RNN_TRAIN_DATACLASS.PREDICT_FEATURES, RNN_TRAIN_DATACLASS.PREDICT_LABELS),
-        # validation_steps = RNN_TRAIN_DATACLASS.TRAIN_STEPS,
-        # validation_batch_size= RNN_TRAIN_DATACLASS.BATCH_SIZE,
+        # validation_data = (TRAIN_FEATURES, TRAIN_LABELS),
+        validation_data=(PREDICT_FEATURES, PREDICT_LABELS),
+        # validation_steps = TRAIN_STEPS,
+        # validation_batch_size= BATCH_SIZE,
         verbose=1,
     )
-
     print("Done!")
 
-    model_to_train.save(model_local_path)
-
-    upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_name)
+    return model_to_train, history
 
 
+def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, model_local_path, bucket_name, model_s3_name):
+
+    trained_model.save(model_local_path)
+    upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_s3_name)
     artifact_path = "./data/artifacts/1.png"
     pd.DataFrame(history.history).plot(figsize=(8, 5))
     plt.title("Plot of model metrics")
@@ -204,10 +217,11 @@ def train_model(model_name, project_name='portfolioproject', clearml_task_name=c
     # print("\n\n")
 
 
+def get_trained_model_confusionM(trained_model, TRAIN_FEATURES, TRAIN_LABELS, PREDICT_FEATURES, PREDICT_LABELS):
     print("----------Confusion matrix on Training samples-----------------")
-    features2 = RNN_TRAIN_DATACLASS.TRAIN_FEATURES
-    labs2 = RNN_TRAIN_DATACLASS.TRAIN_LABELS
-    predictions = model_to_train.predict(features2)
+    features2 = TRAIN_FEATURES
+    labs2 = TRAIN_LABELS
+    predictions = trained_model.predict(features2)
     pred_1hot = np.argmax(predictions, axis=1)
     pred_true = np.argmax(labs2, axis=1)
     print(confusion_matrix(pred_true, pred_1hot))
@@ -216,15 +230,15 @@ def train_model(model_name, project_name='portfolioproject', clearml_task_name=c
 
     print("----------Confusion matrix on validation samples-----------------")
 
-    features = RNN_TRAIN_DATACLASS.PREDICT_FEATURES
-    labs = RNN_TRAIN_DATACLASS.PREDICT_LABELS
-    predictions = model_to_train.predict(features)
+    features = PREDICT_FEATURES
+    labs = PREDICT_LABELS
+    predictions = trained_model.predict(features)
     pred_1hot = np.argmax(predictions, axis=1)
     pred_true = np.argmax(labs, axis=1)
     print(confusion_matrix(pred_true, pred_1hot))
     # print(classification_report(pred_true, pred_1hot))
 
-    train_task.close()
+    # train_task.close()
     
 
 
