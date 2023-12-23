@@ -39,7 +39,7 @@ I think saving on clearml is more practical since models on s3 would have to be 
 
 ## Next session
 present file descriptions in tabular form, heading(file names), rows(recorded info, frequency, #samples, ....)
-tag uplaoded models based on selected parameters
+load models based on selected tags and run inference
 smooth linkage b/n pages. Currently some part of data preprocessing has to work before inference page works smoothly
 
 ---------------------------------------------------------------
