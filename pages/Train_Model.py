@@ -1,7 +1,4 @@
 import streamlit as st
-from dataclasses import dataclass
-from utils.rnn_predict import predict_from_streamlit_data
-import datetime
 import tensorflow as tf
 
 from utils.rnn_train import (
@@ -13,21 +10,6 @@ from utils.rnn_train import (
     get_trained_model_confusionM,
 )
 
-from mylib.appfunctions import (
-    upload_files,
-    read_files,
-    TEXT,
-    SortSPO2HR_app,
-    SortAccTempEDA_app,
-    necessary_variables_app,
-    resize_data_to_uniform_lengths_app,
-    write_expandable_text_app,
-    sanity_check_2_and_DownSamplingAccTempEDA_app,
-    get_data_dict_app,
-    get_s3_bucket_files,
-    download_s3_file,
-)
-
 
 st.set_page_config(page_title="Run Inference", page_icon="😎")
 
@@ -36,7 +18,6 @@ st.sidebar.header("Variables to track")
 st.write(
     """This page is for classifying the samples of subjects loaded from s3 bucket"""
 )
-
 
 
 session_states = {
@@ -56,21 +37,6 @@ session_states = {
     "EPOCHS": 10,
 }
 
-@dataclass
-class TRAIN_MODEL:
-    clearml_project_name = "portfolioproject"
-    
-    # Get the current date and time
-    current_datetime = str(datetime.datetime.now())
-    clearml_task_name= f"task-{current_datetime}"
-    model_local_path="./data/models/model.h5"
-    bucket_name='physiologicalsignalsbucket',
-    model_s3_name=f"Model-{current_datetime}"
-
-    number_of_classes=4
-
-
-
 
 @st.cache_data
 def initialise_session_states():
@@ -82,13 +48,28 @@ def initialise_session_states():
 initialise_session_states()
 
 
-
-
-
-st.session_state.PERCENT_OF_TRAIN = st.slider('Percentage of train samples:', min_value=0.1, max_value=1.0, value=0.8, step=0.1, help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.")
-st.session_state.degree_of_overlap = st.number_input('Degree of overlap between two consecutive samples:', min_value=0.0, max_value=0.9, value=0.5, step=0.1, help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection" )
-st.session_state.sampling_window = st.number_input('Sampling window:', min_value=100, max_value=500, value="min", step=10)
-st.session_state.EPOCHS = st.number_input('Number of epochs:', min_value=10, max_value=None, value="min", step=1)
+st.session_state.PERCENT_OF_TRAIN = st.slider(
+    "Percentage of train samples:",
+    min_value=0.1,
+    max_value=1.0,
+    value=0.8,
+    step=0.1,
+    help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
+)
+st.session_state.degree_of_overlap = st.number_input(
+    "Degree of overlap between two consecutive samples:",
+    min_value=0.0,
+    max_value=0.9,
+    value=0.5,
+    step=0.1,
+    help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
+)
+st.session_state.sampling_window = st.number_input(
+    "Sampling window:", min_value=100, max_value=500, value="min", step=10
+)
+st.session_state.EPOCHS = st.number_input(
+    "Number of epochs:", min_value=10, max_value=None, value="min", step=1
+)
 
 # Create three columns to arrange the text inputs horizontally
 col1, col2, col3 = st.columns(3)
@@ -98,13 +79,14 @@ st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
 st.session_state.model_s3_name = col2.text_input("Name of model to save in s3:")
 st.session_state.loss_function = st.selectbox(
     "Select tf loss function to use",
-    options=['tf.keras.losses.Huber()'],
+    options=["tf.keras.losses.Huber()"],
 )
-st.session_state.learning_rate = col3.number_input("Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001)
+st.session_state.learning_rate = col3.number_input(
+    "Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001
+)
 
 if st.button("Train model", type="primary"):
-
-    train_task = init_clearml_task(project_name=TRAIN_MODEL.clearml_project_name, task_name=st.session_state.clearml_task_name)
+    train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
 
     (
         TRAIN_FEATURES,
@@ -129,8 +111,7 @@ if st.button("Train model", type="primary"):
         dp3=0.0,
         dp4=0.0,
         learning_rate=st.session_state.learning_rate,
-        LOSS= tf.keras.losses.Huber(), #st.session_state.loss_function,
-        NUMBER_CLASSES=TRAIN_MODEL.number_of_classes
+        LOSS=tf.keras.losses.Huber(),  # st.session_state.loss_function,
     )
 
     trained_model, history = train_model(
@@ -146,9 +127,9 @@ if st.button("Train model", type="primary"):
     save_trained_model_s3bucket_and_log_artifacts(
         trained_model,
         history,
-        model_local_path= TRAIN_MODEL.model_local_path,
-        bucket_name=TRAIN_MODEL.bucket_name,
-        model_s3_name=TRAIN_MODEL.model_s3_name,
+        # model_local_path= TRAIN_MODEL.model_local_path,
+        # bucket_name=TRAIN_MODEL.bucket_name,
+        model_s3_name=str(st.session_state.model_s3_name),
     )
 
     get_trained_model_confusionM(

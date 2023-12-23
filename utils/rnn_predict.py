@@ -12,7 +12,7 @@ from .common_functions import (
 #     get_variables,
 # )
 
-#from .rnn_train import RNN_TRAIN_DATACLASS
+# from .rnn_train import RNN_TRAIN_DATACLASS
 
 # from rnn_model import model
 # from datetime import datetime

@@ -8,7 +8,7 @@ import mlflow
 from mlflow.models import infer_signature
 from mlflow import MlflowClient
 from pprint import pprint
-from datetime import datetime
+import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix #, classification_report
 import sys
@@ -63,8 +63,20 @@ class RNN_TRAIN_DATACLASS:
 
     NUMBER_CLASSES = 4
 
+        
+    # Get the current date and time
+    clearml_project_name = "portfolioproject"
+    current_datetime = str(datetime.datetime.now())
+    clearml_task_name= f"task-{current_datetime}"
+    model_local_path= str("./data/models/model.h5")
+    bucket_name=str("physiologicalsignalsbucket"),
+    model_s3_name= str(f"Model-{current_datetime}")
+    
 
-def init_clearml_task(project_name, task_name):
+
+
+
+def init_clearml_task(project_name=RNN_TRAIN_DATACLASS.clearml_project_name, task_name=RNN_TRAIN_DATACLASS.clearml_task_name):
     task_name = Task.init(project_name=project_name, task_name=task_name)
     return task_name
 
@@ -204,10 +216,14 @@ def train_model(model_to_train, TRAIN_FEATURES, TRAIN_LABELS, TRAIN_STEPS, PREDI
     return model_to_train, history
 
 
-def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, model_local_path, bucket_name, model_s3_name):
+def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, model_local_path=RNN_TRAIN_DATACLASS.model_local_path, bucket_name=RNN_TRAIN_DATACLASS.bucket_name[0], model_s3_name=RNN_TRAIN_DATACLASS.model_s3_name):
 
     trained_model.save(model_local_path)
-    upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_s3_name)
+    try:
+        print(print(bucket_name))
+        upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_s3_name)
+    except Exception as e:
+        print("Failed to Upload to S3 bucket. Error:", e)
     artifact_path = "./data/artifacts/1.png"
     pd.DataFrame(history.history).plot(figsize=(8, 5))
     plt.title("Plot of model metrics")

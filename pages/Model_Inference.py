@@ -2,26 +2,9 @@ import streamlit as st
 
 from utils.rnn_predict import predict_from_streamlit_data
 
-from utils.rnn_train import (
-    init_clearml_task,
-    initialise_training_variables,
-    initialise_train_model,
-    train_model,
-    save_trained_model_s3bucket_and_log_artifacts,
-    get_trained_model_confusionM,
-)
 
 from mylib.appfunctions import (
-    upload_files,
-    read_files,
-    TEXT,
-    SortSPO2HR_app,
-    SortAccTempEDA_app,
     necessary_variables_app,
-    resize_data_to_uniform_lengths_app,
-    write_expandable_text_app,
-    sanity_check_2_and_DownSamplingAccTempEDA_app,
-    get_data_dict_app,
     get_s3_bucket_files,
     download_s3_file,
 )
@@ -73,9 +56,8 @@ def initialise_session_states():
         if key not in st.session_state:
             st.session_state[key] = value
 
+
 initialise_session_states()
-
-
 
 
 # uploaded_files_dict = upload_files(from_s3=True)
@@ -225,6 +207,22 @@ if st.session_state.selected_inference_subjects:
         st.write(Confusion_matrix)
 
         if st.button("Train model", type="primary"):
-            st.session_state.PERCENT_OF_TRAIN = st.slider('Percentage of train samples:', min_value=0.1, max_value=1.0, value=0.8, step=0.1, help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.")
-            st.session_state.degree_of_overlap = st.number_input('Degree of overlap between two consecutive samples:', min_value=0.0, max_value=0.9, value=0.5, step=0.1, help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection" )
-            st.session_state.sampling_window = st.number_input('Sampling window:', min_value=100, max_value=500, value="min", step=10)
+            st.session_state.PERCENT_OF_TRAIN = st.slider(
+                "Percentage of train samples:",
+                min_value=0.1,
+                max_value=1.0,
+                value=0.8,
+                step=0.1,
+                help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
+            )
+            st.session_state.degree_of_overlap = st.number_input(
+                "Degree of overlap between two consecutive samples:",
+                min_value=0.0,
+                max_value=0.9,
+                value=0.5,
+                step=0.1,
+                help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
+            )
+            st.session_state.sampling_window = st.number_input(
+                "Sampling window:", min_value=100, max_value=500, value="min", step=10
+            )
