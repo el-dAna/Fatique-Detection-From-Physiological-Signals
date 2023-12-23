@@ -30,7 +30,7 @@ def window_sampling(samples_dict, window_size=100, overlap=0.6):
     array_width = samples_dict[0].shape[1]  # stores the allowable range of indices
     percent_overlap = (
         1 - overlap
-    )  # this is used instead to give generate the expected overlap. Using just overlap generates (1-overlap) overlap
+    )  # this is used instead to generate the expected overlap. Using just overlap generates (1-overlap) overlap
     stride = int(percent_overlap * window_size)
     assert stride > 0 and stride != 1, "Stride too small. Reduce the value of overlap."
     max_samples = int(((array_width - window_size) / stride) + 1)
@@ -38,6 +38,9 @@ def window_sampling(samples_dict, window_size=100, overlap=0.6):
         window_size < array_width
     ), "Window size should be less than total array width"
     assert overlap != 1, "Percentage of overlap should be less than 100% or 1"
+
+    print("asfdghagf")
+
 
     temp_samples = []  # to keep generated samples
 

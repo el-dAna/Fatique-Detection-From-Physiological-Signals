@@ -194,65 +194,73 @@ if st.session_state.files_upload:
             st.write(Confusion_matrix)
 
             if st.button("Train model", type="primary"):
-                train_task = init_clearml_task("portfolioproject", "test-22122023")
-                (
-                    TRAIN_FEATURES,
-                    TRAIN_LABELS,
-                    TOTAL_TRAIN_DATA,
-                    PREDICT_FEATURES,
-                    PREDICT_LABELS,
-                    TOTAL_VAL_DATA,
-                    INPUT_FEATURE_SHAPE,
-                    TRAIN_BATCH_SIZE,
-                    TRAIN_STEPS,
-                ) = initialise_training_variables(
-                    sample_window=st.session_state.sampling_window,
-                    degree_of_overlap=st.session_state.degree_of_overlap,
-                    PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
-                )
-
-                model_to_train = initialise_train_model(
-                    MODEL_INPUT_SHAPE=INPUT_FEATURE_SHAPE,
-                    dp1=0.3,
-                    dp2=0.3,
-                    dp3=0.0,
-                    dp4=0.0,
-                    learning_rate=0.0002,
-                )
-
-                trained_model, history = train_model(
-                    model_to_train,
-                    TRAIN_FEATURES,
-                    TRAIN_LABELS,
-                    TRAIN_STEPS,
-                    PREDICT_FEATURES,
-                    PREDICT_LABELS,
-                    EPOCHS=10,
-                )
-
-                save_trained_model_s3bucket_and_log_artifacts(
-                    trained_model,
-                    history,
-                    model_local_path="./data/models/model.h5",
-                    bucket_name="physiologicalsignalsbucket",
-                    model_s3_name="a_name_i_liked",
-                )
-
-                get_trained_model_confusionM(
-                    trained_model,
-                    TRAIN_FEATURES,
-                    TRAIN_LABELS,
-                    PREDICT_FEATURES,
-                    PREDICT_LABELS,
-                )
-
-                train_task.close()
+                st.session_state.PERCENT_OF_TRAIN = st.slider('Percentage of train samples:', min_value=0.1, max_value=1.0, value=0.8, step=0.1, help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.")
+                st.session_state.degree_of_overlap = st.number_input('Degree of overlap between two consecutive samples:', min_value=0.0, max_value=0.9, value=0.5, step=0.1, help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection" )
+                st.session_state.sampling_window = st.number_input('Sampling window:', min_value=100, max_value=500, value="min", step=10)
 
 
-st.sidebar.markdown("# Data ❄️")
+                # train_task = init_clearml_task("portfolioproject", "test-22122023")
+                # (
+                #     TRAIN_FEATURES,
+                #     TRAIN_LABELS,
+                #     TOTAL_TRAIN_DATA,
+                #     PREDICT_FEATURES,
+                #     PREDICT_LABELS,
+                #     TOTAL_VAL_DATA,
+                #     INPUT_FEATURE_SHAPE,
+                #     TRAIN_BATCH_SIZE,
+                #     TRAIN_STEPS,
+                # ) = initialise_training_variables(
+                #     sample_window=st.session_state.sampling_window,
+                #     degree_of_overlap=st.session_state.degree_of_overlap,
+                #     PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
+                # )
+
+                # model_to_train = initialise_train_model(
+                #     MODEL_INPUT_SHAPE=INPUT_FEATURE_SHAPE,
+                #     dp1=0.3,
+                #     dp2=0.3,
+                #     dp3=0.0,
+                #     dp4=0.0,
+                #     learning_rate=0.0002,
+                # )
+
+                # trained_model, history = train_model(
+                #     model_to_train,
+                #     TRAIN_FEATURES,
+                #     TRAIN_LABELS,
+                #     TRAIN_STEPS,
+                #     PREDICT_FEATURES,
+                #     PREDICT_LABELS,
+                #     EPOCHS=10,
+                # )
+
+                # save_trained_model_s3bucket_and_log_artifacts(
+                #     trained_model,
+                #     history,
+                #     model_local_path="./data/models/model.h5",
+                #     bucket_name="physiologicalsignalsbucket",
+                #     model_s3_name="a_name_i_liked",
+                # )
+
+                # get_trained_model_confusionM(
+                #     trained_model,
+                #     TRAIN_FEATURES,
+                #     TRAIN_LABELS,
+                #     PREDICT_FEATURES,
+                #     PREDICT_LABELS,
+                # )
+
+                # train_task.close()
 
 
-st.sidebar.markdown("# Model❄️")
+st.sidebar.markdown("# Data Preprocessing ❄️")
+
+
+st.sidebar.markdown("# Model Taining❄️")
+
+
+st.sidebar.markdown("# Inference❄️")
 
 
 # Get the current date and time

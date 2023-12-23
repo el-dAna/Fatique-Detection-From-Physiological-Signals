@@ -38,6 +38,7 @@ Run inference.
 I think saving on clearml is more practical since models on s3 would have to be downloaded and saved explicitly in a file system. Clearml handles all this by calling a method. Will fully swith to clearml
 
 ## Next session
+present file descriptions in tabular form, heading(file names), rows(recorded info, frequency, #samples, ....)
 parameterize training new model
 
 ---------------------------------------------------------------
