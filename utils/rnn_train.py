@@ -216,12 +216,12 @@ def train_model(model_to_train, TRAIN_FEATURES, TRAIN_LABELS, TRAIN_STEPS, PREDI
     return model_to_train, history
 
 
-def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, model_local_path=RNN_TRAIN_DATACLASS.model_local_path, bucket_name=RNN_TRAIN_DATACLASS.bucket_name[0], model_s3_name=RNN_TRAIN_DATACLASS.model_s3_name):
+def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, window, overlap, model_local_path=RNN_TRAIN_DATACLASS.model_local_path, bucket_name=RNN_TRAIN_DATACLASS.bucket_name[0], model_s3_name=RNN_TRAIN_DATACLASS.model_s3_name):
 
     trained_model.save(model_local_path)
     try:
-        print(print(bucket_name))
-        upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_s3_name)
+        # print(print(bucket_name))
+        upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_s3_name, window=window, overlap=overlap)
     except Exception as e:
         print("Failed to Upload to S3 bucket. Error:", e)
     artifact_path = "./data/artifacts/1.png"

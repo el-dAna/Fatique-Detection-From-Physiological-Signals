@@ -7,6 +7,7 @@ import numpy as np
 import copy
 import boto3
 
+
 # from tempfile import NamedTemporaryFile
 # import seaborn as sns
 import matplotlib.pyplot as plt
@@ -833,12 +834,17 @@ def upload_file_to_s3(
     file_path="./data/models/model.h5",
     bucket_name="physiologicalsignalsbucket",
     object_name=None,
+    window=100,
+    overlap=0.5,
 ):
     s3_client = boto3.client("s3")
     if object_name is None:
         object_name = file_path.split("/")[-1]  # Use the file name as the object name
     try:
-        s3_client.upload_file(file_path, bucket_name, f"{object_name}.h5")
+        tags = f"window={str(window)}&overlap={str(overlap)}"
+        s3_client.upload_file(
+            file_path, bucket_name, f"{object_name}.h5", ExtraArgs={"Tagging": tags}
+        )
         print(f"File uploaded successfully to S3 bucket: {bucket_name}")
     except Exception as e:
         print(f"Error uploading file to S3 bucket: {e}")

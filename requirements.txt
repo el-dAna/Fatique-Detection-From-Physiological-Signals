@@ -9,6 +9,8 @@ pandas==2.0.3
 pylint
 black
 pytest==7.4.3
+jsons==1.6.3
+
 
 
 #access s3 bucket data

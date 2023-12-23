@@ -130,6 +130,8 @@ if st.button("Train model", type="primary"):
         # model_local_path= TRAIN_MODEL.model_local_path,
         # bucket_name=TRAIN_MODEL.bucket_name,
         model_s3_name=str(st.session_state.model_s3_name),
+        window=str(st.session_state.sampling_window),
+        overlap=str(st.session_state.degree_of_overlap),
     )
 
     get_trained_model_confusionM(

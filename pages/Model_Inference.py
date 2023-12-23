@@ -12,7 +12,7 @@ from mylib.appfunctions import (
 
 st.set_page_config(page_title="Run Inference", page_icon="😎")
 
-st.markdown("# Plotting Demo")
+st.markdown("# Run Inference")
 st.sidebar.header("Variables to track")
 st.write(
     """This page is for classifying the samples of subjects loaded from s3 bucket"""
