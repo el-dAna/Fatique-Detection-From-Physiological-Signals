@@ -45,6 +45,7 @@ session_states = {
 }
 
 
+
 @st.cache_data
 def initialise_session_states():
     for key, value in session_states.items():
@@ -263,7 +264,4 @@ st.sidebar.markdown("# Model Taining❄️")
 st.sidebar.markdown("# Inference❄️")
 
 
-# Get the current date and time
-# current_datetime = str(datetime.datetime.now())
-# clearml_task_name=RNN_TRAIN_DATACLASS.current_datetime, model_local_path="./data/models/model.h5", bucket_name='physiologicalsignalsbucket',
-# train_task = Task.init(project_name=project_name, task_name=clearml_task_name)
+

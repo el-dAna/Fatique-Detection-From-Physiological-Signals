@@ -12,7 +12,6 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix #, classification_report
 import sys
-import datetime
 import s3fs
 import boto3
 
