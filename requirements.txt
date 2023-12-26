@@ -11,7 +11,10 @@ black
 pytest==7.4.3
 jsons==1.6.3
 
-
+#fastapi
+fastapi==0.103.2
+pydantic==1.10.13
+uvicorn[standard]==0.25.0
 
 #access s3 bucket data
 s3fs==2023.10.0
