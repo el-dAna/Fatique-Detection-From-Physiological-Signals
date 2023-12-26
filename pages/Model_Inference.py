@@ -1,11 +1,12 @@
 import streamlit as st
-
+import boto3
 from utils.rnn_predict import predict_from_streamlit_data
 
 
 from mylib.appfunctions import (
     necessary_variables_app,
     get_s3_bucket_files,
+    get_s3_bucket_tagged_files,
     download_s3_file,
 )
 
@@ -59,122 +60,22 @@ def initialise_session_states():
 
 initialise_session_states()
 
+# Create three columns to arrange the text inputs horizontally
+col1, col2, col3 = st.columns(3)
 
-# uploaded_files_dict = upload_files(from_s3=True)
-
-# if uploaded_files_dict:
-#     st.session_state.files_upload = True
-#     st.session_state.uploaded_files_dict = uploaded_files_dict
-#     st.session_state.uploaded_files_dict_keys = (
-#         st.session_state.uploaded_files_dict.keys()
-#     )
-#     st.session_state.uploaded_subject_names = set(
-#         [key[:8] for key in st.session_state.uploaded_files_dict_keys]
-#     )
-
-
-# if st.session_state.files_upload:
-#     # view_data_button = st.button("View")
-#     read_files(uploaded_files_dict=st.session_state.uploaded_files_dict)
-#     st.write(TEXT.dataset_description1)
-#     st.session_state.uploaded_spo2_files = [
-#         file
-#         for file in st.session_state.uploaded_files_dict_keys
-#         if file.endswith("HR.csv")
-#     ]
-#     st.session_state.uploaded_tempEda_files = [
-#         file
-#         for file in st.session_state.uploaded_files_dict_keys
-#         if file.endswith("EDA.csv")
-#     ]
-#     SPO2HR, SPO2HR_attributes_dict = SortSPO2HR_app(
-#         uploaded_files_dict=st.session_state.uploaded_files_dict,
-#         uploaded_spo2_files=st.session_state.uploaded_spo2_files,
-#     )
-#     AccTempEDA, AccTempEDA_attributes_dict = SortAccTempEDA_app(
-#         uploaded_files_dict=st.session_state.uploaded_files_dict,
-#         uploaded_tempEda_files=st.session_state.uploaded_tempEda_files,
-#     )
-
-#     st.session_state.selected_inference_subjects = st.multiselect(
-#         "Select subject to run inference", st.session_state.uploaded_subject_names
-#     )
-
-#     if st.session_state.selected_inference_subjects:
-#         st.write("selected_inference", st.session_state.selected_inference_subjects)
-#         total_selected = len(st.session_state.selected_inference_subjects)
-#         (
-#             SPO2HR_target_size,
-#             AccTempEDA_target_size,
-#             SPO2HR_attributes,
-#             AccTempEDA_attributes,
-#             categories,
-#             attributes_dict,
-#             relax_indices,
-#             phy_emo_cog_indices,
-#             all_attributes,
-#         ) = necessary_variables_app()
-
-#         SPO2HR_resized, AccTempEDA_resized = resize_data_to_uniform_lengths_app(
-#             total_subject_num=total_selected,
-#             categories=categories,
-#             attributes_dict=attributes_dict,
-#             SPO2HR_target_size=SPO2HR_target_size,
-#             SPO2HR=SPO2HR,
-#             AccTempEDA_target_size=AccTempEDA_target_size,
-#             AccTempEDA=AccTempEDA,
-#         )
-
-#         write_expandable_text_app(
-#             title="SPO2HR_resized",
-#             detailed_description="Details",
-#             variable=SPO2HR_resized,
-#         )
-
-#         AccTempEDA_DownSampled = sanity_check_2_and_DownSamplingAccTempEDA_app(
-#             total_selected,
-#             categories,
-#             attributes_dict,
-#             SPO2HR_target_size,
-#             SPO2HR_resized,
-#             AccTempEDA_target_size,
-#             AccTempEDA_resized,
-#             relax_indices,
-#             phy_emo_cog_indices,
-#         )
-
-#         write_expandable_text_app(
-#             title="AccTempEDA_DownSampled",
-#             detailed_description="More details",
-#             variable=AccTempEDA_DownSampled,
-#         )
-
-#         ALL_DATA_DICT = get_data_dict_app(
-#             total_selected,
-#             categories,
-#             attributes_dict,
-#             SPO2HR_resized,
-#             AccTempEDA_DownSampled,
-#         )
-
-#         LABELS_TO_NUMBERS_DICT = {j: i for i, j in enumerate(categories)}
-#         NUMBERS_TO_LABELS_DICT = {i: j for i, j in enumerate(categories)}
-
-#         write_expandable_text_app(
-#             title="All_DATA_DICT",
-#             detailed_description="More details",
-#             variable=ALL_DATA_DICT,
-#         )
-
-#         st.write(
-#             "For every subject, there are 4 Relax sessions and just 1 session fot the other classes. This makes the ratio of Relax to any given class 4:1. The All_DATA_DICT stores the extracted values for the sessions. The keys of the dict do not represent the subject number. The keys are only indices of the samples generated. If only 1 subject, 7 samples are extracted(first 4 for Relax and the last 3 for the physical, emotional cognitive stress in that order)."
-#         )
-
+# Create text input widgets in each column
+st.session_state.sample_window = col1.number_input("Preferred sampling window of data used to train models saved on s3:", min_value=0, max_value=500, value=100, step=1)
+st.session_state.degree_of_overlap = col2.number_input("Preferred overlap between sampled windows used to train models:", min_value=0.0, max_value=0.9, value=0.5, step=0.1)
 st.session_state.selected_inference_subjects = st.multiselect(
     "Select subject to run inference", st.session_state.uploaded_subject_names
 )
-if st.session_state.selected_inference_subjects:
-    st.write("selected_inference", st.session_state.selected_inference_subjects)
+
+# # bucket_name = 'your_bucket_name'
+# tags = [{'Key': 'window', 'Value': str(st.session_state.sample_window)}, {'Key': 'overlap', 'Value': str(st.session_state.degree_of_overlap)}]
+
+
+if st.session_state.sample_window and st.session_state.degree_of_overlap and st.session_state.selected_inference_subjects:
+    # st.write("selected_inference", st.session_state.selected_inference_subjects)
     total_selected = len(st.session_state.selected_inference_subjects)
     (
         SPO2HR_target_size,
@@ -188,16 +89,17 @@ if st.session_state.selected_inference_subjects:
         all_attributes,
     ) = necessary_variables_app()
 
-    models_on_s3 = get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
+    selected_models_on_s3 = get_s3_bucket_tagged_files(sampling_window=st.session_state.sample_window, degree_of_overlap=st.session_state.degree_of_overlap) #get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
     st.selected_model = st.selectbox(
         "Select a(your) trained and saved model from s3 for inference",
-        options=models_on_s3,
+        options=selected_models_on_s3,
     )
-
-    download_s3_file(s3_file_path=st.selected_model)
-    model_local_path = "./data/models/downloaded_model.h5"
+    
 
     if st.selected_model != " ":
+        download_s3_file(s3_file_path=st.selected_model)
+        model_local_path = "./data/models/downloaded_model.h5"
+
         Confusion_matrix = predict_from_streamlit_data(
             inference_model=model_local_path,
             streamlit_all_data_dict=st.session_state.ALL_DATA_DICT,

@@ -820,6 +820,38 @@ def get_s3_bucket_files(bucket_name):
         buckets.append(obj.key)
     return buckets
 
+def get_s3_bucket_tagged_files(bucket_name='physiologicalsignalsbucket', sampling_window=100, degree_of_overlap=0.5):
+    s3 = boto3.resource("s3")
+    client = boto3.client('s3')
+    target = {'window': str(sampling_window), 'overlap': str(degree_of_overlap)}
+    bucket = s3.Bucket(bucket_name)
+    buckets = []
+    all_buckets = []
+    for obj in bucket.objects.all():
+        all_buckets.append(obj.key)
+        response = client.get_object_tagging(
+        Bucket=bucket_name,
+        Key=obj.key)
+        file_tags = response['TagSet'] # a dict
+        counter = 0
+        for element in file_tags:
+            try:
+                if element['Key'] in target.keys():
+                    #st.write('ada', element['Value'], target[element["Key"]])
+                    if element['Value'] == target[element["Key"]]:
+                        counter = counter + 1
+                    if counter >= 2:
+                        buckets.append(obj.key)
+            except Exception as e:
+                st.write(f'Got an error in getting tags of file. Error:{e}')
+    if len(buckets) == 0:
+        st.write('Found no compatible model for selected sampling window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications')
+        return all_buckets
+    
+    return buckets
+
+
+
 
 def download_s3_file(
     s3_file_path,
