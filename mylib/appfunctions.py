@@ -160,7 +160,7 @@ def read_files(uploaded_files_dict):
                     plt.xlabel("Seconds")
                     plt.ylabel("Recorded value")
                     plt.title(f"Plot of recorded signals of {file}")
-                    plot_vertical_lines(plot=plt, freq=8.286363636363637)
+                    plot_vertical_lines(plot=plt, freq=8)
                     st.pyplot(plt)
 
                     plt.close()

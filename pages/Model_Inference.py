@@ -97,6 +97,7 @@ if st.session_state.sample_window and st.session_state.degree_of_overlap and st.
     
 
     if st.selected_model != " ":
+
         download_s3_file(s3_file_path=st.selected_model)
         model_local_path = "./data/models/downloaded_model.h5"
 

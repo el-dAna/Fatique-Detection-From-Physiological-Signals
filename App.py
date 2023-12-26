@@ -50,216 +50,253 @@ st.sidebar.markdown("# Home Page 🎈")
 
 st.markdown(
     """
-    This is an mlops portforlio project. The project uses data collected from participants and a machine learning model trained to detecth fatigue.
+    This is an mlops portforlio project. The project uses physiological signals collected from 20 participants and a machine learning model trained to detect fatigue.
+    This project shows more of mlops operations than model accuracy. A model can be trained given the timea resources.
     """
 )
 
-uploaded_files_dict = upload_files(from_s3=True)
+st.markdown("## Dataset Description")
 
-if uploaded_files_dict:
-    st.session_state.files_upload = True
-    st.session_state.uploaded_files_dict = uploaded_files_dict
-    st.session_state.uploaded_files_dict_keys = (
-        st.session_state.uploaded_files_dict.keys()
-    )
-    st.session_state.uploaded_subject_names = set(
-        [key[:8] for key in st.session_state.uploaded_files_dict_keys]
-    )
+st.markdown("""This dataset consists of physiological signals taken from 20 participants as they performed various tasks. Therea are 4 classes. \n
+            (Relax, Physical Stress, Cognitive Stress and Emotional Stress)\n
+            Check the table below for a summary of protocol.
+            """)
+
+data = [
+    ["Time", "State", "Description", "Files"],
+    ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
+    ["5 mins", "Physical Stress", "Stand, Walk, Jog on Treadmill", "AccTempEDA.csv and SpO2HR.csv"],
+    ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
+    ["40 secs", "Mini CognitiveStress", "Instructions for next session read", "AccTempEDA.csv and SpO2HR.csv"],
+    ["5 mins", "Cognitive Stress", " Count backwards by sevens from 2485", "AccTempEDA.csv and SpO2HR.csv"],
+    ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
+    ["5 mins", "Emotional Stress", "Watching a clip from zombie apocalypse", "AccTempEDA.csv and SpO2HR.csv"],
+    ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
+]
+
+st.table(data)
+
+st.markdown(
+    """
+    ###### 20 subjects were used.\n
+    ###### Each subject had two (AccTempEDA.csv and SpO2HR.csv) files.
+    ###### AccTempEDA.csv contains Acceleration(X,Y,Z), Temperature and Electrodermal Activity(EDA). Sampled at 8hz
+    ###### SpO2HR.csv contains Oxygen saturation(SpO2) and Heart Rate data. Sampled at 8Hz.
+    """
+)
+
+st.markdown("Find more information and access the dataset from here (https://physionet.org/content/noneeg/1.0.0/#files-panel)")
 
 
-if st.session_state.files_upload:
-    # view_data_button = st.button("View")
-    read_files(uploaded_files_dict=st.session_state.uploaded_files_dict)
-    st.write(TEXT.dataset_description1)
-    st.session_state.uploaded_spo2_files = [
-        file
-        for file in st.session_state.uploaded_files_dict_keys
-        if file.endswith("HR.csv")
-    ]
-    st.session_state.uploaded_tempEda_files = [
-        file
-        for file in st.session_state.uploaded_files_dict_keys
-        if file.endswith("EDA.csv")
-    ]
-    SPO2HR, SPO2HR_attributes_dict = SortSPO2HR_app(
-        uploaded_files_dict=st.session_state.uploaded_files_dict,
-        uploaded_spo2_files=st.session_state.uploaded_spo2_files,
-    )
-    AccTempEDA, AccTempEDA_attributes_dict = SortAccTempEDA_app(
-        uploaded_files_dict=st.session_state.uploaded_files_dict,
-        uploaded_tempEda_files=st.session_state.uploaded_tempEda_files,
-    )
+# Create a table using st.table() and display it
 
-    st.session_state.selected_inference_subjects = st.multiselect(
-        "Select subject to run inference", st.session_state.uploaded_subject_names
-    )
 
-    if st.session_state.selected_inference_subjects:
-        st.write("selected_inference", st.session_state.selected_inference_subjects)
-        total_selected = len(st.session_state.selected_inference_subjects)
-        (
-            SPO2HR_target_size,
-            AccTempEDA_target_size,
-            SPO2HR_attributes,
-            AccTempEDA_attributes,
-            categories,
-            attributes_dict,
-            relax_indices,
-            phy_emo_cog_indices,
-            all_attributes,
-        ) = necessary_variables_app()
+# uploaded_files_dict = upload_files(from_s3=True)
 
-        SPO2HR_resized, AccTempEDA_resized = resize_data_to_uniform_lengths_app(
-            total_subject_num=total_selected,
-            categories=categories,
-            attributes_dict=attributes_dict,
-            SPO2HR_target_size=SPO2HR_target_size,
-            SPO2HR=SPO2HR,
-            AccTempEDA_target_size=AccTempEDA_target_size,
-            AccTempEDA=AccTempEDA,
-        )
+# if uploaded_files_dict:
+#     st.session_state.files_upload = True
+#     st.session_state.uploaded_files_dict = uploaded_files_dict
+#     st.session_state.uploaded_files_dict_keys = (
+#         st.session_state.uploaded_files_dict.keys()
+#     )
+#     st.session_state.uploaded_subject_names = set(
+#         [key[:8] for key in st.session_state.uploaded_files_dict_keys]
+#     )
 
-        write_expandable_text_app(
-            title="SPO2HR_resized",
-            detailed_description="Details",
-            variable=SPO2HR_resized,
-        )
 
-        AccTempEDA_DownSampled = sanity_check_2_and_DownSamplingAccTempEDA_app(
-            total_selected,
-            categories,
-            attributes_dict,
-            SPO2HR_target_size,
-            SPO2HR_resized,
-            AccTempEDA_target_size,
-            AccTempEDA_resized,
-            relax_indices,
-            phy_emo_cog_indices,
-        )
+# if st.session_state.files_upload:
+#     # view_data_button = st.button("View")
+#     read_files(uploaded_files_dict=st.session_state.uploaded_files_dict)
+#     st.write(TEXT.dataset_description1)
+#     st.session_state.uploaded_spo2_files = [
+#         file
+#         for file in st.session_state.uploaded_files_dict_keys
+#         if file.endswith("HR.csv")
+#     ]
+#     st.session_state.uploaded_tempEda_files = [
+#         file
+#         for file in st.session_state.uploaded_files_dict_keys
+#         if file.endswith("EDA.csv")
+#     ]
+#     SPO2HR, SPO2HR_attributes_dict = SortSPO2HR_app(
+#         uploaded_files_dict=st.session_state.uploaded_files_dict,
+#         uploaded_spo2_files=st.session_state.uploaded_spo2_files,
+#     )
+#     AccTempEDA, AccTempEDA_attributes_dict = SortAccTempEDA_app(
+#         uploaded_files_dict=st.session_state.uploaded_files_dict,
+#         uploaded_tempEda_files=st.session_state.uploaded_tempEda_files,
+#     )
 
-        write_expandable_text_app(
-            title="AccTempEDA_DownSampled",
-            detailed_description="More details",
-            variable=AccTempEDA_DownSampled,
-        )
+#     st.session_state.selected_inference_subjects = st.multiselect(
+#         "Select subject to run inference", st.session_state.uploaded_subject_names
+#     )
 
-        ALL_DATA_DICT = get_data_dict_app(
-            total_selected,
-            categories,
-            attributes_dict,
-            SPO2HR_resized,
-            AccTempEDA_DownSampled,
-        )
+#     if st.session_state.selected_inference_subjects:
+#         st.write("selected_inference", st.session_state.selected_inference_subjects)
+#         total_selected = len(st.session_state.selected_inference_subjects)
+#         (
+#             SPO2HR_target_size,
+#             AccTempEDA_target_size,
+#             SPO2HR_attributes,
+#             AccTempEDA_attributes,
+#             categories,
+#             attributes_dict,
+#             relax_indices,
+#             phy_emo_cog_indices,
+#             all_attributes,
+#         ) = necessary_variables_app()
 
-        LABELS_TO_NUMBERS_DICT = {j: i for i, j in enumerate(categories)}
-        NUMBERS_TO_LABELS_DICT = {i: j for i, j in enumerate(categories)}
+#         SPO2HR_resized, AccTempEDA_resized = resize_data_to_uniform_lengths_app(
+#             total_subject_num=total_selected,
+#             categories=categories,
+#             attributes_dict=attributes_dict,
+#             SPO2HR_target_size=SPO2HR_target_size,
+#             SPO2HR=SPO2HR,
+#             AccTempEDA_target_size=AccTempEDA_target_size,
+#             AccTempEDA=AccTempEDA,
+#         )
 
-        write_expandable_text_app(
-            title="All_DATA_DICT",
-            detailed_description="More details",
-            variable=ALL_DATA_DICT,
-        )
+#         write_expandable_text_app(
+#             title="SPO2HR_resized",
+#             detailed_description="Details",
+#             variable=SPO2HR_resized,
+#         )
 
-        st.write(
-            "For every subject, there are 4 Relax sessions and just 1 session fot the other classes. This makes the ratio of Relax to any given class 4:1. The All_DATA_DICT stores the extracted values for the sessions. The keys of the dict do not represent the subject number. The keys are only indices of the samples generated. If only 1 subject, 7 samples are extracted(first 4 for Relax and the last 3 for the physical, emotional cognitive stress in that order)."
-        )
+#         AccTempEDA_DownSampled = sanity_check_2_and_DownSamplingAccTempEDA_app(
+#             total_selected,
+#             categories,
+#             attributes_dict,
+#             SPO2HR_target_size,
+#             SPO2HR_resized,
+#             AccTempEDA_target_size,
+#             AccTempEDA_resized,
+#             relax_indices,
+#             phy_emo_cog_indices,
+#         )
 
-        models_on_s3 = get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
-        st.selected_model = st.selectbox(
-            "Select a(your) trained and saved model from s3 for inference",
-            options=models_on_s3,
-        )
+#         write_expandable_text_app(
+#             title="AccTempEDA_DownSampled",
+#             detailed_description="More details",
+#             variable=AccTempEDA_DownSampled,
+#         )
 
-        download_s3_file(s3_file_path=st.selected_model)
-        model_local_path = "./data/models/downloaded_model.h5"
+#         ALL_DATA_DICT = get_data_dict_app(
+#             total_selected,
+#             categories,
+#             attributes_dict,
+#             SPO2HR_resized,
+#             AccTempEDA_DownSampled,
+#         )
 
-        if st.selected_model != " ":
-            Confusion_matrix = predict_from_streamlit_data(
-                inference_model=model_local_path,
-                streamlit_all_data_dict=ALL_DATA_DICT,
-                WINDOW=st.session_state.sampling_window,
-                OVERLAP=st.session_state.degree_of_overlap,
-            )
-            st.write(Confusion_matrix)
+#         LABELS_TO_NUMBERS_DICT = {j: i for i, j in enumerate(categories)}
+#         NUMBERS_TO_LABELS_DICT = {i: j for i, j in enumerate(categories)}
 
-            if st.button("Train model", type="primary"):
-                st.session_state.PERCENT_OF_TRAIN = st.slider(
-                    "Percentage of train samples:",
-                    min_value=0.1,
-                    max_value=1.0,
-                    value=0.8,
-                    step=0.1,
-                    help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
-                )
-                st.session_state.degree_of_overlap = st.number_input(
-                    "Degree of overlap between two consecutive samples:",
-                    min_value=0.0,
-                    max_value=0.9,
-                    value=0.5,
-                    step=0.1,
-                    help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
-                )
-                st.session_state.sampling_window = st.number_input(
-                    "Sampling window:",
-                    min_value=100,
-                    max_value=500,
-                    value="min",
-                    step=10,
-                )
+#         write_expandable_text_app(
+#             title="All_DATA_DICT",
+#             detailed_description="More details",
+#             variable=ALL_DATA_DICT,
+#         )
 
-                # train_task = init_clearml_task("portfolioproject", "test-22122023")
-                # (
-                #     TRAIN_FEATURES,
-                #     TRAIN_LABELS,
-                #     TOTAL_TRAIN_DATA,
-                #     PREDICT_FEATURES,
-                #     PREDICT_LABELS,
-                #     TOTAL_VAL_DATA,
-                #     INPUT_FEATURE_SHAPE,
-                #     TRAIN_BATCH_SIZE,
-                #     TRAIN_STEPS,
-                # ) = initialise_training_variables(
-                #     sample_window=st.session_state.sampling_window,
-                #     degree_of_overlap=st.session_state.degree_of_overlap,
-                #     PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
-                # )
+#         st.write(
+#             "For every subject, there are 4 Relax sessions and just 1 session fot the other classes. This makes the ratio of Relax to any given class 4:1. The All_DATA_DICT stores the extracted values for the sessions. The keys of the dict do not represent the subject number. The keys are only indices of the samples generated. If only 1 subject, 7 samples are extracted(first 4 for Relax and the last 3 for the physical, emotional cognitive stress in that order)."
+#         )
 
-                # model_to_train = initialise_train_model(
-                #     MODEL_INPUT_SHAPE=INPUT_FEATURE_SHAPE,
-                #     dp1=0.3,
-                #     dp2=0.3,
-                #     dp3=0.0,
-                #     dp4=0.0,
-                #     learning_rate=0.0002,
-                # )
+#         models_on_s3 = get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
+#         st.selected_model = st.selectbox(
+#             "Select a(your) trained and saved model from s3 for inference",
+#             options=models_on_s3,
+#         )
 
-                # trained_model, history = train_model(
-                #     model_to_train,
-                #     TRAIN_FEATURES,
-                #     TRAIN_LABELS,
-                #     TRAIN_STEPS,
-                #     PREDICT_FEATURES,
-                #     PREDICT_LABELS,
-                #     EPOCHS=10,
-                # )
+#         download_s3_file(s3_file_path=st.selected_model)
+#         model_local_path = "./data/models/downloaded_model.h5"
 
-                # save_trained_model_s3bucket_and_log_artifacts(
-                #     trained_model,
-                #     history,
-                #     model_local_path="./data/models/model.h5",
-                #     bucket_name="physiologicalsignalsbucket",
-                #     model_s3_name="a_name_i_liked",
-                # )
+#         if st.selected_model != " ":
+#             Confusion_matrix = predict_from_streamlit_data(
+#                 inference_model=model_local_path,
+#                 streamlit_all_data_dict=ALL_DATA_DICT,
+#                 WINDOW=st.session_state.sampling_window,
+#                 OVERLAP=st.session_state.degree_of_overlap,
+#             )
+#             st.write(Confusion_matrix)
 
-                # get_trained_model_confusionM(
-                #     trained_model,
-                #     TRAIN_FEATURES,
-                #     TRAIN_LABELS,
-                #     PREDICT_FEATURES,
-                #     PREDICT_LABELS,
-                # )
+#             if st.button("Train model", type="primary"):
+#                 st.session_state.PERCENT_OF_TRAIN = st.slider(
+#                     "Percentage of train samples:",
+#                     min_value=0.1,
+#                     max_value=1.0,
+#                     value=0.8,
+#                     step=0.1,
+#                     help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
+#                 )
+#                 st.session_state.degree_of_overlap = st.number_input(
+#                     "Degree of overlap between two consecutive samples:",
+#                     min_value=0.0,
+#                     max_value=0.9,
+#                     value=0.5,
+#                     step=0.1,
+#                     help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
+#                 )
+#                 st.session_state.sampling_window = st.number_input(
+#                     "Sampling window:",
+#                     min_value=100,
+#                     max_value=500,
+#                     value="min",
+#                     step=10,
+#                 )
 
-                # train_task.close()
+#                 # train_task = init_clearml_task("portfolioproject", "test-22122023")
+#                 # (
+#                 #     TRAIN_FEATURES,
+#                 #     TRAIN_LABELS,
+#                 #     TOTAL_TRAIN_DATA,
+#                 #     PREDICT_FEATURES,
+#                 #     PREDICT_LABELS,
+#                 #     TOTAL_VAL_DATA,
+#                 #     INPUT_FEATURE_SHAPE,
+#                 #     TRAIN_BATCH_SIZE,
+#                 #     TRAIN_STEPS,
+#                 # ) = initialise_training_variables(
+#                 #     sample_window=st.session_state.sampling_window,
+#                 #     degree_of_overlap=st.session_state.degree_of_overlap,
+#                 #     PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
+#                 # )
+
+#                 # model_to_train = initialise_train_model(
+#                 #     MODEL_INPUT_SHAPE=INPUT_FEATURE_SHAPE,
+#                 #     dp1=0.3,
+#                 #     dp2=0.3,
+#                 #     dp3=0.0,
+#                 #     dp4=0.0,
+#                 #     learning_rate=0.0002,
+#                 # )
+
+#                 # trained_model, history = train_model(
+#                 #     model_to_train,
+#                 #     TRAIN_FEATURES,
+#                 #     TRAIN_LABELS,
+#                 #     TRAIN_STEPS,
+#                 #     PREDICT_FEATURES,
+#                 #     PREDICT_LABELS,
+#                 #     EPOCHS=10,
+#                 # )
+
+#                 # save_trained_model_s3bucket_and_log_artifacts(
+#                 #     trained_model,
+#                 #     history,
+#                 #     model_local_path="./data/models/model.h5",
+#                 #     bucket_name="physiologicalsignalsbucket",
+#                 #     model_s3_name="a_name_i_liked",
+#                 # )
+
+#                 # get_trained_model_confusionM(
+#                 #     trained_model,
+#                 #     TRAIN_FEATURES,
+#                 #     TRAIN_LABELS,
+#                 #     PREDICT_FEATURES,
+#                 #     PREDICT_LABELS,
+#                 # )
+
+#                 # train_task.close()
 
 
 st.sidebar.markdown("# Data Preprocessing ❄️")

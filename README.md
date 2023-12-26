@@ -37,6 +37,9 @@ Run inference.
 
 I think saving on clearml is more practical since models on s3 would have to be downloaded and saved explicitly in a file system. Clearml handles all this by calling a method. Will fully swith to clearml
 
+Tagged model selection
+Structure of trained models differ in their input shape based on the sample window selected during training. The input shape of architecture changes to accomodate the sample window. So it is important for users to be able to choose such models and process the subject data accordingly and then use uplaoded model for inference. All models are loaded if no compatible model is found and inference made using default specifications (sampling_window=100, overlap=0.5) 
+
 ## Next session
 present file descriptions in tabular form, heading(file names), rows(recorded info, frequency, #samples, ....)
 tag uplaoded models based on selected parameters
