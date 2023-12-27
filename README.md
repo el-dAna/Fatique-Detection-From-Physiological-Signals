@@ -42,7 +42,7 @@ Structure of trained models differ in their input shape based on the sample wind
 
 ## Next session
 present file descriptions in tabular form, heading(file names), rows(recorded info, frequency, #samples, ....)
-tag uplaoded models based on selected parameters
+load models based on selected tags and run inference
 smooth linkage b/n pages. Currently some part of data preprocessing has to work before inference page works smoothly
 
 ---------------------------------------------------------------
