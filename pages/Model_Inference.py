@@ -1,11 +1,11 @@
 import streamlit as st
-import boto3
+# import boto3
 from utils.rnn_predict import predict_from_streamlit_data
 
 
 from mylib.appfunctions import (
     necessary_variables_app,
-    get_s3_bucket_files,
+    #get_s3_bucket_files,
     get_s3_bucket_tagged_files,
     download_s3_file,
 )
@@ -64,8 +64,20 @@ initialise_session_states()
 col1, col2, col3 = st.columns(3)
 
 # Create text input widgets in each column
-st.session_state.sample_window = col1.number_input("Preferred sampling window of data used to train models saved on s3:", min_value=0, max_value=500, value=100, step=1)
-st.session_state.degree_of_overlap = col2.number_input("Preferred overlap between sampled windows used to train models:", min_value=0.0, max_value=0.9, value=0.5, step=0.1)
+st.session_state.sample_window = col1.number_input(
+    "Preferred sampling window of data used to train models saved on s3:",
+    min_value=0,
+    max_value=500,
+    value=100,
+    step=1,
+)
+st.session_state.degree_of_overlap = col2.number_input(
+    "Preferred overlap between sampled windows used to train models:",
+    min_value=0.0,
+    max_value=0.9,
+    value=0.5,
+    step=0.1,
+)
 st.session_state.selected_inference_subjects = st.multiselect(
     "Select subject to run inference", st.session_state.uploaded_subject_names
 )
@@ -74,7 +86,11 @@ st.session_state.selected_inference_subjects = st.multiselect(
 # tags = [{'Key': 'window', 'Value': str(st.session_state.sample_window)}, {'Key': 'overlap', 'Value': str(st.session_state.degree_of_overlap)}]
 
 
-if st.session_state.sample_window and st.session_state.degree_of_overlap and st.session_state.selected_inference_subjects:
+if (
+    st.session_state.sample_window
+    and st.session_state.degree_of_overlap
+    and st.session_state.selected_inference_subjects
+):
     # st.write("selected_inference", st.session_state.selected_inference_subjects)
     total_selected = len(st.session_state.selected_inference_subjects)
     (
@@ -89,15 +105,16 @@ if st.session_state.sample_window and st.session_state.degree_of_overlap and st.
         all_attributes,
     ) = necessary_variables_app()
 
-    selected_models_on_s3 = get_s3_bucket_tagged_files(sampling_window=st.session_state.sample_window, degree_of_overlap=st.session_state.degree_of_overlap) #get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
+    selected_models_on_s3 = get_s3_bucket_tagged_files(
+        sampling_window=st.session_state.sample_window,
+        degree_of_overlap=st.session_state.degree_of_overlap,
+    )  # get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
     st.selected_model = st.selectbox(
         "Select a(your) trained and saved model from s3 for inference",
         options=selected_models_on_s3,
     )
-    
 
     if st.selected_model != " ":
-
         download_s3_file(s3_file_path=st.selected_model)
         model_local_path = "./data/models/downloaded_model.h5"
 

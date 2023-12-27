@@ -63,11 +63,13 @@ def initialise_session_states():
 initialise_session_states()
 
 
+st.markdown("### Step 1. Loading")
+
 uploaded_files_dict = upload_files(from_s3=True)
 
 if uploaded_files_dict:
     write_expandable_text_app(
-        title="More info",
+        title="More info on data",
         detailed_description="""Total subject number is 20. Eavh subject has 2 files so a total of 2*20=40 files.
                               The Subject#SpO2HR.csv has SpO2 and HeartRate information. The Subject#AccTempEDA.csv contains
                               the Acceleration in (X, Y, Z) directions,Temperature and Electrodermal Activity(EDA) of the subject
@@ -83,43 +85,37 @@ if uploaded_files_dict:
         [key[:8] for key in st.session_state.uploaded_files_dict_keys]
     )
 
+    if st.session_state.files_upload:
+        # view_data_button = st.button("View")
 
-if st.session_state.files_upload:
-    # view_data_button = st.button("View")
-    read_files(uploaded_files_dict=st.session_state.uploaded_files_dict)
-    st.write(TEXT.dataset_description1)
-    st.session_state.uploaded_spo2_files = [
-        file
-        for file in st.session_state.uploaded_files_dict_keys
-        if file.endswith("HR.csv")
-    ]
-    st.session_state.uploaded_tempEda_files = [
-        file
-        for file in st.session_state.uploaded_files_dict_keys
-        if file.endswith("EDA.csv")
-    ]
-    SPO2HR, SPO2HR_attributes_dict = SortSPO2HR_app(
-        uploaded_files_dict=st.session_state.uploaded_files_dict,
-        uploaded_spo2_files=st.session_state.uploaded_spo2_files,
-    )
-    AccTempEDA, AccTempEDA_attributes_dict = SortAccTempEDA_app(
-        uploaded_files_dict=st.session_state.uploaded_files_dict,
-        uploaded_tempEda_files=st.session_state.uploaded_tempEda_files,
-    )
+        st.markdown("### Step 2. Visualise Data")
+        read_files(uploaded_files_dict=st.session_state.uploaded_files_dict)
 
-    st.session_state.selected_subjects_during_datapreprocessing = st.multiselect(
-        "Select subject to restructure classes in a training/inference format",
-        st.session_state.uploaded_subject_names,
-    )
-
-    if st.session_state.selected_subjects_during_datapreprocessing:
-        st.write(
-            "selected_inference",
-            st.session_state.selected_subjects_during_datapreprocessing,
+        write_expandable_text_app(
+            title="More info on graphs", detailed_description=TEXT.dataset_description1
         )
-        total_selected = len(
-            st.session_state.selected_subjects_during_datapreprocessing
+
+        st.session_state.uploaded_spo2_files = [
+            file
+            for file in st.session_state.uploaded_files_dict_keys
+            if file.endswith("HR.csv")
+        ]
+        st.session_state.uploaded_tempEda_files = [
+            file
+            for file in st.session_state.uploaded_files_dict_keys
+            if file.endswith("EDA.csv")
+        ]
+        SPO2HR, SPO2HR_attributes_dict = SortSPO2HR_app(
+            uploaded_files_dict=st.session_state.uploaded_files_dict,
+            uploaded_spo2_files=st.session_state.uploaded_spo2_files,
         )
+        AccTempEDA, AccTempEDA_attributes_dict = SortAccTempEDA_app(
+            uploaded_files_dict=st.session_state.uploaded_files_dict,
+            uploaded_tempEda_files=st.session_state.uploaded_tempEda_files,
+        )
+
+        st.markdown("### Step 3. Restructuring data")
+        total_selected = len(st.session_state.uploaded_subject_names)
         (
             st.session_state.SPO2HR_target_size,
             st.session_state.AccTempEDA_target_size,
@@ -147,7 +143,10 @@ if st.session_state.files_upload:
 
         write_expandable_text_app(
             title="SPO2HR_resized",
-            detailed_description="Details",
+            detailed_description="""The input to a model must be uniform. Eventhough 5mins were recoded, there can be some dew seconds over/under recoding.
+                This step ensures this uniformity for the SpO2HR.csv files only. For each subject there are 4 Relax sessions and just one (Physical/Cognitive/Emotional) stress.\n
+                By Observation len(Relax) equals 3 times len(other_sessions)
+                """,
             variable=st.session_state.SPO2HR_resized,
         )
 
@@ -167,7 +166,7 @@ if st.session_state.files_upload:
 
         write_expandable_text_app(
             title="AccTempEDA_DownSampled",
-            detailed_description="More details",
+            detailed_description="This step ensures the unifromity of recoreded sessions in the 8Hz AccTempEDA.csv file. This step also downsamples the 8Hz signals to 1HZ to conform with the structure of the SpO2HR.csv data. Again the relax sessions here 4 for every subject.",
             variable=st.session_state.AccTempEDA_DownSampled,
         )
 
@@ -186,9 +185,10 @@ if st.session_state.files_upload:
             i: j for i, j in enumerate(st.session_state.categories)
         }
 
+        st.markdown("### Step 4. Regrouping sessions.")
         write_expandable_text_app(
             title="All_DATA_DICT",
-            detailed_description="More details",
+            detailed_description="All relax sessions extracted and put at knwon indices, same is done for Physical, Cognitive and Emotional Stresses.",
             variable=st.session_state.ALL_DATA_DICT,
         )
 

@@ -1,23 +1,5 @@
 import streamlit as st
 
-from utils.rnn_predict import predict_from_streamlit_data
-
-from mylib.appfunctions import (
-    upload_files,
-    read_files,
-    TEXT,
-    SortSPO2HR_app,
-    SortAccTempEDA_app,
-    necessary_variables_app,
-    resize_data_to_uniform_lengths_app,
-    write_expandable_text_app,
-    sanity_check_2_and_DownSamplingAccTempEDA_app,
-    get_data_dict_app,
-    get_s3_bucket_files,
-    download_s3_file,
-)
-
-
 # import numpy as np
 session_states = {
     "files_upload": False,
@@ -55,22 +37,50 @@ st.markdown(
     """
 )
 
+st.markdown("### The structure if the orchestration is shown by the figma embed below")
+figma_project_structure = """
+        <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FqAkiRCvXSZOOgIAfwgJiNY%2FTuseb%3Ftype%3Ddesign%26node-id%3D13%253A2%26mode%3Ddesign%26t%3Dh9lQy5zVoYmXZDEA-1" allowfullscreen></iframe>
+    """
+st.markdown(figma_project_structure, unsafe_allow_html=True)
+
 st.markdown("## Dataset Description")
 
-st.markdown("""This dataset consists of physiological signals taken from 20 participants as they performed various tasks. Therea are 4 classes. \n
+st.markdown(
+    """This dataset consists of physiological signals taken from 20 participants as they performed various tasks. Therea are 4 classes. \n
             (Relax, Physical Stress, Cognitive Stress and Emotional Stress)\n
             Check the table below for a summary of protocol.
-            """)
+            """
+)
 
 data = [
     ["Time", "State", "Description", "Files"],
     ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
-    ["5 mins", "Physical Stress", "Stand, Walk, Jog on Treadmill", "AccTempEDA.csv and SpO2HR.csv"],
+    [
+        "5 mins",
+        "Physical Stress",
+        "Stand, Walk, Jog on Treadmill",
+        "AccTempEDA.csv and SpO2HR.csv",
+    ],
     ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
-    ["40 secs", "Mini CognitiveStress", "Instructions for next session read", "AccTempEDA.csv and SpO2HR.csv"],
-    ["5 mins", "Cognitive Stress", " Count backwards by sevens from 2485", "AccTempEDA.csv and SpO2HR.csv"],
+    [
+        "40 secs",
+        "Mini CognitiveStress",
+        "Instructions for next session read",
+        "AccTempEDA.csv and SpO2HR.csv",
+    ],
+    [
+        "5 mins",
+        "Cognitive Stress",
+        " Count backwards by sevens from 2485",
+        "AccTempEDA.csv and SpO2HR.csv",
+    ],
     ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
-    ["5 mins", "Emotional Stress", "Watching a clip from zombie apocalypse", "AccTempEDA.csv and SpO2HR.csv"],
+    [
+        "5 mins",
+        "Emotional Stress",
+        "Watching a clip from zombie apocalypse",
+        "AccTempEDA.csv and SpO2HR.csv",
+    ],
     ["5 mins", "Relax", "Relaxing activities", "AccTempEDA.csv and SpO2HR.csv"],
 ]
 
@@ -85,7 +95,6 @@ st.markdown(
     """
 )
 
-st.markdown("Find more information and access the dataset from here (https://physionet.org/content/noneeg/1.0.0/#files-panel)")
 
 st.sidebar.markdown("# Data Preprocessing ❄️")
 

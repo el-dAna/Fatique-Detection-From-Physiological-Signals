@@ -33,7 +33,6 @@ import matplotlib.pyplot as plt
 @dataclass
 class TEXT:
     dataset_description1 = "As shown in the graphs above the total recoding time for AccTempEDA and SpO2HR files is diiferent. The signals were sampled at different frequencies. One other challenge is that sessions for Relax, PhysicalStress, CognitiveStress, EmotionalStress are all contained in one file. So to have distinct classes each needs to be extracted."
-    # https://physionet.org/content/noneeg/1.0.0/
 
 
 @dataclass
@@ -138,7 +137,10 @@ def read_files(uploaded_files_dict):
 
     # selected_file = st.selectbox("Select an option:", uploaded_files_dict.keys())
 
-    selected_files = st.multiselect("Select subject data", uploaded_files_dict.keys())
+    selected_files = st.multiselect(
+        "Select subject data. Max of 2 selections advised for a convenient display.",
+        uploaded_files_dict.keys(),
+    )
     if selected_files:
         # Create columns for plots
         graph_cols = st.columns(int(len(selected_files)))
@@ -149,7 +151,6 @@ def read_files(uploaded_files_dict):
                 # Create pandas dataframe
                 dataframe = uploaded_files_dict[file]
                 st.write(dataframe)
-                st.write("adfa", len(dataframe["Label"]))
                 time_steps = range(len(dataframe["Second"]))
                 dataframe["Second_modified"] = time_steps
             with graph_cols[i]:
@@ -820,37 +821,38 @@ def get_s3_bucket_files(bucket_name):
         buckets.append(obj.key)
     return buckets
 
-def get_s3_bucket_tagged_files(bucket_name='physiologicalsignalsbucket', sampling_window=100, degree_of_overlap=0.5):
+
+def get_s3_bucket_tagged_files(
+    bucket_name="physiologicalsignalsbucket", sampling_window=100, degree_of_overlap=0.5
+):
     s3 = boto3.resource("s3")
-    client = boto3.client('s3')
-    target = {'window': str(sampling_window), 'overlap': str(degree_of_overlap)}
+    client = boto3.client("s3")
+    target = {"window": str(sampling_window), "overlap": str(degree_of_overlap)}
     bucket = s3.Bucket(bucket_name)
     buckets = []
     all_buckets = []
     for obj in bucket.objects.all():
         all_buckets.append(obj.key)
-        response = client.get_object_tagging(
-        Bucket=bucket_name,
-        Key=obj.key)
-        file_tags = response['TagSet'] # a dict
+        response = client.get_object_tagging(Bucket=bucket_name, Key=obj.key)
+        file_tags = response["TagSet"]  # a dict
         counter = 0
         for element in file_tags:
             try:
-                if element['Key'] in target.keys():
-                    #st.write('ada', element['Value'], target[element["Key"]])
-                    if element['Value'] == target[element["Key"]]:
+                if element["Key"] in target.keys():
+                    # st.write('ada', element['Value'], target[element["Key"]])
+                    if element["Value"] == target[element["Key"]]:
                         counter = counter + 1
                     if counter >= 2:
                         buckets.append(obj.key)
             except Exception as e:
-                st.write(f'Got an error in getting tags of file. Error:{e}')
+                st.write(f"Got an error in getting tags of file. Error:{e}")
     if len(buckets) == 0:
-        st.write('Found no compatible model for selected sampling window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications')
+        st.write(
+            "Found no compatible model for selected sampling window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications"
+        )
         return all_buckets
-    
+
     return buckets
-
-
 
 
 def download_s3_file(
