@@ -30,7 +30,7 @@ session_states = {
     "selected_subjects_during_datapreprocessing": " ",
     "selected_inference_subjects": " ",
     "selected_model": " ",
-    "sampling_window": 60,
+    "sampling_window": 100,
     "degree_of_overlap": 0.5,
     "PERCENT_OF_TRAIN": 0.8,
     "SPO2HR_target_size": 0,
@@ -59,6 +59,8 @@ def initialise_session_states():
 
 
 initialise_session_states()
+#st.write("All session states", st.session_state)
+
 
 # Create three columns to arrange the text inputs horizontally
 col1, col2, col3 = st.columns(3)
@@ -78,9 +80,14 @@ st.session_state.degree_of_overlap = col2.number_input(
     value=0.5,
     step=0.1,
 )
-st.session_state.selected_inference_subjects = st.multiselect(
-    "Select subject to run inference", st.session_state.uploaded_subject_names
-)
+
+if st.session_state.uploaded_files_dict != 0:
+    st.session_state.selected_inference_subjects = st.multiselect(
+        "Select subject to run inference", st.session_state.uploaded_subject_names
+    )
+else:
+    st.warning("Subjects need to be loaded from the Data Preprocessing tab. Please load from there before continuing. Thank You.")
+
 
 # # bucket_name = 'your_bucket_name'
 # tags = [{'Key': 'window', 'Value': str(st.session_state.sample_window)}, {'Key': 'overlap', 'Value': str(st.session_state.degree_of_overlap)}]
@@ -89,7 +96,7 @@ st.session_state.selected_inference_subjects = st.multiselect(
 if (
     st.session_state.sample_window
     and st.session_state.degree_of_overlap
-    and st.session_state.selected_inference_subjects
+    and st.session_state.selected_inference_subjects != " "
 ):
     # st.write("selected_inference", st.session_state.selected_inference_subjects)
     total_selected = len(st.session_state.selected_inference_subjects)

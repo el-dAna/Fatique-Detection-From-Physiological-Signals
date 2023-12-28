@@ -32,7 +32,7 @@ session_states = {
     "selected_subjects_during_datapreprocessing": " ",
     "selected_inference_subjects": " ",
     "selected_model": " ",
-    "sampling_window": 60,
+    "sampling_window": 100,
     "degree_of_overlap": 0.5,
     "PERCENT_OF_TRAIN": 0.8,
     "SPO2HR_target_size": 0,
@@ -64,9 +64,7 @@ initialise_session_states()
 
 
 st.markdown("### Step 1. Loading")
-
 uploaded_files_dict = upload_files(from_s3=True)
-
 if uploaded_files_dict:
     write_expandable_text_app(
         title="More info on data",

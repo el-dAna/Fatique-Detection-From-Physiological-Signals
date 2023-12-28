@@ -10,7 +10,7 @@ session_states = {
     "uploaded_subject_names": 0,
     "selected_inference_subjects": " ",
     "selected_model": " ",
-    "sampling_window": 60,
+    "sampling_window": 100,
     "degree_of_overlap": 0.5,
     "PERCENT_OF_TRAIN": 0.8,
 }
@@ -24,7 +24,7 @@ def initialise_session_states():
 
 
 initialise_session_states()
-# st.write("All session states", st.session_state)
+#st.write("All session states", st.session_state)
 
 st.markdown("# Fatigue Detection from Physiological Signals🎈")
 st.sidebar.markdown("# Home Page 🎈")
