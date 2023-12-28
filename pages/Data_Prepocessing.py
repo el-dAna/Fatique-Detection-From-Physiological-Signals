@@ -195,3 +195,9 @@ if uploaded_files_dict:
         st.write(
             "For every subject, there are 4 Relax sessions and just 1 session fot the other classes. This makes the ratio of Relax to any given class 4:1. The All_DATA_DICT stores the extracted values for the sessions. The keys of the dict do not represent the subject number. The keys are only indices of the samples generated. If only 1 subject, 7 samples are extracted(first 4 for Relax and the last 3 for the physical, emotional cognitive stress in that order)."
         )
+
+        write_expandable_text_app(
+        title="IMPORTANT NOTE!!",
+        detailed_description="As you might have noticed there are 4times more samples for relax than for other sessions. This can cause CLASS IMBALANCE. Only the first session Relax cannot be used since model would not be able to classify other Relax sessions, for example, Relax 2 immediately after a physical Stress. SO WHAT DO WE DO? Check out the Datagenerator in CODE :)",
+        
+        )

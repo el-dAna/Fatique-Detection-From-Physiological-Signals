@@ -116,7 +116,7 @@ if (
 
     if st.selected_model != " ":
         download_s3_file(s3_file_path=st.selected_model)
-        model_local_path = "./data/models/downloaded_model.h5"
+        model_local_path = "./temp/models/downloaded_model.h5"
 
         Confusion_matrix = predict_from_streamlit_data(
             inference_model=model_local_path,

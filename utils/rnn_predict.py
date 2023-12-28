@@ -24,7 +24,7 @@ def predict_from_streamlit_data(
     streamlit_all_data_dict,
     WINDOW,
     OVERLAP,
-    inference_model="./data/models/model.h5",
+    inference_model="./temp/models/model.h5",
 ):
     # (
     #     _ ,

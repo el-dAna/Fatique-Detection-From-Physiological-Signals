@@ -68,7 +68,7 @@ class RNN_TRAIN_DATACLASS:
     clearml_project_name = "portfolioproject"
     current_datetime = str(datetime.datetime.now())
     clearml_task_name= f"task-{current_datetime}"
-    model_local_path= str("./data/models/model.h5")
+    model_local_path= str("./temp/models/model.h5")
     bucket_name=str("physiologicalsignalsbucket"),
     model_s3_name= str(f"Model-{current_datetime}")
     
@@ -224,7 +224,7 @@ def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, window
         upload_file_to_s3(file_path=model_local_path, bucket_name=bucket_name, object_name=model_s3_name, window=window, overlap=overlap)
     except Exception as e:
         print("Failed to Upload to S3 bucket. Error:", e)
-    artifact_path = "./data/artifacts/1.png"
+    artifact_path = "./temp/artifacts/1.png"
     pd.DataFrame(history.history).plot(figsize=(8, 5))
     plt.title("Plot of model metrics")
     plt.savefig(artifact_path)
@@ -292,5 +292,5 @@ def get_trained_model_confusionM(trained_model, TRAIN_FEATURES, TRAIN_LABELS, PR
     #     mlflow.log_artifact(artifact_path)
 
     #     # Save the model in a format that can be loaded later
-    #     # model.save("./data/models/model.h5")
-    #     mlflow.log_artifact("/workspaces/Fatique-Detection-From-Physiological-Signals/data/models/model.h5")
+    #     # model.save("./temp/models/model.h5")
+    #     mlflow.log_artifact("/workspaces/Fatique-Detection-From-Physiological-Signals/temp/models/model.h5")

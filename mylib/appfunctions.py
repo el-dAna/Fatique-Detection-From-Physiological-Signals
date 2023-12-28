@@ -97,6 +97,7 @@ def upload_files(from_s3=False):
 
     if uploaded_files:
         for file in uploaded_files:
+            
             if from_s3:
                 bucket_name = "physiologicalsignals"
                 folder_name = "HealthySubjectsBiosignalsDataSet"
@@ -114,14 +115,16 @@ def upload_files(from_s3=False):
             else:
                 file_names.append(file.name)
                 uploaded_files_dict[file.name] = pd.read_csv(file)
+                
+        if not from_s3 and (len(file_names) % 2) != 0:
+            st.write('fdasdf', from_s3)
+            st.write(len(file_names) % 2)
+            st.error("Please upload an even number of files.")
+            return []
 
-                if len(file_names) % 2 != 0:
-                    st.error("Please upload an even number of files.")
-                    return None
+    return uploaded_files_dict
 
-        return uploaded_files_dict
-
-    return []
+    #return []
 
 
 def read_files(uploaded_files_dict):
@@ -858,14 +861,14 @@ def get_s3_bucket_tagged_files(
 def download_s3_file(
     s3_file_path,
     bucket_name="physiologicalsignalsbucket",
-    model_local_path="./data/models/downloaded_model.h5",
+    model_local_path="./temp/models/downloaded_model.h5",
 ):
     s3 = boto3.client("s3")
     s3.download_file(bucket_name, s3_file_path, model_local_path)
 
 
 def upload_file_to_s3(
-    file_path="./data/models/model.h5",
+    file_path="./temp/models/model.h5",
     bucket_name="physiologicalsignalsbucket",
     object_name=None,
     window=100,
