@@ -53,7 +53,7 @@ st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
 st.session_state.model_s3_name = col2.text_input("Name of model to save in s3:")
 st.session_state.LOSS = st.selectbox(
     "Select tf loss function to use",
-    options=["tf.keras.losses.Huber()"],
+    options=["tf.keras.losses.Huber()", "tf.keras.losses.CategoricalCrossentropy()"],
 )
 st.session_state.learning_rate = col3.number_input(
     "Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001

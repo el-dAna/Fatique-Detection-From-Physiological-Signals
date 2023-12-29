@@ -259,8 +259,13 @@ def get_trained_model_confusionM(trained_model, TRAIN_FEATURES, TRAIN_LABELS, PR
 
 def train_new_model_from_streamlit_ui(clearml_task_name,sampling_window,degree_of_overlap,PERCENT_OF_TRAIN,learning_rate,
                                 model_s3_name,LOSS=tf.keras.losses.Huber(),EPOCHS=10):
+    try:
+        train_task.close()
+        train_task = init_clearml_task(task_name=clearml_task_name)
+        st.write("hre")
+    except Exception:
+        pass
     
-    train_task = init_clearml_task(task_name=clearml_task_name)
     (
         TRAIN_FEATURES,
         TRAIN_LABELS,
