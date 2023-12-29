@@ -850,10 +850,10 @@ def get_s3_bucket_tagged_files(
             except Exception as e:
                 st.write(f"Got an error in getting tags of file. Error:{e}")
     if len(buckets) == 0:
-        st.write(
+        st.warning(
             "Found no compatible model for selected sampling window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications"
         )
-        return all_buckets
+        return None #all_buckets
 
     return buckets
 

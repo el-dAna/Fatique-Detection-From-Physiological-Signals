@@ -14,53 +14,53 @@ from mylib.appfunctions import (
 )
 
 
-st.set_page_config(page_title="Run Inference", page_icon="😎")
+# st.set_page_config(page_title="Run Inference", page_icon="😎")
 
-st.markdown("# Understanding Data and Preprocessing.")
-st.sidebar.header("Variables to track")
-st.write(
-    """This page is for understanding the properties of the recorded signals and preprocessing the samples of specific subjects loaded from s3 bucket."""
-)
+# st.markdown("# Understanding Data and Preprocessing.")
+# st.sidebar.header("Variables to track")
+# st.write(
+#     """This page is for understanding the properties of the recorded signals and preprocessing the samples of specific subjects loaded from s3 bucket."""
+# )
 
-session_states = {
-    "files_upload": False,
-    "uploaded_files_dict": 0,
-    "uploaded_files_dict_keys": 0,
-    "uploaded_spo2_files": 0,
-    "uploaded_tempEda_files": 0,
-    "uploaded_subject_names": 0,
-    "selected_subjects_during_datapreprocessing": " ",
-    "selected_inference_subjects": " ",
-    "selected_model": " ",
-    "sampling_window": 100,
-    "degree_of_overlap": 0.5,
-    "PERCENT_OF_TRAIN": 0.8,
-    "SPO2HR_target_size": 0,
-    "AccTempEDA_target_size": 0,
-    "SPO2HR_attributes": 0,
-    "AccTempEDA_attributes": 0,
-    "categories": 0,
-    "attributes_dict": 0,
-    "relax_indices": 0,
-    "phy_emo_cog_indices": 0,
-    "all_attributes": 0,
-    "SPO2HR_resized": 0,
-    "AccTempEDA_resized": 0,
-    "AccTempEDA_DownSampled": 0,
-    "ALL_DATA_DICT": 0,
-    "LABELS_TO_NUMBERS_DICT": 0,
-    "NUMBERS_TO_LABELS_DICT": 0,
-}
-
-
-@st.cache_data
-def initialise_session_states():
-    for key, value in session_states.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
+# session_states = {
+#     "files_upload": False,
+#     "uploaded_files_dict": 0,
+#     "uploaded_files_dict_keys": 0,
+#     "uploaded_spo2_files": 0,
+#     "uploaded_tempEda_files": 0,
+#     "uploaded_subject_names": 0,
+#     "selected_subjects_during_datapreprocessing": " ",
+#     "selected_inference_subjects": " ",
+#     "selected_model": " ",
+#     "sampling_window": 100,
+#     "degree_of_overlap": 0.5,
+#     "PERCENT_OF_TRAIN": 0.8,
+#     "SPO2HR_target_size": 0,
+#     "AccTempEDA_target_size": 0,
+#     "SPO2HR_attributes": 0,
+#     "AccTempEDA_attributes": 0,
+#     "categories": 0,
+#     "attributes_dict": 0,
+#     "relax_indices": 0,
+#     "phy_emo_cog_indices": 0,
+#     "all_attributes": 0,
+#     "SPO2HR_resized": 0,
+#     "AccTempEDA_resized": 0,
+#     "AccTempEDA_DownSampled": 0,
+#     "ALL_DATA_DICT": 0,
+#     "LABELS_TO_NUMBERS_DICT": 0,
+#     "NUMBERS_TO_LABELS_DICT": 0,
+# }
 
 
-initialise_session_states()
+# @st.cache_data
+# def initialise_session_states():
+#     for key, value in session_states.items():
+#         if key not in st.session_state:
+#             st.session_state[key] = value
+
+
+# initialise_session_states()
 
 
 st.markdown("### Step 1. Loading")

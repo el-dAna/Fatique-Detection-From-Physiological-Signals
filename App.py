@@ -1,18 +1,39 @@
 import streamlit as st
+import datetime
+import tensorflow as tf
 
-# import numpy as np
 session_states = {
+    "current_datetime" : str(datetime.datetime.now()),
     "files_upload": False,
     "uploaded_files_dict": 0,
     "uploaded_files_dict_keys": 0,
     "uploaded_spo2_files": 0,
     "uploaded_tempEda_files": 0,
     "uploaded_subject_names": 0,
+    "selected_subjects_during_datapreprocessing": " ",
     "selected_inference_subjects": " ",
     "selected_model": " ",
-    "sampling_window": 100,
+    "sampling_window": 60,
     "degree_of_overlap": 0.5,
     "PERCENT_OF_TRAIN": 0.8,
+    "SPO2HR_target_size": 0,
+    "AccTempEDA_target_size": 0,
+    "SPO2HR_attributes": 0,
+    "AccTempEDA_attributes": 0,
+    "categories": 0,
+    "attributes_dict": 0,
+    "relax_indices": 0,
+    "phy_emo_cog_indices": 0,
+    "all_attributes": 0,
+    "SPO2HR_resized": 0,
+    "AccTempEDA_resized": 0,
+    "AccTempEDA_DownSampled": 0,
+    "ALL_DATA_DICT": 0,
+    "LABELS_TO_NUMBERS_DICT": 0,
+    "NUMBERS_TO_LABELS_DICT": 0,
+    "learning_rate": 0.0002,
+    "EPOCHS": 10,
+    "LOSS": tf.keras.losses.Huber(),
 }
 
 
@@ -21,10 +42,12 @@ def initialise_session_states():
     for key, value in session_states.items():
         if key not in st.session_state:
             st.session_state[key] = value
+    st.session_state.clearml_task_name = f"Task-{st.session_state.current_datetime}",
+    st.session_state.model_s3_name = f"Model-{st.session_state.current_datetime}",
 
 
 initialise_session_states()
-#st.write("All session states", st.session_state)
+st.write("All session states", st.session_state.model_s3_name)
 
 st.markdown("# Fatigue Detection from Physiological Signals🎈")
 st.sidebar.markdown("# Home Page 🎈")

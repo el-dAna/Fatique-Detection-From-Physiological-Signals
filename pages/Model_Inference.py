@@ -1,5 +1,6 @@
 import streamlit as st
 # import boto3
+import datetime
 from utils.rnn_predict import predict_from_streamlit_data
 
 
@@ -18,48 +19,6 @@ st.sidebar.header("Variables to track")
 st.write(
     """This page is for classifying the samples of subjects loaded from s3 bucket"""
 )
-
-
-session_states = {
-    "files_upload": False,
-    "uploaded_files_dict": 0,
-    "uploaded_files_dict_keys": 0,
-    "uploaded_spo2_files": 0,
-    "uploaded_tempEda_files": 0,
-    "uploaded_subject_names": 0,
-    "selected_subjects_during_datapreprocessing": " ",
-    "selected_inference_subjects": " ",
-    "selected_model": " ",
-    "sampling_window": 100,
-    "degree_of_overlap": 0.5,
-    "PERCENT_OF_TRAIN": 0.8,
-    "SPO2HR_target_size": 0,
-    "AccTempEDA_target_size": 0,
-    "SPO2HR_attributes": 0,
-    "AccTempEDA_attributes": 0,
-    "categories": 0,
-    "attributes_dict": 0,
-    "relax_indices": 0,
-    "phy_emo_cog_indices": 0,
-    "all_attributes": 0,
-    "SPO2HR_resized": 0,
-    "AccTempEDA_resized": 0,
-    "AccTempEDA_DownSampled": 0,
-    "ALL_DATA_DICT": 0,
-    "LABELS_TO_NUMBERS_DICT": 0,
-    "NUMBERS_TO_LABELS_DICT": 0,
-}
-
-
-@st.cache_data
-def initialise_session_states():
-    for key, value in session_states.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
-
-
-initialise_session_states()
-#st.write("All session states", st.session_state)
 
 
 # Create three columns to arrange the text inputs horizontally
@@ -116,24 +75,25 @@ if (
         sampling_window=st.session_state.sample_window,
         degree_of_overlap=st.session_state.degree_of_overlap,
     )  # get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
-    st.selected_model = st.selectbox(
-        "Select a(your) trained and saved model from s3 for inference",
-        options=selected_models_on_s3,
-    )
-
-    if st.selected_model != " ":
-        download_s3_file(s3_file_path=st.selected_model)
-        model_local_path = "./temp/models/downloaded_model.h5"
-
-        Confusion_matrix = predict_from_streamlit_data(
-            inference_model=model_local_path,
-            streamlit_all_data_dict=st.session_state.ALL_DATA_DICT,
-            WINDOW=st.session_state.sampling_window,
-            OVERLAP=st.session_state.degree_of_overlap,
+    if selected_models_on_s3 != None:
+        st.selected_model = st.selectbox(
+            "Select a(your) trained and saved model from s3 for inference",
+            options= [" "] + selected_models_on_s3,
         )
-        st.write(Confusion_matrix)
 
-        if st.button("Train model", type="primary"):
+        if st.selected_model != " ":
+            download_s3_file(s3_file_path=st.selected_model)
+            model_local_path = "./temp/models/downloaded_model.h5"
+
+            Confusion_matrix = predict_from_streamlit_data(
+                inference_model=model_local_path,
+                streamlit_all_data_dict=st.session_state.ALL_DATA_DICT,
+                WINDOW=st.session_state.sampling_window,
+                OVERLAP=st.session_state.degree_of_overlap,
+            )
+            st.write(Confusion_matrix)
+    else:
+        if st.button("Train model with spececifications above.", type="primary"):
             st.session_state.PERCENT_OF_TRAIN = st.slider(
                 "Percentage of train samples:",
                 min_value=0.1,
@@ -142,14 +102,27 @@ if (
                 step=0.1,
                 help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
             )
-            st.session_state.degree_of_overlap = st.number_input(
-                "Degree of overlap between two consecutive samples:",
-                min_value=0.0,
-                max_value=0.9,
-                value=0.5,
-                step=0.1,
-                help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
+            st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
+            st.session_state.model_s3_name = col2.text_input("Name of model to save in s3:")
+            st.session_state.LOSS = st.selectbox(
+                "Select tf loss function to use",
+                options=["tf.keras.losses.Huber()"],
             )
-            st.session_state.sampling_window = st.number_input(
-                "Sampling window:", min_value=100, max_value=500, value="min", step=10
+            st.session_state.learning_rate = col3.number_input(
+                "Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001
             )
+            st.session_state.EPOCHS = st.number_input(
+                "Number of epochs:", min_value=10, max_value=None, value="min", step=1
+            )
+            
+            # st.session_state.degree_of_overlap = st.number_input(
+            #     "Degree of overlap between two consecutive samples:",
+            #     min_value=0.0,
+            #     max_value=0.9,
+            #     value=0.5,
+            #     step=0.1,
+            #     help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
+            # )
+            # st.session_state.sampling_window = st.number_input(
+            #     "Sampling window:", min_value=100, max_value=500, value="min", step=10
+            # )

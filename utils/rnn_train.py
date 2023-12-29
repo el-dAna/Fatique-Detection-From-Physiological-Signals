@@ -14,6 +14,7 @@ from sklearn.metrics import confusion_matrix #, classification_report
 import sys
 import s3fs
 import boto3
+import streamlit as st
 
 
 from .rnn_model import model
@@ -43,7 +44,6 @@ from .preprocessingfunctions import (
 from mylib.appfunctions import upload_file_to_s3
 
 tf.keras.backend.clear_session()  # clears internal variables so we start all initiations and assignments afresh
-
 
 
 @dataclass
@@ -255,6 +255,69 @@ def get_trained_model_confusionM(trained_model, TRAIN_FEATURES, TRAIN_LABELS, PR
 
     # train_task.close()
     
+
+
+def train_new_model_from_streamlit_ui(clearml_task_name,sampling_window,degree_of_overlap,PERCENT_OF_TRAIN,learning_rate,
+                                model_s3_name,LOSS=tf.keras.losses.Huber(),EPOCHS=10):
+    
+    train_task = init_clearml_task(task_name=clearml_task_name)
+    (
+        TRAIN_FEATURES,
+        TRAIN_LABELS,
+        TOTAL_TRAIN_DATA,
+        PREDICT_FEATURES,
+        PREDICT_LABELS,
+        TOTAL_VAL_DATA,
+        INPUT_FEATURE_SHAPE,
+        TRAIN_BATCH_SIZE,
+        TRAIN_STEPS,
+    ) = initialise_training_variables(
+        sample_window=sampling_window,
+        degree_of_overlap=degree_of_overlap,
+        PERCENT_OF_TRAIN=PERCENT_OF_TRAIN,
+    )
+
+    model_to_train = initialise_train_model(
+        MODEL_INPUT_SHAPE=INPUT_FEATURE_SHAPE,
+        dp1=0.3,
+        dp2=0.3,
+        dp3=0.0,
+        dp4=0.0,
+        learning_rate=learning_rate,
+        LOSS=LOSS,
+    )
+
+    trained_model, history = train_model(
+        model_to_train,
+        TRAIN_FEATURES,
+        TRAIN_LABELS,
+        TRAIN_STEPS,
+        PREDICT_FEATURES,
+        PREDICT_LABELS,
+        EPOCHS=EPOCHS,
+    )
+
+    save_trained_model_s3bucket_and_log_artifacts(
+        trained_model,
+        history,
+        # model_local_path= TRAIN_MODEL.model_local_path,
+        # bucket_name=TRAIN_MODEL.bucket_name,
+        model_s3_name=str(model_s3_name),
+        window=str(sampling_window),
+        overlap=str(degree_of_overlap),
+    )
+
+    get_trained_model_confusionM(
+        trained_model,
+        TRAIN_FEATURES,
+        TRAIN_LABELS,
+        PREDICT_FEATURES,
+        PREDICT_LABELS,
+    )
+
+    train_task.close()
+
+    st.write("Done training and uploading")
 
 
 
