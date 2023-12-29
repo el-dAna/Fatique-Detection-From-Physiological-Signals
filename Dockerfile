@@ -1,14 +1,14 @@
 FROM public.ecr.aws/lambda/python:3.8
 
-RUN mkdir -p /App
-COPY ./App.py /App/
-COPY mylib/ /App/mylib/
-COPY pages/ /App/pages/
-COPY utils/ /App/utils/
-COPY ./requirements.txt /App/requirements.txt
+RUN mkdir -p /app
+COPY ./App.py /app/
+COPY mylib/ /app/mylib/
+COPY pages/ /app/pages/
+COPY utils/ /app/utils/
+COPY ./requirements.txt /app/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /App/requirements.txt
-WORKDIR /App
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+WORKDIR /app
 
 EXPOSE 8501
 
