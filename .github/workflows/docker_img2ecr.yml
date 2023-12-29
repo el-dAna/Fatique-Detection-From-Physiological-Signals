@@ -1,10 +1,10 @@
 name: DockerImage 2 ECR Repo
 on: 
   push: 
-    branches: [ "master" ]
+    branches: [ "main" ]
   
 jobs:
-  build:
+  GetImage:
     name: Build Docker Image
     runs-on: ubuntu-latest  
     steps:  
