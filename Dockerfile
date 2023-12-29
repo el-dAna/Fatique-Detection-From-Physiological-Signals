@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/python:3.8
 
 RUN mkdir -p /app
-COPY ./app.py /app/
+COPY ./App.py /app/
 COPY mylib/ /app/mylib/
 COPY pages/ /app/pages/
 COPY utils/ /app/utils/
