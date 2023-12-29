@@ -97,7 +97,6 @@ def upload_files(from_s3=False):
 
     if uploaded_files:
         for file in uploaded_files:
-            
             if from_s3:
                 bucket_name = "physiologicalsignals"
                 folder_name = "HealthySubjectsBiosignalsDataSet"
@@ -115,16 +114,16 @@ def upload_files(from_s3=False):
             else:
                 file_names.append(file.name)
                 uploaded_files_dict[file.name] = pd.read_csv(file)
-                
+
         if not from_s3 and (len(file_names) % 2) != 0:
-            st.write('fdasdf', from_s3)
+            st.write("fdasdf", from_s3)
             st.write(len(file_names) % 2)
             st.error("Please upload an even number of files.")
             return []
 
     return uploaded_files_dict
 
-    #return []
+    # return []
 
 
 def read_files(uploaded_files_dict):
@@ -853,7 +852,7 @@ def get_s3_bucket_tagged_files(
         st.warning(
             "Found no compatible model for selected sampling window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications"
         )
-        return None #all_buckets
+        return None  # all_buckets
 
     return buckets
 

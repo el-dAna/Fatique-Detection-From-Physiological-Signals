@@ -1,15 +1,16 @@
 import streamlit as st
-import tensorflow as tf
+
+# import tensorflow as tf
 # import datetime
 
 from utils.rnn_train import (
-    init_clearml_task,
-    initialise_training_variables,
-    initialise_train_model,
-    train_model,
-    save_trained_model_s3bucket_and_log_artifacts,
-    get_trained_model_confusionM,
-    train_new_model_from_streamlit_ui
+    # init_clearml_task,
+    # initialise_training_variables,
+    # initialise_train_model,
+    # train_model,
+    # save_trained_model_s3bucket_and_log_artifacts,
+    # get_trained_model_confusionM,
+    train_new_model_from_streamlit_ui,
 )
 
 st.set_page_config(page_title="Run Inference", page_icon="😎")
@@ -60,11 +61,13 @@ st.session_state.learning_rate = col3.number_input(
 )
 
 if st.button("Train model", type="primary"):
-    train_new_model_from_streamlit_ui(clearml_task_name=st.session_state.clearml_task_name,
-                                    sampling_window=st.session_state.sampling_window,
-                                    degree_of_overlap=st.session_state.degree_of_overlap,
-                                    PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
-                                    learning_rate=st.session_state.learning_rate,
-                                    LOSS=st.session_state.LOSS,
-                                    EPOCHS=st.session_state.EPOCHS,
-                                    model_s3_name=st.session_state.model_s3_name,)
+    train_new_model_from_streamlit_ui(
+        clearml_task_name=st.session_state.clearml_task_name,
+        sampling_window=st.session_state.sampling_window,
+        degree_of_overlap=st.session_state.degree_of_overlap,
+        PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
+        learning_rate=st.session_state.learning_rate,
+        LOSS=st.session_state.LOSS,
+        EPOCHS=st.session_state.EPOCHS,
+        model_s3_name=st.session_state.model_s3_name,
+    )

@@ -155,7 +155,6 @@ if uploaded_files_dict:
         )
 
         write_expandable_text_app(
-        title="IMPORTANT NOTE!!",
-        detailed_description="As you might have noticed there are 4times more samples for relax than for other sessions. This can cause CLASS IMBALANCE. Only the first session Relax cannot be used since model would not be able to classify other Relax sessions, for example, Relax 2 immediately after a physical Stress. SO WHAT DO WE DO? Check out the Datagenerator in CODE :)",
-        
+            title="IMPORTANT NOTE!!",
+            detailed_description="As you might have noticed there are 4times more samples for relax than for other sessions. This can cause CLASS IMBALANCE. Only the first session Relax cannot be used since model would not be able to classify other Relax sessions, for example, Relax 2 immediately after a physical Stress. SO WHAT DO WE DO? Check out the Datagenerator in CODE :)",
         )

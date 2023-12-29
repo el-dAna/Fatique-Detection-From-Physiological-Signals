@@ -1,12 +1,13 @@
 import streamlit as st
+
 # import boto3
-import datetime
+# import datetime
 from utils.rnn_predict import predict_from_streamlit_data
 
 
 from mylib.appfunctions import (
     necessary_variables_app,
-    #get_s3_bucket_files,
+    # get_s3_bucket_files,
     get_s3_bucket_tagged_files,
     download_s3_file,
 )
@@ -45,7 +46,9 @@ if st.session_state.uploaded_files_dict != 0:
         "Select subject to run inference", st.session_state.uploaded_subject_names
     )
 else:
-    st.warning("Subjects need to be loaded from the Data Preprocessing tab. Please load from there before continuing. Thank You.")
+    st.warning(
+        "Subjects need to be loaded from the Data Preprocessing tab. Please load from there before continuing. Thank You."
+    )
 
 
 # # bucket_name = 'your_bucket_name'
@@ -78,7 +81,7 @@ if (
     if selected_models_on_s3 != None:
         st.selected_model = st.selectbox(
             "Select a(your) trained and saved model from s3 for inference",
-            options= [" "] + selected_models_on_s3,
+            options=[" "] + selected_models_on_s3,
         )
 
         if st.selected_model != " ":
@@ -103,18 +106,24 @@ if (
                 help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
             )
             st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
-            st.session_state.model_s3_name = col2.text_input("Name of model to save in s3:")
+            st.session_state.model_s3_name = col2.text_input(
+                "Name of model to save in s3:"
+            )
             st.session_state.LOSS = st.selectbox(
                 "Select tf loss function to use",
                 options=["tf.keras.losses.Huber()"],
             )
             st.session_state.learning_rate = col3.number_input(
-                "Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001
+                "Enter the learning rate:",
+                min_value=0.0,
+                max_value=1.0,
+                value=0.0002,
+                step=0.0001,
             )
             st.session_state.EPOCHS = st.number_input(
                 "Number of epochs:", min_value=10, max_value=None, value="min", step=1
             )
-            
+
             # st.session_state.degree_of_overlap = st.number_input(
             #     "Degree of overlap between two consecutive samples:",
             #     min_value=0.0,

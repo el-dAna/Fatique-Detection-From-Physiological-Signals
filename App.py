@@ -3,7 +3,7 @@ import datetime
 import tensorflow as tf
 
 session_states = {
-    "current_datetime" : str(datetime.datetime.now()),
+    "current_datetime": str(datetime.datetime.now()),
     "files_upload": False,
     "uploaded_files_dict": 0,
     "uploaded_files_dict_keys": 0,
@@ -42,8 +42,8 @@ def initialise_session_states():
     for key, value in session_states.items():
         if key not in st.session_state:
             st.session_state[key] = value
-    st.session_state.clearml_task_name = f"Task-{st.session_state.current_datetime}",
-    st.session_state.model_s3_name = f"Model-{st.session_state.current_datetime}",
+    st.session_state.clearml_task_name = (f"Task-{st.session_state.current_datetime}",)
+    st.session_state.model_s3_name = (f"Model-{st.session_state.current_datetime}",)
 
 
 initialise_session_states()
