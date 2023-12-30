@@ -50,7 +50,7 @@ smooth linkage b/n pages. Currently some part of data preprocessing has to work 
 ---------------------------------------------------------------
 ## TO DOs before full deployment
 put physilogicalsignalsbuket in a global variable, preferably in a dataclass in app.py
-
+automatic model/task naming if no mame is passed
 put access key and secrete access key of generated policy and environment vars.
 
 

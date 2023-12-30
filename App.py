@@ -33,7 +33,8 @@ session_states = {
     "NUMBERS_TO_LABELS_DICT": 0,
     "learning_rate": 0.0002,
     "EPOCHS": 10,
-    "LOSS": tf.keras.losses.Huber(),
+    "LOSS": 0,
+    "LOSSES": {"tf.keras.losses.Huber()":tf.keras.losses.Huber(), "tf.keras.losses.categorical_crossentropy()":tf.keras.losses.CategoricalCrossentropy()}, 
     "sample_per_sample":0,
     "train_task": 0,
 }
@@ -44,9 +45,6 @@ def initialise_session_states():
     for key, value in session_states.items():
         if key not in st.session_state:
             st.session_state[key] = value
-    st.session_state.clearml_task_name = (f"Task-{st.session_state.current_datetime}",)
-    st.session_state.model_s3_name = (f"Model-{st.session_state.current_datetime}",)
-
 
 initialise_session_states()
 st.write("All session states", st.session_state.model_s3_name)

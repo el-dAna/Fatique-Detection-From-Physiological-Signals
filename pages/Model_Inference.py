@@ -13,6 +13,7 @@ from mylib.appfunctions import (
     write_expandable_text_app,
 )
 
+from utils.rnn_train import train_new_model_from_streamlit_ui, init_clearml_task
 
 st.set_page_config(page_title="Run Inference", page_icon="😎")
 
@@ -50,18 +51,7 @@ st.session_state.degree_of_overlap = col2.number_input(
     step=0.1,
 )
 
-st.session_state.sample_per_sample = int(((300-st.session_state.sample_window)/(st.session_state.degree_of_overlap*st.session_state.sample_window))+1)
-
-write_expandable_text_app(
-            title="Check how many samples are generated!",
-            detailed_description=f"""\n
-            INTEGER VALUES TAKEN.\n
-            A sample window of {int(st.session_state.sample_window)} with an overlap of {int(st.session_state.degree_of_overlap)} over a width if 300 generates {int(st.session_state.sample_per_sample)} samples per each original (7,300) sample.\n
-            This generates a total of {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples.\n
-            From {int(len(st.session_state.ALL_DATA_DICT.keys())/7)} subject(s) data uploaded, each subject had 7  (Relax1,Relax2,Relax3,Relax4,PhysicalStress,CognitiveStress,EmotionalStress) original samples.\n
-            {int(st.session_state.sample_per_sample)} samples were generated from each of the 7. This totals {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples. Got it now?
-            """)
-        
+st.session_state.sample_per_sample = int(((300-st.session_state.sample_window)/(st.session_state.degree_of_overlap*st.session_state.sample_window))+1)        
 
 if st.session_state.uploaded_files_dict == 0:
     st.warning(
@@ -76,10 +66,17 @@ if st.session_state.uploaded_files_dict == 0:
 if (
     st.session_state.sample_window
     and st.session_state.degree_of_overlap
-    # and st.session_state.selected_inference_subjects != " "
+    and st.session_state.ALL_DATA_DICT != 0
 ):
-    # st.write("selected_inference", st.session_state.selected_inference_subjects)
-    # total_selected = len(st.session_state.selected_inference_subjects)
+    write_expandable_text_app(
+            title="Check how many samples are generated!",
+            detailed_description=f"""\n
+            INTEGER VALUES TAKEN.\n
+            A sample window of {int(st.session_state.sample_window)} with an overlap of {int(st.session_state.degree_of_overlap)} over a width if 300 generates {int(st.session_state.sample_per_sample)} samples per each original (7,300) sample.\n
+            This generates a total of {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples.\n
+            From {int(len(st.session_state.ALL_DATA_DICT.keys())/7)} subject(s) data uploaded, each subject had 7  (Relax1,Relax2,Relax3,Relax4,PhysicalStress,CognitiveStress,EmotionalStress) original samples.\n
+            {int(st.session_state.sample_per_sample)} samples were generated from each of the 7. This totals {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples. Got it now?
+            """)
     (
         SPO2HR_target_size,
         AccTempEDA_target_size,
@@ -138,7 +135,7 @@ if (
             )
             st.session_state.LOSS = st.selectbox(
                 "Select tf loss function to use",
-                options=[tf.keras.losses.Huber()],
+                options=[st.session_state.LOSSES.keys()],
             )
             st.session_state.learning_rate = col3.number_input(
                 "Enter the learning rate:",
@@ -151,6 +148,24 @@ if (
                 "Number of epochs:", min_value=10, max_value=None, value="min", step=1
             )
 
+            try:
+                st.session_state.train_task.close()
+                st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
+            except Exception:
+                pass
+
+            if st.button("Train model", type="primary"):
+                st.session_state.train_task = train_new_model_from_streamlit_ui(
+                    train_task=st.session_state.train_task,
+                    clearml_task_name=st.session_state.clearml_task_name,
+                    sample_window=st.session_state.sample_window,
+                    degree_of_overlap=st.session_state.degree_of_overlap,
+                    PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
+                    learning_rate=st.session_state.learning_rate,
+                    LOSS=st.session_state.LOSSES[st.session_state.LOSS],
+                    EPOCHS=st.session_state.EPOCHS,
+                    model_s3_name=st.session_state.model_s3_name,
+                )
             # st.session_state.degree_of_overlap = st.number_input(
             #     "Degree of overlap between two consecutive samples:",
             #     min_value=0.0,

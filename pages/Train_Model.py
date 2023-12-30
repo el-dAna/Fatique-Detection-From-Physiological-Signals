@@ -22,7 +22,10 @@ st.write(
     """This page is for classifying the samples of subjects loaded from s3 bucket"""
 )
 
+st.session_state.clearml_task_name = f"Task-{st.session_state.current_datetime}"
+st.session_state.model_s3_name = f"Model-{st.session_state.current_datetime}"
 st.write("All session states", st.session_state)
+
 
 st.session_state.PERCENT_OF_TRAIN = st.slider(
     "Percentage of train samples:",
@@ -55,12 +58,18 @@ st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
 st.session_state.model_s3_name = col2.text_input("Name of model to save in s3:")
 st.session_state.LOSS = st.selectbox(
     "Select tf loss function to use",
-    options=[tf.keras.losses.Huber(), tf.keras.losses.CategoricalCrossentropy()],
+    options=st.session_state.LOSSES.keys(),
 )
 st.session_state.learning_rate = col3.number_input(
     "Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001
 )
-st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
+
+try:
+    st.session_state.train_task.close()
+    st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
+except Exception:
+    st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
+    pass
 
 if st.button("Train model", type="primary"):
     st.session_state.train_task = train_new_model_from_streamlit_ui(
@@ -70,7 +79,7 @@ if st.button("Train model", type="primary"):
         degree_of_overlap=st.session_state.degree_of_overlap,
         PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
         learning_rate=st.session_state.learning_rate,
-        LOSS=st.session_state.LOSS,
+        LOSS= st.session_state.LOSSES[st.session_state.LOSS],
         EPOCHS=st.session_state.EPOCHS,
         model_s3_name=st.session_state.model_s3_name,
     )
