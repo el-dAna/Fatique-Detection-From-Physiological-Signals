@@ -13,7 +13,7 @@ session_states = {
     "selected_subjects_during_datapreprocessing": " ",
     "selected_inference_subjects": " ",
     "selected_model": " ",
-    "sampling_window": 60,
+    "sample_window": 60,
     "degree_of_overlap": 0.5,
     "PERCENT_OF_TRAIN": 0.8,
     "SPO2HR_target_size": 0,

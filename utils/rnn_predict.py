@@ -2,6 +2,7 @@
 from keras.models import load_model
 import numpy as np
 from sklearn.metrics import confusion_matrix
+import streamlit as st
 
 from .common_functions import (
     train_stack,
@@ -24,14 +25,11 @@ def predict_from_streamlit_data(
     streamlit_all_data_dict,
     WINDOW,
     OVERLAP,
-    inference_model="./temp/models/model.h5",
+    inference_model="./temp/models/downloaded_model.h5",
 ):
-    # (
-    #     _ ,
-    #     _ ,
-    #     _ ,
-    #     _ ,
-    # ) = get_variables(PATH_TO_SAVED_VARIABLES)
+    # st.write("In predict_from_streamlit_data", inference_model)
+    # st.write('sample window', WINDOW)
+    # st.write('overlap', OVERLAP)
 
     WINDOW_SAMPLING_DICT = {
         i: j
@@ -84,6 +82,8 @@ def predict_from_streamlit_data(
     )
 
     loaded_model = load_model(inference_model)
+    # st.write("Loaded model inputshape", loaded_model.layers[0].input_shape)
+    # st.write("Inference features shape", INFERENCE_FEATURES[0].shape)
     predictions = loaded_model.predict(INFERENCE_FEATURES)
 
     prediction_1hot = np.argmax(predictions, axis=1)

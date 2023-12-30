@@ -37,9 +37,9 @@ st.session_state.degree_of_overlap = st.number_input(
     max_value=0.9,
     value=0.5,
     step=0.1,
-    help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
+    help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sample the same item). So max should be 0.9, thus 90 percent intersection",
 )
-st.session_state.sampling_window = st.number_input(
+st.session_state.sample_window = st.number_input(
     "Sampling window:", min_value=100, max_value=500, value="min", step=10
 )
 st.session_state.EPOCHS = st.number_input(
@@ -63,7 +63,7 @@ st.session_state.learning_rate = col3.number_input(
 if st.button("Train model", type="primary"):
     train_new_model_from_streamlit_ui(
         clearml_task_name=st.session_state.clearml_task_name,
-        sampling_window=st.session_state.sampling_window,
+        sample_window=st.session_state.sample_window,
         degree_of_overlap=st.session_state.degree_of_overlap,
         PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
         learning_rate=st.session_state.learning_rate,

@@ -116,8 +116,8 @@ def upload_files(from_s3=False):
                 uploaded_files_dict[file.name] = pd.read_csv(file)
 
         if not from_s3 and (len(file_names) % 2) != 0:
-            st.write("fdasdf", from_s3)
-            st.write(len(file_names) % 2)
+            #st.write("FromS3", from_s3)
+            #st.write(len(file_names) % 2)
             st.error("Please upload an even number of files.")
             return []
 
@@ -607,7 +607,7 @@ def sanity_check_2_and_DownSamplingAccTempEDA_app(
 ):
     """
     This function checks the accuracy of the preprocessed data so far by comparing the preprocessed values with the originals.
-    In order not to define a second function, the 8Hz Acc(X-Z), Temp and EDA lenghts were downsampled to match the 1Hz sampling of Spo2 and HeartRate
+    In order not to define a second function, the 8Hz Acc(X-Z), Temp and EDA lenghts were downsampled to match the 1Hz sample of Spo2 and HeartRate
 
     INPUTS:
     total_subject_num: (int) the total suject number
@@ -624,8 +624,8 @@ def sanity_check_2_and_DownSamplingAccTempEDA_app(
                 The value of each sencond key is a list.
                 The list contains the extracted values of attributes for each subject
                 AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
-    relax_indices: a dict -> contains the indices of values of relax. This allows easy sampling by direct referencing.
-    phy_emo_cog_indices: a dict -> contains the indices of values of PhysicalStress, EmotionalStress and Cognitive Stress for easy sampling by referencing
+    relax_indices: a dict -> contains the indices of values of relax. This allows easy sample by direct referencing.
+    phy_emo_cog_indices: a dict -> contains the indices of values of PhysicalStress, EmotionalStress and Cognitive Stress for easy sample by referencing
 
 
     RETURNS:
@@ -825,11 +825,11 @@ def get_s3_bucket_files(bucket_name):
 
 
 def get_s3_bucket_tagged_files(
-    bucket_name="physiologicalsignalsbucket", sampling_window=100, degree_of_overlap=0.5
+    bucket_name="physiologicalsignalsbucket", sample_window=100, degree_of_overlap=0.5
 ):
     s3 = boto3.resource("s3")
     client = boto3.client("s3")
-    target = {"window": str(sampling_window), "overlap": str(degree_of_overlap)}
+    target = {"window": str(sample_window), "overlap": str(degree_of_overlap)}
     bucket = s3.Bucket(bucket_name)
     buckets = []
     all_buckets = []
@@ -850,7 +850,7 @@ def get_s3_bucket_tagged_files(
                 st.write(f"Got an error in getting tags of file. Error:{e}")
     if len(buckets) == 0:
         st.warning(
-            "Found no compatible model for selected sampling window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications"
+            "Found no compatible model for selected sample window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications"
         )
         return None  # all_buckets
 
@@ -864,6 +864,8 @@ def download_s3_file(
 ):
     s3 = boto3.client("s3")
     s3.download_file(bucket_name, s3_file_path, model_local_path)
+    
+    return model_local_path
 
 
 def upload_file_to_s3(

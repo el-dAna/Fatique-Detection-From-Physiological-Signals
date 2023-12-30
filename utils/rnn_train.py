@@ -81,7 +81,7 @@ def init_clearml_task(project_name=RNN_TRAIN_DATACLASS.clearml_project_name, tas
     return task_name
 
 
-def initialise_training_variables(sample_window=60, degree_of_overlap=0.5, WHOLE_DICT=RNN_TRAIN_DATACLASS.WHOLE_DICT,
+def initialise_training_variables(sample_window=100, degree_of_overlap=0.5, WHOLE_DICT=RNN_TRAIN_DATACLASS.WHOLE_DICT,
                                   PERCENT_OF_TRAIN=0.8):
     WINDOW_SAMPLING_DICT = {
         i: j
@@ -257,7 +257,7 @@ def get_trained_model_confusionM(trained_model, TRAIN_FEATURES, TRAIN_LABELS, PR
     
 
 
-def train_new_model_from_streamlit_ui(clearml_task_name,sampling_window,degree_of_overlap,PERCENT_OF_TRAIN,learning_rate,
+def train_new_model_from_streamlit_ui(clearml_task_name,sample_window,degree_of_overlap,PERCENT_OF_TRAIN,learning_rate,
                                 model_s3_name,LOSS=tf.keras.losses.Huber(),EPOCHS=10):
     try:
         train_task.close()
@@ -277,7 +277,7 @@ def train_new_model_from_streamlit_ui(clearml_task_name,sampling_window,degree_o
         TRAIN_BATCH_SIZE,
         TRAIN_STEPS,
     ) = initialise_training_variables(
-        sample_window=sampling_window,
+        sample_window=sample_window,
         degree_of_overlap=degree_of_overlap,
         PERCENT_OF_TRAIN=PERCENT_OF_TRAIN,
     )
@@ -308,7 +308,7 @@ def train_new_model_from_streamlit_ui(clearml_task_name,sampling_window,degree_o
         # model_local_path= TRAIN_MODEL.model_local_path,
         # bucket_name=TRAIN_MODEL.bucket_name,
         model_s3_name=str(model_s3_name),
-        window=str(sampling_window),
+        window=str(sample_window),
         overlap=str(degree_of_overlap),
     )
 

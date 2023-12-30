@@ -80,7 +80,7 @@ def train_stack(
     INPUTS:
     big_dict: a dict -> contains the entire preprocessed dataset
     train_ratio: float [0-1) -> specifies the percent of train
-    sensitivity: int -> specifies the number of samples generated if features are window-sampled. A value of 1 means no window sampling, thus 1 generated feature for every 1 feature
+    sensitivity: int -> specifies the number of samples generated if features are window-sampled. A value of 1 means no window sample, thus 1 generated feature for every 1 feature
     features: bool -> if True, function returns features, if false, functio returns labels
 
     RETURNS:
@@ -233,7 +233,7 @@ def predict_stack(
     INPUTS:
     big_dict: a dict -> contains the entire preprocessed dataset
     train_ratio: float [0-1) -> specifies the percent of train. From this the ratio for prediction/validation can be deduced
-    sensitivity: int -> specifies the number of samples generated if features are window-sampled. A value of 1 means no window sampling, thus 1 generated feature for every 1 feature
+    sensitivity: int -> specifies the number of samples generated if features are window-sampled. A value of 1 means no window sample, thus 1 generated feature for every 1 feature
     features: bool -> if True, function returns features, if false, functio returns labels
 
     RETURNS:
@@ -419,7 +419,7 @@ class PhysioDatagenerator(tf.keras.utils.Sequence):
         else:
             print(f"Total validation samples = {self.total_subject_num}")
 
-        # if overlap_sampling:
+        # if overlap_sample:
         #   self.array_width = 300 #input_dimention[1]
         #   self.percent_overlap = 1-percent_overlap
         #   self.stride = int(percent_overlap*window_size)

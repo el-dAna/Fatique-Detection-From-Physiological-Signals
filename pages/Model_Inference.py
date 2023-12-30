@@ -27,7 +27,7 @@ col1, col2, col3 = st.columns(3)
 
 # Create text input widgets in each column
 st.session_state.sample_window = col1.number_input(
-    "Preferred sampling window of data used to train models saved on s3:",
+    "Preferred sample window of data used to train models saved on s3:",
     min_value=0,
     max_value=500,
     value=100,
@@ -75,7 +75,7 @@ if (
     ) = necessary_variables_app()
 
     selected_models_on_s3 = get_s3_bucket_tagged_files(
-        sampling_window=st.session_state.sample_window,
+        sample_window=st.session_state.sample_window,
         degree_of_overlap=st.session_state.degree_of_overlap,
     )  # get_s3_bucket_files(bucket_name="physiologicalsignalsbucket")
     if selected_models_on_s3 != None:
@@ -85,13 +85,13 @@ if (
         )
 
         if st.selected_model != " ":
-            download_s3_file(s3_file_path=st.selected_model)
-            model_local_path = "./temp/models/downloaded_model.h5"
-
+            
+            model_local_path = download_s3_file(s3_file_path=st.selected_model)
+            #st.write('Model Inference', st.session_state.sample_window )
             Confusion_matrix = predict_from_streamlit_data(
                 inference_model=model_local_path,
                 streamlit_all_data_dict=st.session_state.ALL_DATA_DICT,
-                WINDOW=st.session_state.sampling_window,
+                WINDOW=st.session_state.sample_window,
                 OVERLAP=st.session_state.degree_of_overlap,
             )
             st.write(Confusion_matrix)
@@ -130,8 +130,8 @@ if (
             #     max_value=0.9,
             #     value=0.5,
             #     step=0.1,
-            #     help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sampling the same item). So max should be 0.9, thus 90 percent intersection",
+            #     help="Degree of intersection between samples, 0 means no intersection and 1 means full intersection(meaning sample the same item). So max should be 0.9, thus 90 percent intersection",
             # )
-            # st.session_state.sampling_window = st.number_input(
+            # st.session_state.sample_window = st.number_input(
             #     "Sampling window:", min_value=100, max_value=500, value="min", step=10
             # )

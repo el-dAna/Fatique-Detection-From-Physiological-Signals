@@ -661,7 +661,7 @@ def sanity_check_2_and_DownSamplingAccTempEDA(
 ):
     """
     This function checks the accuracy of the preprocessed data so far by comparing the preprocessed values with the originals.
-    In order not to define a second function, the 8Hz Acc(X-Z), Temp and EDA lenghts were downsampled to match the 1Hz sampling of Spo2 and HeartRate
+    In order not to define a second function, the 8Hz Acc(X-Z), Temp and EDA lenghts were downsampled to match the 1Hz sample of Spo2 and HeartRate
 
     INPUTS:
     total_subject_num: (int) the total suject number
@@ -678,8 +678,8 @@ def sanity_check_2_and_DownSamplingAccTempEDA(
                 The value of each sencond key is a list.
                 The list contains the extracted values of attributes for each subject
                 AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
-    relax_indices: a dict -> contains the indices of values of relax. This allows easy sampling by direct referencing.
-    phy_emo_cog_indices: a dict -> contains the indices of values of PhysicalStress, EmotionalStress and Cognitive Stress for easy sampling by referencing
+    relax_indices: a dict -> contains the indices of values of relax. This allows easy sample by direct referencing.
+    phy_emo_cog_indices: a dict -> contains the indices of values of PhysicalStress, EmotionalStress and Cognitive Stress for easy sample by referencing
 
 
     RETURNS:
