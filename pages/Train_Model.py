@@ -1,5 +1,5 @@
 import streamlit as st
-
+import tensorflow as tf
 # import tensorflow as tf
 # import datetime
 
@@ -10,12 +10,13 @@ from utils.rnn_train import (
     # train_model,
     # save_trained_model_s3bucket_and_log_artifacts,
     # get_trained_model_confusionM,
+    init_clearml_task,
     train_new_model_from_streamlit_ui,
 )
 
-st.set_page_config(page_title="Run Inference", page_icon="😎")
+st.set_page_config(page_title="Train New Model", page_icon="💪")
 
-st.markdown("# Plotting Demo")
+st.markdown("# TRAINING A NEW MODEL")
 st.sidebar.header("Variables to track")
 st.write(
     """This page is for classifying the samples of subjects loaded from s3 bucket"""
@@ -54,14 +55,16 @@ st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
 st.session_state.model_s3_name = col2.text_input("Name of model to save in s3:")
 st.session_state.LOSS = st.selectbox(
     "Select tf loss function to use",
-    options=["tf.keras.losses.Huber()", "tf.keras.losses.CategoricalCrossentropy()"],
+    options=[tf.keras.losses.Huber(), tf.keras.losses.CategoricalCrossentropy()],
 )
 st.session_state.learning_rate = col3.number_input(
     "Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001
 )
+st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
 
 if st.button("Train model", type="primary"):
-    train_new_model_from_streamlit_ui(
+    st.session_state.train_task = train_new_model_from_streamlit_ui(
+        train_task=st.session_state.train_task,
         clearml_task_name=st.session_state.clearml_task_name,
         sample_window=st.session_state.sample_window,
         degree_of_overlap=st.session_state.degree_of_overlap,

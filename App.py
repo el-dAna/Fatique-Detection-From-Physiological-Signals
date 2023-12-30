@@ -35,6 +35,7 @@ session_states = {
     "EPOCHS": 10,
     "LOSS": tf.keras.losses.Huber(),
     "sample_per_sample":0,
+    "train_task": 0,
 }
 
 

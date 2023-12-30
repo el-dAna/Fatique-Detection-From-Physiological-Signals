@@ -1,5 +1,5 @@
 import streamlit as st
-
+import tensorflow as tf
 # import boto3
 # import datetime
 from utils.rnn_predict import predict_from_streamlit_data
@@ -138,7 +138,7 @@ if (
             )
             st.session_state.LOSS = st.selectbox(
                 "Select tf loss function to use",
-                options=["tf.keras.losses.Huber()"],
+                options=[tf.keras.losses.Huber()],
             )
             st.session_state.learning_rate = col3.number_input(
                 "Enter the learning rate:",
