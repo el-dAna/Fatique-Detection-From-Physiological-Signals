@@ -1,5 +1,6 @@
 import streamlit as st
-import tensorflow as tf
+
+# import tensorflow as tf
 # import boto3
 # import datetime
 from utils.rnn_predict import predict_from_streamlit_data
@@ -14,7 +15,7 @@ from mylib.appfunctions import (
     write_expandable_text_app,
 )
 
-from utils.rnn_train import train_new_model_from_streamlit_ui, init_clearml_task
+# from utils.rnn_train import train_new_model_from_streamlit_ui, init_clearml_task
 
 st.set_page_config(page_title="Run Inference", page_icon="😎")
 
@@ -52,7 +53,13 @@ st.session_state.degree_of_overlap = col2.number_input(
     step=0.1,
 )
 
-st.session_state.sample_per_sample = int(((300-st.session_state.sample_window)/(st.session_state.degree_of_overlap*st.session_state.sample_window))+1)        
+st.session_state.sample_per_sample = int(
+    (
+        (300 - st.session_state.sample_window)
+        / (st.session_state.degree_of_overlap * st.session_state.sample_window)
+    )
+    + 1
+)
 
 if st.session_state.uploaded_files_dict == 0:
     st.warning(
@@ -70,14 +77,15 @@ if (
     and st.session_state.ALL_DATA_DICT != 0
 ):
     write_expandable_text_app(
-            title="Check how many samples are generated!",
-            detailed_description=f"""\n
+        title="Check how many samples are generated!",
+        detailed_description=f"""\n
             INTEGER VALUES TAKEN.\n
             A sample window of {int(st.session_state.sample_window)} with an overlap of {st.session_state.degree_of_overlap} over a width if 300 generates {int(st.session_state.sample_per_sample)} samples per each original (7,300) sample.\n
             This generates a total of {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples.\n
             From {int(len(st.session_state.ALL_DATA_DICT.keys())/7)} subject(s) data uploaded, each subject had 7  (Relax1,Relax2,Relax3,Relax4,PhysicalStress,CognitiveStress,EmotionalStress) original samples.\n
             {int(st.session_state.sample_per_sample)} samples were generated from each of the 7. This totals {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples. Got it now?
-            """)
+            """,
+    )
     (
         SPO2HR_target_size,
         AccTempEDA_target_size,
@@ -101,9 +109,8 @@ if (
         )
 
         if st.selected_model != " ":
-            
             model_local_path = download_s3_file(s3_file_path=st.selected_model)
-            #st.write('Model Inference', st.session_state.sample_window )
+            # st.write('Model Inference', st.session_state.sample_window )
             Confusion_matrix = predict_from_streamlit_data(
                 inference_model=model_local_path,
                 streamlit_all_data_dict=st.session_state.ALL_DATA_DICT,
@@ -113,13 +120,14 @@ if (
             st.write(Confusion_matrix)
             total_samples_for_each_class = Confusion_matrix.sum(axis=1)
             write_expandable_text_app(
-            title="RESULTS INTERPRETATION",
-            detailed_description=f"""\n
+                title="RESULTS INTERPRETATION",
+                detailed_description=f"""\n
             Relax: {Confusion_matrix[0,0]} were accurate, Accuracy: {Confusion_matrix[0,0]/total_samples_for_each_class[0]}\n
             PhysicalStress: {Confusion_matrix[1,1]} were accurate, Accuracy: {Confusion_matrix[1,1]/total_samples_for_each_class[1]}\n
             CognitiveStress: {Confusion_matrix[2,2]} were accurate, Accuracy: {Confusion_matrix[2,2]/total_samples_for_each_class[2]}\n
             EmotionalStress: {Confusion_matrix[3,3]} were accurate, Accuracy: {Confusion_matrix[3,3]/total_samples_for_each_class[3]}\n
-            """)
+            """,
+            )
     else:
         if st.button("Train model with spececifications above.", type="primary"):
             switch_page("Train_Model")

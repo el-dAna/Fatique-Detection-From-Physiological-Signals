@@ -1,5 +1,6 @@
 import streamlit as st
-import tensorflow as tf
+
+# import tensorflow as tf
 # import tensorflow as tf
 # import datetime
 
@@ -24,7 +25,7 @@ st.write(
 
 st.session_state.clearml_task_name = f"Task-{st.session_state.current_datetime}"
 st.session_state.model_s3_name = f"Model-{st.session_state.current_datetime}"
-#st.write("All session states", st.session_state)
+# st.write("All session states", st.session_state)
 
 
 st.session_state.PERCENT_OF_TRAIN = st.slider(
@@ -66,12 +67,16 @@ st.session_state.learning_rate = col3.number_input(
 
 try:
     st.session_state.train_task.close()
-    st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
+    st.session_state.train_task = init_clearml_task(
+        task_name=st.session_state.clearml_task_name
+    )
     st.write("Here1")
 except Exception:
     st.write("Here2")
-    st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
-    pass
+    st.session_state.train_task = init_clearml_task(
+        task_name=st.session_state.clearml_task_name
+    )
+    # pass
 
 if st.button("Train model", type="primary"):
     st.session_state.train_task = train_new_model_from_streamlit_ui(
@@ -81,7 +86,7 @@ if st.button("Train model", type="primary"):
         degree_of_overlap=st.session_state.degree_of_overlap,
         PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
         learning_rate=st.session_state.learning_rate,
-        LOSS= st.session_state.LOSSES[st.session_state.LOSS],
+        LOSS=st.session_state.LOSSES[st.session_state.LOSS],
         EPOCHS=st.session_state.EPOCHS,
         model_s3_name=st.session_state.model_s3_name,
     )

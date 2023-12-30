@@ -34,8 +34,11 @@ session_states = {
     "learning_rate": 0.0002,
     "EPOCHS": 10,
     "LOSS": 0,
-    "LOSSES": {"tf.keras.losses.Huber()":tf.keras.losses.Huber(), "tf.keras.losses.categorical_crossentropy()":tf.keras.losses.CategoricalCrossentropy()}, 
-    "sample_per_sample":0,
+    "LOSSES": {
+        "tf.keras.losses.Huber()": tf.keras.losses.Huber(),
+        "tf.keras.losses.categorical_crossentropy()": tf.keras.losses.CategoricalCrossentropy(),
+    },
+    "sample_per_sample": 0,
     "train_task": 0,
 }
 

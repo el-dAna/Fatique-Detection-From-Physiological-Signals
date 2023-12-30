@@ -35,8 +35,6 @@ class TEXT:
     dataset_description1 = "As shown in the graphs above the total recoding time for AccTempEDA and SpO2HR files is diiferent. The signals were sampled at different frequencies. One other challenge is that sessions for Relax, PhysicalStress, CognitiveStress, EmotionalStress are all contained in one file. So to have distinct classes each needs to be extracted."
 
 
-
-
 @dataclass
 class DATA_VARIABLES:
     Relax: int = 5
@@ -45,15 +43,20 @@ class DATA_VARIABLES:
     CognitiveStress: int = 5
     EmotionalStress: int = 5
     Seconds: int = 60
-    
+
     @property
     def Total_time_minutes(self) -> float:
-        return (self.Relax * 4 + self.PhysicalStress + self.CognitiveStress + self.EmotionalStress) + (self.MiniCognitiveStress / 60)
-    
+        return (
+            self.Relax * 4
+            + self.PhysicalStress
+            + self.CognitiveStress
+            + self.EmotionalStress
+        ) + (self.MiniCognitiveStress / 60)
+
     @property
     def Total_time_seconds(self) -> float:
         return self.Total_time_minutes * 60
-    
+
     @property
     def freq_eda_files(self) -> float:
         return 18230 / self.Total_time_seconds
@@ -79,10 +82,10 @@ def write_expandable_text_app(
             st.write(variable)
 
 
-
 # def display_collapsed_dict_app(dictionary):
 #     with st.expander("Dictionary"):
 #         st.write(dictionary)
+
 
 def upload_files(from_s3=False):
     """
@@ -137,7 +140,6 @@ def upload_files(from_s3=False):
             return []
 
     return uploaded_files_dict
-
 
 
 def read_files(uploaded_files_dict):
@@ -205,12 +207,16 @@ def plot_vertical_lines(plot, freq=1, seconds=DATA_VARIABLES.Seconds):
         None
     """
 
-    plot.axvline(x=(5 * seconds) * freq, color="b", label="axvline - full height")  # relax
+    plot.axvline(
+        x=(5 * seconds) * freq, color="b", label="axvline - full height"
+    )  # relax
     plot.axvline(
         x=(5 * seconds + 6 * seconds) * freq, color="r", label="axvline - full height"
     )  # physical stress
     plot.axvline(
-        x=(5 * seconds + 6 * seconds + 5 * seconds) * freq, color="b", label="axvline - full height"
+        x=(5 * seconds + 6 * seconds + 5 * seconds) * freq,
+        color="b",
+        label="axvline - full height",
     )  # relax
     plot.axvline(
         x=(5 * seconds + 6 * seconds + 5 * seconds + 40) * freq,
@@ -223,17 +229,37 @@ def plot_vertical_lines(plot, freq=1, seconds=DATA_VARIABLES.Seconds):
         label="axvline - full height",
     )  # cognitive
     plot.axvline(
-        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds + 5 * seconds) * freq,
+        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds + 5 * seconds)
+        * freq,
         color="b",
         label="axvline - full height",
     )  # relax
     plot.axvline(
-        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds + 5 * seconds + 5 * seconds) * freq,
+        x=(
+            5 * seconds
+            + 6 * seconds
+            + 5 * seconds
+            + 40
+            + 5 * seconds
+            + 5 * seconds
+            + 5 * seconds
+        )
+        * freq,
         color="y",
         label="axvline - full height",
     )  # emotional
     plot.axvline(
-        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds + 5 * seconds + 5 * seconds + 5 * seconds) * freq,
+        x=(
+            5 * seconds
+            + 6 * seconds
+            + 5 * seconds
+            + 40
+            + 5 * seconds
+            + 5 * seconds
+            + 5 * seconds
+            + 5 * seconds
+        )
+        * freq,
         color="b",
         label="axvline - full height",
     )  # relax
@@ -247,17 +273,18 @@ def plot_vertical_lines(plot, freq=1, seconds=DATA_VARIABLES.Seconds):
 #     session_grp = dataframe.groupby(column_name)
 #     return session_grp
 
+
 def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
     """
     Process SpO2 and HeartRate data from different subjects based on their labels.
-    
+
     Args:
         uploaded_files_dict (dict): Dictionary containing dataframes of uploaded files.
         uploaded_spo2_files (list): List of filenames corresponding to SpO2 and HeartRate data.
 
     Returns:
         tuple: A tuple containing two dictionaries:
-            - SPO2HR: Organized data for each category (Relax, PhysicalStress, CognitiveStress, EmotionalStress) 
+            - SPO2HR: Organized data for each category (Relax, PhysicalStress, CognitiveStress, EmotionalStress)
                      with SpO2 and HeartRate.
             - SPO2HR_attributes_dict: Dictionary storing the length of each category from each subject.
     """
@@ -348,17 +375,18 @@ def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
 
     return SPO2HR, SPO2HR_attributes_dict
 
+
 def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
     """
     Process accelerometer, temperature, and EDA data from different subjects based on their labels.
-    
+
     Args:
         uploaded_files_dict (dict): Dictionary containing dataframes of uploaded files.
         uploaded_tempEda_files (list): List of filenames corresponding to accelerometer, temperature, and EDA data.
 
     Returns:
         tuple: A tuple containing two dictionaries:
-            - AccTempEDA: Organized data for each category (Relax, PhysicalStress, CognitiveStress, EmotionalStress) 
+            - AccTempEDA: Organized data for each category (Relax, PhysicalStress, CognitiveStress, EmotionalStress)
                           with accelerometer, temperature, and EDA data.
             - AccTempEDA_attributes_dict: Dictionary storing the length of each category from each subject.
     """
@@ -467,11 +495,10 @@ def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
     return AccTempEDA, AccTempEDA_attributes_dict
 
 
-
 def necessary_variables_app():
     """
     Define necessary variables and attributes for the application.
-    
+
     Returns:
         tuple: A tuple containing various dictionaries and lists:
             - SPO2HR_target_size: Dictionary specifying the target size for SPO2HR data for each category.
@@ -514,7 +541,12 @@ def necessary_variables_app():
         (i * 8): j for i, j in enumerate(((i + 1) * 8) - 1 for i in range(300))
     }
 
-    all_attributes = {i: j for i, j in enumerate(["SpO2", "HeartRate", "AccX", "AccY", "AccZ", "Temp", "EDA"])}
+    all_attributes = {
+        i: j
+        for i, j in enumerate(
+            ["SpO2", "HeartRate", "AccX", "AccY", "AccZ", "Temp", "EDA"]
+        )
+    }
 
     return (
         SPO2HR_target_size,
@@ -527,6 +559,7 @@ def necessary_variables_app():
         phy_emo_cog_indices,
         all_attributes,
     )
+
 
 def resize_data_to_uniform_lengths_app(
     total_subject_num,
@@ -599,7 +632,6 @@ def resize_data_to_uniform_lengths_app(
                                 temp_list.append(last_elmt)
 
     return SPO2HR_temp, AccTempEDA_temp
-
 
 
 def sanity_check_2_and_DownSamplingAccTempEDA_app(
@@ -687,13 +719,12 @@ def sanity_check_2_and_DownSamplingAccTempEDA_app(
     return AccTempEDA
 
 
-
 def get_data_dict_app(
     total_subject_num, categories, attributes_dict, SPO2HR, AccTempEDA
 ):
     """
     This function orgainises the extracted data for easy represention
-    
+
     Parameters:
     - total_subject_num (int): specifies the total subject number
     - categories (list): a list of categorry names
@@ -805,8 +836,6 @@ def get_data_dict_app(
     return ALL_DATA_DICT
 
 
-
-
 def get_s3_bucket_files(bucket_name):
     """
     Retrieve a list of file keys (names) from an Amazon S3 bucket.
@@ -832,9 +861,9 @@ def get_s3_bucket_files(bucket_name):
     return file_keys
 
 
-import boto3
-
-def get_s3_bucket_tagged_files(bucket_name="physiologicalsignalsbucket", sample_window=100, degree_of_overlap=0.5):
+def get_s3_bucket_tagged_files(
+    bucket_name="physiologicalsignalsbucket", sample_window=100, degree_of_overlap=0.5
+):
     """
     Retrieve a list of file keys (names) from an Amazon S3 bucket based on specified tags.
 
@@ -885,15 +914,16 @@ def get_s3_bucket_tagged_files(bucket_name="physiologicalsignalsbucket", sample_
 
     # Display a warning if no matching files are found
     if len(buckets) == 0:
-        print("Found no compatible model for selected sample window and degree of overlap.")
-        print("All models are displayed below. Either change the selection or train a model with specifications.")
+        print(
+            "Found no compatible model for selected sample window and degree of overlap."
+        )
+        print(
+            "All models are displayed below. Either change the selection or train a model with specifications."
+        )
         return None
 
     return buckets
 
-
-
-import boto3
 
 def download_s3_file(
     s3_file_path,
@@ -920,7 +950,6 @@ def download_s3_file(
     # Return the local path of the downloaded file
     return model_local_path
 
-import boto3
 
 def upload_file_to_s3(
     file_path="./temp/models/model.h5",
