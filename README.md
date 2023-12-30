@@ -33,7 +33,7 @@ Users can later load specific trained model to run infererence.
 ### S3
 This is storage for this project. 
 Subject data and models are hosted here.
-<div><img width="600" alt="image" src=src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/6a8d6621-6b60-4c58-9c77-5e5eb2709741"></div>
+<div><img width="600" alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/6a8d6621-6b60-4c58-9c77-5e5eb2709741"></div>
 
 
 
@@ -63,7 +63,7 @@ Entry is the App.py
      - Train_Model.py
     These call other modules from other libs.
 For an interactive display visit the figma file [here](https://www.figma.com/file/qAkiRCvXSZOOgIAfwgJiNY/Tuseb?type=design&node-id=13%3A2&mode=design&t=8ijg5b9MX6MiBvID-1).
-<div><img width="900" height='600' alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/45780569-f974-49b6-ba12-7e8b4e7fad44"></div>
+<div><img width="600" alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/45780569-f974-49b6-ba12-7e8b4e7fad44"></div>
 
 
 ### RUNNING APP (On LINUX)
