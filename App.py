@@ -34,6 +34,7 @@ session_states = {
     "learning_rate": 0.0002,
     "EPOCHS": 10,
     "LOSS": tf.keras.losses.Huber(),
+    "sample_per_sample":0,
 }
 
 

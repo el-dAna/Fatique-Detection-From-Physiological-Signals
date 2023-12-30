@@ -10,6 +10,7 @@ from mylib.appfunctions import (
     # get_s3_bucket_files,
     get_s3_bucket_tagged_files,
     download_s3_file,
+    write_expandable_text_app,
 )
 
 
@@ -18,7 +19,15 @@ st.set_page_config(page_title="Run Inference", page_icon="😎")
 st.markdown("# Run Inference")
 st.sidebar.header("Variables to track")
 st.write(
-    """This page is for classifying the samples of subjects loaded from s3 bucket"""
+    """This page is for classifying the samples of subjects loaded from s3 bucket\n\n
+    Each feature has shape(7,300).\n
+    7 because (SpO2, HeartRate, AccX, AccY, AccZ, Temp, EDA)\n
+    300 becuase a value every second for 5mins = 300 values.\n
+    To resample from this (7,300) using a sample_window of 100 and overlap of 0.5 generates [(300-100)/(0.5*100)]+1 = 5 samples.\n
+    For example: ALL_DATA_DICT[0].shape = (7,300). This is an original Relax sample. We can use this for training/inference, but to generate more samples we have to resample.\n
+    So set sample_window = w, overlap = o, and then (300-w)/o*w + 1 samples are generated for this original Relax sample only.\n
+    This is done for all original samples while keeping the indices to know the labels.
+    """
 )
 
 
@@ -28,8 +37,8 @@ col1, col2, col3 = st.columns(3)
 # Create text input widgets in each column
 st.session_state.sample_window = col1.number_input(
     "Preferred sample window of data used to train models saved on s3:",
-    min_value=0,
-    max_value=500,
+    min_value=50,
+    max_value=300,
     value=100,
     step=1,
 )
@@ -41,11 +50,20 @@ st.session_state.degree_of_overlap = col2.number_input(
     step=0.1,
 )
 
-if st.session_state.uploaded_files_dict != 0:
-    st.session_state.selected_inference_subjects = st.multiselect(
-        "Select subject to run inference", st.session_state.uploaded_subject_names
-    )
-else:
+st.session_state.sample_per_sample = int(((300-st.session_state.sample_window)/(st.session_state.degree_of_overlap*st.session_state.sample_window))+1)
+
+write_expandable_text_app(
+            title="Check how many samples are generated!",
+            detailed_description=f"""\n
+            INTEGER VALUES TAKEN.\n
+            A sample window of {int(st.session_state.sample_window)} with an overlap of {int(st.session_state.degree_of_overlap)} over a width if 300 generates {int(st.session_state.sample_per_sample)} samples per each original (7,300) sample.\n
+            This generates a total of {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples.\n
+            From {int(len(st.session_state.ALL_DATA_DICT.keys())/7)} subject(s) data uploaded, each subject had 7  (Relax1,Relax2,Relax3,Relax4,PhysicalStress,CognitiveStress,EmotionalStress) original samples.\n
+            {int(st.session_state.sample_per_sample)} samples were generated from each of the 7. This totals {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples. Got it now?
+            """)
+        
+
+if st.session_state.uploaded_files_dict == 0:
     st.warning(
         "Subjects need to be loaded from the Data Preprocessing tab. Please load from there before continuing. Thank You."
     )
@@ -58,10 +76,10 @@ else:
 if (
     st.session_state.sample_window
     and st.session_state.degree_of_overlap
-    and st.session_state.selected_inference_subjects != " "
+    # and st.session_state.selected_inference_subjects != " "
 ):
     # st.write("selected_inference", st.session_state.selected_inference_subjects)
-    total_selected = len(st.session_state.selected_inference_subjects)
+    # total_selected = len(st.session_state.selected_inference_subjects)
     (
         SPO2HR_target_size,
         AccTempEDA_target_size,
@@ -95,6 +113,15 @@ if (
                 OVERLAP=st.session_state.degree_of_overlap,
             )
             st.write(Confusion_matrix)
+            total_samples_for_each_class = Confusion_matrix.sum(axis=1)
+            write_expandable_text_app(
+            title="RESULTS INTERPRETATION",
+            detailed_description=f"""\n
+            Relax: {Confusion_matrix[0,0]} were accurate, Accuracy: {Confusion_matrix[0,0]/total_samples_for_each_class[0]}\n
+            PhysicalStress: {Confusion_matrix[1,1]} were accurate, Accuracy: {Confusion_matrix[1,1]/total_samples_for_each_class[1]}\n
+            CognitiveStress: {Confusion_matrix[2,2]} were accurate, Accuracy: {Confusion_matrix[2,2]/total_samples_for_each_class[2]}\n
+            EmotionalStress: {Confusion_matrix[3,3]} were accurate, Accuracy: {Confusion_matrix[3,3]/total_samples_for_each_class[3]}\n
+            """)
     else:
         if st.button("Train model with spececifications above.", type="primary"):
             st.session_state.PERCENT_OF_TRAIN = st.slider(

@@ -39,7 +39,6 @@ def window_sampling(samples_dict, window_size=100, overlap=0.6):
     ), "Window size should be less than total array width"
     assert overlap != 1, "Percentage of overlap should be less than 100% or 1"
 
-    print("asfdghagf")
 
 
     temp_samples = []  # to keep generated samples
