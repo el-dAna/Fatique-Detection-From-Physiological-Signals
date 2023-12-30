@@ -42,12 +42,17 @@ session_states = {
 
 @st.cache_data
 def initialise_session_states():
+    """
+    Initializes session states in a Streamlit app.
+    Note:
+        Assumes the existence of a dictionary 'session_states'.
+    """
     for key, value in session_states.items():
         if key not in st.session_state:
             st.session_state[key] = value
 
+
 initialise_session_states()
-st.write("All session states", st.session_state.model_s3_name)
 
 st.markdown("# Fatigue Detection from Physiological Signals🎈")
 st.sidebar.markdown("# Home Page 🎈")

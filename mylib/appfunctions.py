@@ -35,30 +35,41 @@ class TEXT:
     dataset_description1 = "As shown in the graphs above the total recoding time for AccTempEDA and SpO2HR files is diiferent. The signals were sampled at different frequencies. One other challenge is that sessions for Relax, PhysicalStress, CognitiveStress, EmotionalStress are all contained in one file. So to have distinct classes each needs to be extracted."
 
 
+
+
 @dataclass
 class DATA_VARIABLES:
-    Relax = 5
-    PhysicalStress = 6
-    MiniCognitiveStress = 40
-    CognitiveStress = 5
-    EmotionalStress = 5
-    Total_time_minutes = (
-        Relax * 4 + PhysicalStress + CognitiveStress + EmotionalStress
-    ) + (MiniCognitiveStress / 60)
-    Total_time_seconds = Total_time_minutes * 60
-    freq_eda_files = 18230 / Total_time_seconds
-    # freq_spo2_files =
+    Relax: int = 5
+    PhysicalStress: int = 6
+    MiniCognitiveStress: int = 40
+    CognitiveStress: int = 5
+    EmotionalStress: int = 5
+    Seconds: int = 60
+    
+    @property
+    def Total_time_minutes(self) -> float:
+        return (self.Relax * 4 + self.PhysicalStress + self.CognitiveStress + self.EmotionalStress) + (self.MiniCognitiveStress / 60)
+    
+    @property
+    def Total_time_seconds(self) -> float:
+        return self.Total_time_minutes * 60
+    
+    @property
+    def freq_eda_files(self) -> float:
+        return 18230 / self.Total_time_seconds
 
 
 def write_expandable_text_app(
     title, detailed_description, img_path=False, variable=False
 ):
     """
-    Displays a callapsed image/variable(dict, list, dataframe)
-    str title: Text to display on collapsed bar
-    str detailed_description: detailed description to display when uncollapsed
-    str img_path: path of image to show when uncollapsed
-    str variable: varialbe to display(if any)
+    Displays a collapsed image/variable (dict, list, dataframe).
+
+    Args:
+        title (str): Text to display on the collapsed bar.
+        detailed_description (str): Detailed description to display when uncollapsed.
+        img_path (str): Path of the image to show when uncollapsed.
+        variable: Variable to display (if any).
     """
     with st.expander(title):
         st.write(detailed_description)
@@ -68,21 +79,26 @@ def write_expandable_text_app(
             st.write(variable)
 
 
-def display_collapsed_dict_app(dictionary):
-    with st.expander("Dictionary"):
-        st.write(dictionary)
 
+# def display_collapsed_dict_app(dictionary):
+#     with st.expander("Dictionary"):
+#         st.write(dictionary)
 
 def upload_files(from_s3=False):
     """
     Function to upload files using Streamlit file_uploader.
 
+    Args:
+        from_s3 (bool): If True, uploads files from an S3 bucket.
+
     Returns:
-    - dict or []: dict of file names and uploaded file object from the streamlit file_uploader or [] if no files are uploaded.
+        dict or []: A dict of file names and uploaded file objects from the Streamlit file_uploader or [] if no files are uploaded.
     """
 
     file_names = []
     uploaded_files_dict = {}
+
+    # Check if uploading from S3
     if from_s3:
         for i in range(20):
             file_names.append("Subject" + str(i + 1))
@@ -91,6 +107,7 @@ def upload_files(from_s3=False):
         )
 
     else:
+        # Use file_uploader for local file uploads
         uploaded_files = st.file_uploader(
             "Upload files", type="csv", accept_multiple_files=True
         )
@@ -98,13 +115,12 @@ def upload_files(from_s3=False):
     if uploaded_files:
         for file in uploaded_files:
             if from_s3:
+                # If uploading from S3, construct file paths and read CSV files
                 bucket_name = "physiologicalsignals"
                 folder_name = "HealthySubjectsBiosignalsDataSet"
                 file_path1 = f"{bucket_name}/{folder_name}/{file}/{file}SpO2HR.csv"
                 file_path2 = f"{bucket_name}/{folder_name}/{file}/{file}AccTempEDA.csv"
 
-                # Read the CSV file
-                # data = pd.read_csv(s3_object)
                 data1 = pd.read_csv(f"s3://{file_path1}")
                 data2 = pd.read_csv(f"s3://{file_path2}")
 
@@ -112,39 +128,37 @@ def upload_files(from_s3=False):
                 uploaded_files_dict[f"{file}AccTempEDA.csv"] = data2
 
             else:
+                # If uploading locally, read CSV files
                 file_names.append(file.name)
                 uploaded_files_dict[file.name] = pd.read_csv(file)
 
         if not from_s3 and (len(file_names) % 2) != 0:
-            #st.write("FromS3", from_s3)
-            #st.write(len(file_names) % 2)
             st.error("Please upload an even number of files.")
             return []
 
     return uploaded_files_dict
 
-    # return []
 
 
 def read_files(uploaded_files_dict):
     """
-    Function to read CSV files from and plot data based on the selected files.
+    Function to read and display data from uploaded files using Streamlit.
 
     Args:
-    - uploaded_filees_dict (dict): dict of file names as values and uploaded file object from calling st.file_uploader().
+        uploaded_files_dict (dict): A dictionary containing file names and corresponding data.
 
     Returns:
-    - None: List of DataFrames or None if an error occurs.
+        None
     """
 
-    # selected_file = st.selectbox("Select an option:", uploaded_files_dict.keys())
-
+    # Allow the user to select multiple files
     selected_files = st.multiselect(
         "Select subject data. Max of 2 selections advised for a convenient display.",
         uploaded_files_dict.keys(),
     )
+
     if selected_files:
-        # Create columns for plots
+        # Create columns for plots and dataframes
         graph_cols = st.columns(int(len(selected_files)))
         pandas_cols = st.columns(int(len(selected_files)))
 
@@ -155,7 +169,9 @@ def read_files(uploaded_files_dict):
                 st.write(dataframe)
                 time_steps = range(len(dataframe["Second"]))
                 dataframe["Second_modified"] = time_steps
+
             with graph_cols[i]:
+                # Create plots based on file type (EDA or others)
                 if "EDA" in file:
                     dataframe.plot(
                         x="Second_modified", y=["AccX", "AccY", "AccZ", "Temp", "EDA"]
@@ -165,7 +181,6 @@ def read_files(uploaded_files_dict):
                     plt.title(f"Plot of recorded signals of {file}")
                     plot_vertical_lines(plot=plt, freq=8)
                     st.pyplot(plt)
-
                     plt.close()
                 else:
                     dataframe.plot(x="Second_modified", y=["HeartRate", "SpO2"])
@@ -177,51 +192,76 @@ def read_files(uploaded_files_dict):
                     plt.close()
 
 
-def plot_vertical_lines(plot, freq=1):
-    plot.axvline(x=(5 * 60) * freq, color="b", label="axvline - full height")  # relax
+def plot_vertical_lines(plot, freq=1, seconds=DATA_VARIABLES.Seconds):
+    """
+    Function to plot vertical lines on a given plot.
+
+    Args:
+        plot: Matplotlib plot object.
+        freq (int): Frequency factor.
+        seconds (int): Duration in seconds for each activity, fetched from DATA_VARIABLES.
+
+    Returns:
+        None
+    """
+
+    plot.axvline(x=(5 * seconds) * freq, color="b", label="axvline - full height")  # relax
     plot.axvline(
-        x=(5 * 60 + 6 * 60) * freq, color="r", label="axvline - full height"
+        x=(5 * seconds + 6 * seconds) * freq, color="r", label="axvline - full height"
     )  # physical stress
     plot.axvline(
-        x=(5 * 60 + 6 * 60 + 5 * 60) * freq, color="b", label="axvline - full height"
+        x=(5 * seconds + 6 * seconds + 5 * seconds) * freq, color="b", label="axvline - full height"
     )  # relax
     plot.axvline(
-        x=(5 * 60 + 6 * 60 + 5 * 60 + 40) * freq,
+        x=(5 * seconds + 6 * seconds + 5 * seconds + 40) * freq,
         color="g",
         label="axvline - full height",
     )  # minicognitive
     plot.axvline(
-        x=(5 * 60 + 6 * 60 + 5 * 60 + 40 + 5 * 60) * freq,
+        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds) * freq,
         color="g",
         label="axvline - full height",
     )  # cognitive
     plot.axvline(
-        x=(5 * 60 + 6 * 60 + 5 * 60 + 40 + 5 * 60 + 5 * 60) * freq,
+        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds + 5 * seconds) * freq,
         color="b",
         label="axvline - full height",
     )  # relax
     plot.axvline(
-        x=(5 * 60 + 6 * 60 + 5 * 60 + 40 + 5 * 60 + 5 * 60 + 5 * 60) * freq,
+        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds + 5 * seconds + 5 * seconds) * freq,
         color="y",
         label="axvline - full height",
     )  # emotional
     plot.axvline(
-        x=(5 * 60 + 6 * 60 + 5 * 60 + 40 + 5 * 60 + 5 * 60 + 5 * 60 + 5 * 60) * freq,
+        x=(5 * seconds + 6 * seconds + 5 * seconds + 40 + 5 * seconds + 5 * seconds + 5 * seconds + 5 * seconds) * freq,
         color="b",
         label="axvline - full height",
     )  # relax
 
 
-def get_numerical_labels(dataframe):
-    return dataframe
+# def get_numerical_labels(dataframe):
+#     return dataframe
 
 
-def group_dataframe_by(dataframe, column_name="Label"):
-    session_grp = dataframe.groupby(column_name)
-    return session_grp
-
+# def group_dataframe_by(dataframe, column_name="Label"):
+#     session_grp = dataframe.groupby(column_name)
+#     return session_grp
 
 def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
+    """
+    Process SpO2 and HeartRate data from different subjects based on their labels.
+    
+    Args:
+        uploaded_files_dict (dict): Dictionary containing dataframes of uploaded files.
+        uploaded_spo2_files (list): List of filenames corresponding to SpO2 and HeartRate data.
+
+    Returns:
+        tuple: A tuple containing two dictionaries:
+            - SPO2HR: Organized data for each category (Relax, PhysicalStress, CognitiveStress, EmotionalStress) 
+                     with SpO2 and HeartRate.
+            - SPO2HR_attributes_dict: Dictionary storing the length of each category from each subject.
+    """
+
     SPO2HR = {
         "Relax": {"Spo2": [], "HeartRate": []},
         "PhysicalStress": {"Spo2": [], "HeartRate": []},
@@ -235,21 +275,17 @@ def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
         "PhysicalStress": [],
         "EmotionalStress": [],
     }
+
     for file in uploaded_spo2_files:
         data2 = uploaded_files_dict[file]
 
-        # Extracting the SpO2 and heartRate columns of each subject
+        # Extracting the SpO2 and HeartRate columns of each subject
         spo2 = np.array(list(data2["SpO2"]))
         HeartRate = np.array(list(data2["HeartRate"]))
         labels = list(data2["Label"])  # the labels are strings!!
         labels_dict = {j: i for i, j in enumerate(set(labels))}
 
-        # """
-        # Empty list initialisation to store the values of each category.
-        # For example, there are relax, PhysicalStress, EmotionalStress and CognitiveStress
-        # in the extracted SpO2 column, so we want to extract the measured voltages
-        # and append to the appropriate empty list
-        # """
+        # Initialize lists to store values for each category
         relax_spo2, relax_HeartRate = [], []
         cognitive_spo2, cognitive_HeartRate = [], []
         physical_spo2, physical_HeartRate = [], []
@@ -258,6 +294,7 @@ def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
         index = 0
 
         for j, i in enumerate(labels):
+            # Append values to the appropriate category lists
             if i == "Relax":
                 relax_spo2.append(spo2[j])
                 relax_HeartRate.append(HeartRate[j])
@@ -274,10 +311,7 @@ def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
                 print(f"Value not found. Index at {index}")
             index += 1
 
-        # """
-        # Since both SpO2 and HeartRate were measured at the same frequency[1Hz] and time, then the number
-        # of recorded values for each catogory should be equal. The following assetions check that
-        # """
+        # Check the equality of recorded values for SpO2 and HeartRate for each category
         assert len(relax_spo2) == len(relax_HeartRate)
         assert len(physical_spo2) == len(physical_HeartRate)
         assert len(emotional_spo2) == len(emotional_HeartRate)
@@ -286,21 +320,11 @@ def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
             cognitive_spo2
         ) == len(labels)
 
-        # """
-        # This dictionary stores the length of each category from each subject
-        # For example, the Relax key stores the total recording time for relax for each subject.
-        # SPO2HR_attributes_dict['Relax'][0] gives subject1 total relax time which equals 1203.
-        # 1203 interpretation.
-        # There were 4 relax stages of 5mins each = 5*60*4  = 1200
-        # """
+        # Store the total recording time for each category from each subject
         SPO2HR_attributes_dict["Relax"].append(len(relax_spo2))
         SPO2HR_attributes_dict["PhysicalStress"].append(len(physical_spo2))
         SPO2HR_attributes_dict["CognitiveStress"].append(len(cognitive_spo2))
         SPO2HR_attributes_dict["EmotionalStress"].append(len(emotional_spo2))
-
-        # time = np.arange(len(relax_spo2))
-        # plt.plot(time, relax_HeartRate )
-        # plt.show()
 
         temp_dict = {
             "RelaxSpo2": relax_spo2,
@@ -321,12 +345,24 @@ def SortSPO2HR_app(uploaded_files_dict, uploaded_spo2_files):
         ):  # (Relax, PhysicalStress, CognitiveStress, EmotionalStress)
             for j in temp_list:  # ('Spo2', 'HeartRate')
                 SPO2HR[i][j].append(temp_dict[i + j])
-        # break
 
     return SPO2HR, SPO2HR_attributes_dict
 
-
 def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
+    """
+    Process accelerometer, temperature, and EDA data from different subjects based on their labels.
+    
+    Args:
+        uploaded_files_dict (dict): Dictionary containing dataframes of uploaded files.
+        uploaded_tempEda_files (list): List of filenames corresponding to accelerometer, temperature, and EDA data.
+
+    Returns:
+        tuple: A tuple containing two dictionaries:
+            - AccTempEDA: Organized data for each category (Relax, PhysicalStress, CognitiveStress, EmotionalStress) 
+                          with accelerometer, temperature, and EDA data.
+            - AccTempEDA_attributes_dict: Dictionary storing the length of each category from each subject.
+    """
+
     AccTempEDA = {
         "Relax": {"AccZ": [], "AccY": [], "AccX": [], "Temp": [], "EDA": []},
         "PhysicalStress": {"AccZ": [], "AccY": [], "AccX": [], "Temp": [], "EDA": []},
@@ -351,7 +387,7 @@ def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
         EDA = list(data1["EDA"])
         Label = list(data1["Label"])
 
-        # Declaring empty list variables to store extracts for specific categories
+        # Initialize lists to store extracts for specific categories
         Relax_AccY, Relax_AccX, Relax_AccZ, Relax_Temp, Relax_EDA = [], [], [], [], []
         physical_AccY, physical_AccX, physical_AccZ, physical_Temp, physical_EDA = (
             [],
@@ -409,6 +445,7 @@ def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
             for k in temp_dict1.keys():
                 temp_dict2[j + k].append(temp_dict1[k][i])
 
+        # Check the equality of recorded values for each category
         assert len(temp_dict2["RelaxAccX"]) == len(temp_dict2["RelaxEDA"])
         assert len(temp_dict2["PhysicalStressAccX"]) == len(
             temp_dict2["PhysicalStressAccZ"]
@@ -420,12 +457,6 @@ def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
             temp_dict2["EmotionalStressTemp"]
         )
 
-        # print(f'Subject: {subject}')
-        # print(f'Relax: {len(temp_dict2["RelaxAccX"])}')
-        # print(f'Cognitive: {len(temp_dict2["CognitiveStressAccX"])}')
-        # print(f'Physical: {len(temp_dict2["PhysicalStressAccX"])}')
-        # print(f'Emotional: {len(temp_dict2["EmotionalStressAccX"])} \n')
-
         for i in AccTempEDA_attributes_dict.keys():
             AccTempEDA_attributes_dict[i].append(len(temp_dict2[i + "AccX"]))
 
@@ -436,23 +467,31 @@ def SortAccTempEDA_app(uploaded_files_dict, uploaded_tempEda_files):
     return AccTempEDA, AccTempEDA_attributes_dict
 
 
+
 def necessary_variables_app():
     """
-    This fucntion returns major variables to be used in the training file.
-    Some variables are declared and initiated within this function.
-    This is done for better organisation and debugging.
+    Define necessary variables and attributes for the application.
+    
+    Returns:
+        tuple: A tuple containing various dictionaries and lists:
+            - SPO2HR_target_size: Dictionary specifying the target size for SPO2HR data for each category.
+            - AccTempEDA_target_size: Dictionary specifying the target size for AccTempEDA data for each category.
+            - SPO2HR_attributes: List of attributes for SPO2HR data.
+            - AccTempEDA_attributes: List of attributes for AccTempEDA data.
+            - categories: List of stress categories.
+            - attributes_dict: Dictionary containing lists of SPO2HR and AccTempEDA attributes.
+            - relax_indices: Dictionary mapping indices for relax category at 8Hz.
+            - phy_emo_cog_indices: Dictionary mapping indices for physical, emotional, and cognitive categories at 8Hz.
+            - all_attributes: Dictionary mapping indices to all available attributes.
     """
-    # here were 4 relax stages each of 5 mins each at 1Hz = 4*5*60 = 1200, so the standard total recoding time for relax must equal 1200
-    # There was 1 stage for the remaing 3 categories, 5min each at 1Hz = 1*5*60 = 300
+
     SPO2HR_target_size = {
         "Relax": 1200,
         "PhysicalStress": 300,
         "EmotionalStress": 300,
         "CognitiveStress": 300,
-    }  # 300 set for EmotionalStress cos most
+    }
 
-    # There were 4 relax stages each of 5 mins each at 8Hz = 4*5*60*8 = 9600, so the standard total recoding time for relax at 8Hz must equal 9600
-    # There was 1 stage for the remaing 3 categories, 5min each at 8Hz = 1*5*60*8 = 2400
     AccTempEDA_target_size = {
         "Relax": 9600,
         "PhysicalStress": 2400,
@@ -469,20 +508,13 @@ def necessary_variables_app():
     }
 
     relax_indices = {
-        [i * 8 for i in range(1200)][i]: j
-        for i, j in enumerate([((i + 1) * 8) - 1 for i in range(1200)])
+        (i * 8): j for i, j in enumerate(((i + 1) * 8) - 1 for i in range(1200))
     }
     phy_emo_cog_indices = {
-        [i * 8 for i in range(300)][i]: j
-        for i, j in enumerate([((i + 1) * 8) - 1 for i in range(300)])
+        (i * 8): j for i, j in enumerate(((i + 1) * 8) - 1 for i in range(300))
     }
 
-    all_attributes = {
-        i: j
-        for i, j in enumerate(
-            ["SpO2", "HeartRate", "AccX", "AccY", "AccZ", "Temp", "EDA"]
-        )
-    }
+    all_attributes = {i: j for i, j in enumerate(["SpO2", "HeartRate", "AccX", "AccY", "AccZ", "Temp", "EDA"])}
 
     return (
         SPO2HR_target_size,
@@ -496,7 +528,6 @@ def necessary_variables_app():
         all_attributes,
     )
 
-
 def resize_data_to_uniform_lengths_app(
     total_subject_num,
     categories,
@@ -507,91 +538,68 @@ def resize_data_to_uniform_lengths_app(
     AccTempEDA,
 ):
     """
-    This function resizes the varying recorded total times for the various categories to the targetted recording time.
-    For example, total relax recording time for Subject1 = 1203, but the targetted = 1200. So this function removes the excesses or appends the last recorded values
+    Resize data for each attribute in SPO2HR and AccTempEDA to a uniform length.
 
-    INPUTS:
-    total_subject_num: (int) the total suject number
-    categories: a list -> contains the category names
-    attributes_dict: a dict -> contains the attributes[Spo2, HeartRate, Acc(X-Z), Temp, EDA] of the dataset
-    SPO2HR_target_size: a dict -> contains the theoritical lengths(number of recorded values) that each category should be in the SPO2HR.csv folder. 1Hz
-    SPO2HR: A dictionary of the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
-          The value of each key is a dictionary with Spo2 and HeartRate as keys.
-          The values of each key is a list containing the measured voltages from a subject
+    Parameters:
+    - total_subject_num (int): Total number of subjects.
+    - categories (list): List of stress categories (e.g., ['Relax', 'CognitiveStress', 'PhysicalStress', 'EmotionalStress']).
+    - attributes_dict (dict): Dictionary containing attribute types ('SPO2HR_attributes', 'AccTempEDA_attributes').
+    - SPO2HR_target_size (dict): Target size for each stress category in SPO2HR.
+    - SPO2HR (dict): Dictionary containing SPO2HR data for each stress category and attribute.
+    - AccTempEDA_target_size (dict): Target size for each stress category in AccTempEDA.
+    - AccTempEDA (dict): Dictionary containing AccTempEDA data for each stress category and attribute.
 
-    AccTempEDA_target_size: a dict -> contains the theorical lengths(number of recorded values) that each category should be in the AccTempEDA.csv folder. 8Hz
-    AccTempEDA: a dictionary with the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
-                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
-                The value of each sencond key is a list.
-                The list contains the extracted values of attributes for each subject
-                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
-
-    RETURNS:
-    SPO2HR: A dictionary of the RESIZED TO UNIFORM LENGTH categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
-          The value of each key is a dictionary with Spo2 and HeartRate as keys.
-          The values of each key is a list containing the measured voltages from a subject
-
-    AccTempEDA: a dictionary with the RESIZED TO UNIFORM LENGHT categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
-                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
-                The value of each sencond key is a list.
-                The list contains the extracted values of attributes for each subject
-                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
-
+    Returns:
+    - SPO2HR_temp (dict): Resized SPO2HR data.
+    - AccTempEDA_temp (dict): Resized AccTempEDA data.
     """
+
+    # Create deep copies of the input data to avoid modifying the original data
     SPO2HR_temp = copy.deepcopy(SPO2HR)
     AccTempEDA_temp = copy.deepcopy(AccTempEDA)
 
-    for (
-        Class
-    ) in categories:  # Relax', 'CognitiveStress', 'PhysicalStress', 'EmotionalStress'
-        for (
-            attributes_dict_key
-        ) in attributes_dict.keys():  # SPO2HR_parameters, AccTempEDA_parameters
+    # Iterate over stress categories
+    for Class in categories:
+        # Iterate over attribute types ('SPO2HR_attributes', 'AccTempEDA_attributes')
+        for attributes_dict_key in attributes_dict.keys():
             target_attributes = attributes_dict_key
-            # print((attributes_dict_key))
-            for attribute in attributes_dict[
-                attributes_dict_key
-            ]:  # 'Spo2', 'HeartRate', ||| 'AccX', 'AccY', 'AccZ', 'Temp', 'EDA'
+
+            # Iterate over specific attributes
+            for attribute in attributes_dict[attributes_dict_key]:
                 if target_attributes == "SPO2HR_attributes":
-                    # print("IN SPO2HR NOW!!")
                     target_size = SPO2HR_target_size[Class]
+
+                    # Iterate over subject numbers
                     for subject_number in range(total_subject_num):
                         temp_list = SPO2HR_temp[Class][attribute][subject_number]
                         offset = len(temp_list) - target_size
+
+                        # Adjust the list length to match the target size
                         if offset > 0:
                             del temp_list[-offset:]
-                            assert len(temp_list) == target_size
                         elif offset < 0:
                             last_elmt = temp_list[-1]
                             for i in range(-offset):
                                 temp_list.append(last_elmt)
-                            assert len(temp_list) == target_size
-                        elif offset == 0:
-                            assert len(temp_list) == target_size
-                            # pass
 
                 elif target_attributes == "AccTempEDA_attributes":
-                    # print("IN AccTempEDA NOW!!")
                     target_size = AccTempEDA_target_size[Class]
+
+                    # Iterate over subject indices
                     for index in range(total_subject_num):
                         temp_list = AccTempEDA_temp[Class][attribute][index]
                         offset = len(temp_list) - target_size
+
+                        # Adjust the list length to match the target size
                         if offset > 0:
                             del temp_list[-offset:]
-                            assert len(temp_list) == target_size
                         elif offset < 0:
                             last_elmt = temp_list[-1]
                             for i in range(-offset):
                                 temp_list.append(last_elmt)
-                            assert len(temp_list) == target_size
-                        elif offset == 0:
-                            assert len(temp_list) == target_size
-                            # pass
-                    # break
-                # break
-            # break
-        # break
+
     return SPO2HR_temp, AccTempEDA_temp
+
 
 
 def sanity_check_2_and_DownSamplingAccTempEDA_app(
@@ -606,97 +614,78 @@ def sanity_check_2_and_DownSamplingAccTempEDA_app(
     phy_emo_cog_indices,
 ):
     """
-    This function checks the accuracy of the preprocessed data so far by comparing the preprocessed values with the originals.
-    In order not to define a second function, the 8Hz Acc(X-Z), Temp and EDA lenghts were downsampled to match the 1Hz sample of Spo2 and HeartRate
+    Perform a sanity check and downsample AccTempEDA data for each attribute.
 
-    INPUTS:
-    total_subject_num: (int) the total suject number
-    categories: a list -> contains the category names
-    attributes_dict: a dict -> contains the attributes[Spo2, HeartRate, Acc(X-Z), Temp, EDA] of the dataset
-    SPO2HR_target_size: a dict -> contains the theoritical lengths(number of recorded values) that each category should be in the SPO2HR.csv folder. 1Hz
-    SPO2HR: A dictionary of the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
-          The value of each key is a dictionary with Spo2 and HeartRate as keys.
-          The values of each key is a list containing the measured voltages from a subject
+    Parameters:
+    - total_subject_num (int): Total number of subjects.
+    - categories (list): List of stress categories (e.g., ['Relax', 'CognitiveStress', 'PhysicalStress', 'EmotionalStress']).
+    - attributes_dict (dict): Dictionary containing attribute types ('SPO2HR_attributes', 'AccTempEDA_attributes').
+    - SPO2HR_target_size (dict): Target size for each stress category in SPO2HR.
+    - SPO2HR (dict): Dictionary containing SPO2HR data for each stress category and attribute.
+    - AccTempEDA_target_size (dict): Target size for each stress category in AccTempEDA.
+    - AccTempEDA (dict): Dictionary containing AccTempEDA data for each stress category and attribute.
+    - relax_indices (dict): Dictionary for downsampling the AccTempEDA values sampled at 8Hz during Relax.
+    - phy_emo_cog_indices (dict): Dictionary for downsampling the AccTempEDA values sampled at 8Hz during Physical, Emotional, and Cognitive stresses.
 
-    AccTempEDA_target_size: a dict -> contains the theorical lengths(number of recorded values) that each category should be in the AccTempEDA.csv folder. 8Hz
-    AccTempEDA: a dictionary with the categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
-                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
-                The value of each sencond key is a list.
-                The list contains the extracted values of attributes for each subject
-                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
-    relax_indices: a dict -> contains the indices of values of relax. This allows easy sample by direct referencing.
-    phy_emo_cog_indices: a dict -> contains the indices of values of PhysicalStress, EmotionalStress and Cognitive Stress for easy sample by referencing
-
-
-    RETURNS:
-    AccTempEDA: a dictionary with the DOWNSAMPLED categories(Relax, PhysicalStress, CognitiveStress, EmotionalStress) as keys
-                The value of each first key is a dictionary with attributes(AccZ, AccY, AccX, Temp, EDA) as keys
-                The value of each sencond key is a list.
-                The list contains the extracted values of attributes for each subject
-                AccTempEDA['Relax']['AccZ'][0] contains the extracted relax values of AccZ column of subject 1
-
-
+    Returns:
+    - AccTempEDA (dict): Modified AccTempEDA data after sanity check and downsampling.
     """
-    for (
-        Class
-    ) in categories:  # Relax', 'CognitiveStress', 'PhysicalStress', 'EmotionalStress'
-        for (
-            attributes_dict_key
-        ) in attributes_dict.keys():  # SPO2HR_parameters, AccTempEDA_parameters
+
+    # Iterate over stress categories
+    for Class in categories:
+        # Iterate over attribute types ('SPO2HR_attributes', 'AccTempEDA_attributes')
+        for attributes_dict_key in attributes_dict.keys():
             target_file = attributes_dict_key
-            for parameter in attributes_dict[
-                attributes_dict_key
-            ]:  # 'Spo2', 'HeartRate', ||| 'AccX', 'AccY', 'AccZ', 'Temp', 'EDA'
+
+            # Iterate over specific attributes
+            for parameter in attributes_dict[attributes_dict_key]:
                 if target_file == "SPO2HR_attributes":
-                    # print("IN SPO2HR NOW!!")
                     target_size = SPO2HR_target_size[Class]
+
+                    # Iterate over subject indices
                     for index in range(total_subject_num):
                         temp_list = SPO2HR[Class][parameter][index]
                         temp_list2 = SPO2HR[Class][parameter][-index]
+
+                        # Perform sanity check by comparing lengths of two instances
                         assert len(temp_list) == len(temp_list2)
 
                 elif target_file == "AccTempEDA_attributes":
-                    # print("IN AccTempEDA NOW!!")
                     target_size = AccTempEDA_target_size[Class]
-                    for index in range(
-                        total_subject_num
-                    ):  # use this line for the resizing
-                        temp_list = AccTempEDA[Class][parameter][index]
-                        ### offset = len(temp_list) - target_size
 
+                    # Iterate over subject indices
+                    for index in range(total_subject_num):
+                        temp_list = AccTempEDA[Class][parameter][index]
                         temp_list2 = AccTempEDA[Class][parameter][-index]
+
+                        # Check if the stress category is 'Relax' and the length matches the target size
                         if Class == "Relax" and len(temp_list) == target_size:
                             holding_list = []
-                            for (
-                                key
-                            ) in (
-                                relax_indices.keys()
-                            ):  # dict for downsapmling of the AccTempEDA values sampled at 8HZ
+
+                            # Downsample the AccTempEDA values sampled at 8Hz during Relax
+                            for key in relax_indices.keys():
                                 temp_value = (
                                     sum(temp_list[key : relax_indices[key]])
                                 ) / 8
                                 holding_list.append(temp_value)
+
                             AccTempEDA[Class][parameter][index] = holding_list
+
+                        # Check if the stress category is not 'Relax' and the length matches the target size
                         elif Class != "Relax" and len(temp_list) == target_size:
                             holding_list = []
-                            for (
-                                key
-                            ) in (
-                                phy_emo_cog_indices.keys()
-                            ):  # this dict is same as the relax_indices but shorter in length. This only spans 300 values. The relax is 4 times this one.
+
+                            # Downsample the AccTempEDA values sampled at 8Hz during Physical, Emotional, and Cognitive stresses
+                            for key in phy_emo_cog_indices.keys():
                                 temp_value = (
                                     sum(temp_list[key : phy_emo_cog_indices[key]])
                                 ) / 8
                                 holding_list.append(temp_value)
+
                             AccTempEDA[Class][parameter][index] = holding_list
-                        else:
-                            print("Passing")
-                        # """
-                    # break
-                # break
-            # break
-        # break
+
     return AccTempEDA
+
 
 
 def get_data_dict_app(
@@ -704,15 +693,16 @@ def get_data_dict_app(
 ):
     """
     This function orgainises the extracted data for easy represention
-
-    total_subject_num: int. specifies the total subject number
-    categories: a list of categorry names
-    attributes_dict: a dictionary containing all the attributes of both SpO2HR.csv and AccTempEDA.csv files
-    SPO2HR_resized: dictionary containing resized values for Spo2 and HeartRate
-    AccTemEDA_downSampled: dictionary containing resized and downsampled values for Acc(X-Z), Temp, EDA
+    
+    Parameters:
+    - total_subject_num (int): specifies the total subject number
+    - categories (list): a list of categorry names
+    - attributes_dict (dict): a dictionary containing all the attributes of both SpO2HR.csv and AccTempEDA.csv files
+    - SPO2HR_resized (dict): dictionary containing resized values for Spo2 and HeartRate
+    - AccTemEDA_downSampled (dict): dictionary containing resized and downsampled values for Acc(X-Z), Temp, EDA
 
     RETURNS:
-    ALL_DATA_DICT: a dictionary with integers as keys and numpy arrays as keys
+    - ALL_DATA_DICT: a dictionary with integers as keys and numpy arrays as keys
                   first 20 keys: the extracted attributes labelled Relax.
                   second 20 keys: the extracted attributes labelled PhysicalStress
                   third 20 keys: the extracted attributes labelled EmotionalStress
@@ -815,58 +805,122 @@ def get_data_dict_app(
     return ALL_DATA_DICT
 
 
+
+
 def get_s3_bucket_files(bucket_name):
+    """
+    Retrieve a list of file keys (names) from an Amazon S3 bucket.
+
+    Parameters:
+    - bucket_name (str): The name of the Amazon S3 bucket.
+
+    Returns:
+    - List[str]: A list of file keys (names) in the specified S3 bucket.
+    """
     s3 = boto3.resource("s3")
+
+    # Access the specified S3 bucket
     bucket = s3.Bucket(bucket_name)
-    buckets = []
+
+    # List to store file keys
+    file_keys = []
+
+    # Iterate through objects in the bucket and append their keys to the list
     for obj in bucket.objects.all():
-        buckets.append(obj.key)
-    return buckets
+        file_keys.append(obj.key)
+
+    return file_keys
 
 
-def get_s3_bucket_tagged_files(
-    bucket_name="physiologicalsignalsbucket", sample_window=100, degree_of_overlap=0.5
-):
+import boto3
+
+def get_s3_bucket_tagged_files(bucket_name="physiologicalsignalsbucket", sample_window=100, degree_of_overlap=0.5):
+    """
+    Retrieve a list of file keys (names) from an Amazon S3 bucket based on specified tags.
+
+    Parameters:
+    - bucket_name (str): The name of the Amazon S3 bucket.
+    - sample_window (int): The sample window size used as a tag for filtering files.
+    - degree_of_overlap (float): The degree of overlap used as a tag for filtering files.
+
+    Returns:
+    - List[str] or None: A list of file keys (names) in the specified S3 bucket that match the provided tags.
+                         Returns None if no matching files are found.
+    """
     s3 = boto3.resource("s3")
     client = boto3.client("s3")
+
+    # Target tags to filter files
     target = {"window": str(sample_window), "overlap": str(degree_of_overlap)}
+
+    # Access the specified S3 bucket
     bucket = s3.Bucket(bucket_name)
+
+    # Lists to store file keys
     buckets = []
     all_buckets = []
+
+    # Iterate through objects in the bucket
     for obj in bucket.objects.all():
         all_buckets.append(obj.key)
+
+        # Retrieve tags for the current object
         response = client.get_object_tagging(Bucket=bucket_name, Key=obj.key)
         file_tags = response["TagSet"]  # a dict
+
+        # Counter to track matching tags
         counter = 0
+
+        # Check if tags match the target tags
         for element in file_tags:
             try:
                 if element["Key"] in target.keys():
-                    # st.write('ada', element['Value'], target[element["Key"]])
                     if element["Value"] == target[element["Key"]]:
-                        counter = counter + 1
+                        counter += 1
                     if counter >= 2:
                         buckets.append(obj.key)
             except Exception as e:
-                st.write(f"Got an error in getting tags of file. Error:{e}")
+                # Handle errors when getting tags
+                print(f"Got an error in getting tags of file. Error: {e}")
+
+    # Display a warning if no matching files are found
     if len(buckets) == 0:
-        st.warning(
-            "Found no compatible model for selected sample window and degree of overlap. All models are displayed below. Either change the selection or train a model with specifications"
-        )
-        return None  # all_buckets
+        print("Found no compatible model for selected sample window and degree of overlap.")
+        print("All models are displayed below. Either change the selection or train a model with specifications.")
+        return None
 
     return buckets
 
+
+
+import boto3
 
 def download_s3_file(
     s3_file_path,
     bucket_name="physiologicalsignalsbucket",
     model_local_path="./temp/models/downloaded_model.h5",
 ):
+    """
+    Download a file from an Amazon S3 bucket to a local path.
+
+    Parameters:
+    - s3_file_path (str): The path of the file in the Amazon S3 bucket.
+    - bucket_name (str): The name of the Amazon S3 bucket.
+    - model_local_path (str): The local path where the downloaded file should be saved.
+
+    Returns:
+    - str: The local path where the file has been downloaded.
+    """
+    # Create an S3 client
     s3 = boto3.client("s3")
+
+    # Download the file from S3 to the local path
     s3.download_file(bucket_name, s3_file_path, model_local_path)
-    
+
+    # Return the local path of the downloaded file
     return model_local_path
 
+import boto3
 
 def upload_file_to_s3(
     file_path="./temp/models/model.h5",
@@ -875,14 +929,34 @@ def upload_file_to_s3(
     window=100,
     overlap=0.5,
 ):
+    """
+    Upload a file to an Amazon S3 bucket with specified tags.
+
+    Parameters:
+    - file_path (str): The local path of the file to be uploaded.
+    - bucket_name (str): The name of the Amazon S3 bucket.
+    - object_name (str): The name of the object in the S3 bucket. If None, the file name is used.
+    - window (int): The sample window parameter for tagging (default: 100).
+    - overlap (float): The degree of overlap parameter for tagging (default: 0.5).
+
+    Returns:
+    - None: The function does not return any value but prints success or error messages.
+    """
     s3_client = boto3.client("s3")
+
+    # Use the file name as the object name if not specified
     if object_name is None:
-        object_name = file_path.split("/")[-1]  # Use the file name as the object name
+        object_name = file_path.split("/")[-1]
+
     try:
+        # Create tags for the file
         tags = f"window={str(window)}&overlap={str(overlap)}"
+
+        # Upload the file to S3 with specified tags
         s3_client.upload_file(
             file_path, bucket_name, f"{object_name}.h5", ExtraArgs={"Tagging": tags}
         )
+
         print(f"File uploaded successfully to S3 bucket: {bucket_name}")
     except Exception as e:
         print(f"Error uploading file to S3 bucket: {e}")

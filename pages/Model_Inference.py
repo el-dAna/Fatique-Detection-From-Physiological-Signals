@@ -3,6 +3,7 @@ import tensorflow as tf
 # import boto3
 # import datetime
 from utils.rnn_predict import predict_from_streamlit_data
+from streamlit_extras.switch_page_button import switch_page
 
 
 from mylib.appfunctions import (
@@ -72,7 +73,7 @@ if (
             title="Check how many samples are generated!",
             detailed_description=f"""\n
             INTEGER VALUES TAKEN.\n
-            A sample window of {int(st.session_state.sample_window)} with an overlap of {int(st.session_state.degree_of_overlap)} over a width if 300 generates {int(st.session_state.sample_per_sample)} samples per each original (7,300) sample.\n
+            A sample window of {int(st.session_state.sample_window)} with an overlap of {st.session_state.degree_of_overlap} over a width if 300 generates {int(st.session_state.sample_per_sample)} samples per each original (7,300) sample.\n
             This generates a total of {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples.\n
             From {int(len(st.session_state.ALL_DATA_DICT.keys())/7)} subject(s) data uploaded, each subject had 7  (Relax1,Relax2,Relax3,Relax4,PhysicalStress,CognitiveStress,EmotionalStress) original samples.\n
             {int(st.session_state.sample_per_sample)} samples were generated from each of the 7. This totals {int(st.session_state.sample_per_sample*len(st.session_state.ALL_DATA_DICT.keys()))} samples. Got it now?
@@ -121,51 +122,54 @@ if (
             """)
     else:
         if st.button("Train model with spececifications above.", type="primary"):
-            st.session_state.PERCENT_OF_TRAIN = st.slider(
-                "Percentage of train samples:",
-                min_value=0.1,
-                max_value=1.0,
-                value=0.8,
-                step=0.1,
-                help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
-            )
-            st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
-            st.session_state.model_s3_name = col2.text_input(
-                "Name of model to save in s3:"
-            )
-            st.session_state.LOSS = st.selectbox(
-                "Select tf loss function to use",
-                options=[st.session_state.LOSSES.keys()],
-            )
-            st.session_state.learning_rate = col3.number_input(
-                "Enter the learning rate:",
-                min_value=0.0,
-                max_value=1.0,
-                value=0.0002,
-                step=0.0001,
-            )
-            st.session_state.EPOCHS = st.number_input(
-                "Number of epochs:", min_value=10, max_value=None, value="min", step=1
-            )
+            switch_page("Train_Model")
+            # st.session_state.PERCENT_OF_TRAIN = st.slider(
+            #     "Percentage of train samples:",
+            #     min_value=0.1,
+            #     max_value=1.0,
+            #     value=0.8,
+            #     step=0.1,
+            #     help="Percent of total samples for training. 0 is no sample for training and 1 means all samples for training. 0 training samples is illogical so min kept at 0.1 thus 10 percent.",
+            # )
 
-            try:
-                st.session_state.train_task.close()
-                st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
-            except Exception:
-                pass
+            # col4, col5, col6 = st.columns(3)
+            # st.session_state.clearml_task_name = col4.text_input("Clearml task name:")
+            # st.session_state.model_s3_name = col5.text_input(
+            #     "Name of model to save in s3:"
+            # )
+            # st.session_state.LOSS = st.selectbox(
+            #     "Select tf loss function to use",
+            #     options=st.session_state.LOSSES.keys(),
+            # )
+            # st.session_state.learning_rate = col6.number_input(
+            #     "Enter the learning rate:",
+            #     min_value=0.0,
+            #     max_value=1.0,
+            #     value=0.0002,
+            #     step=0.0001,
+            # )
+            # st.session_state.EPOCHS = st.number_input(
+            #     "Number of epochs:", min_value=10, max_value=None, value="min", step=1
+            # )
 
-            if st.button("Train model", type="primary"):
-                st.session_state.train_task = train_new_model_from_streamlit_ui(
-                    train_task=st.session_state.train_task,
-                    clearml_task_name=st.session_state.clearml_task_name,
-                    sample_window=st.session_state.sample_window,
-                    degree_of_overlap=st.session_state.degree_of_overlap,
-                    PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
-                    learning_rate=st.session_state.learning_rate,
-                    LOSS=st.session_state.LOSSES[st.session_state.LOSS],
-                    EPOCHS=st.session_state.EPOCHS,
-                    model_s3_name=st.session_state.model_s3_name,
-                )
+            # try:
+            #     st.session_state.train_task.close()
+            #     st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
+            # except Exception:
+            #     pass
+
+            # if st.button("Train model", type="primary"):
+            #     st.session_state.train_task = train_new_model_from_streamlit_ui(
+            #         train_task=st.session_state.train_task,
+            #         clearml_task_name=st.session_state.clearml_task_name,
+            #         sample_window=st.session_state.sample_window,
+            #         degree_of_overlap=st.session_state.degree_of_overlap,
+            #         PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
+            #         learning_rate=st.session_state.learning_rate,
+            #         LOSS=st.session_state.LOSSES[st.session_state.LOSS],
+            #         EPOCHS=st.session_state.EPOCHS,
+            #         model_s3_name=st.session_state.model_s3_name,
+            #     )
             # st.session_state.degree_of_overlap = st.number_input(
             #     "Degree of overlap between two consecutive samples:",
             #     min_value=0.0,

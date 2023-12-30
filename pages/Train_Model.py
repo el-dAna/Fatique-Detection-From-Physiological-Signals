@@ -19,12 +19,12 @@ st.set_page_config(page_title="Train New Model", page_icon="💪")
 st.markdown("# TRAINING A NEW MODEL")
 st.sidebar.header("Variables to track")
 st.write(
-    """This page is for classifying the samples of subjects loaded from s3 bucket"""
+    """This page is for training customised brand new models from the samples of subjects loaded from s3 bucket"""
 )
 
 st.session_state.clearml_task_name = f"Task-{st.session_state.current_datetime}"
 st.session_state.model_s3_name = f"Model-{st.session_state.current_datetime}"
-st.write("All session states", st.session_state)
+#st.write("All session states", st.session_state)
 
 
 st.session_state.PERCENT_OF_TRAIN = st.slider(
@@ -67,7 +67,9 @@ st.session_state.learning_rate = col3.number_input(
 try:
     st.session_state.train_task.close()
     st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
+    st.write("Here1")
 except Exception:
+    st.write("Here2")
     st.session_state.train_task = init_clearml_task(task_name=st.session_state.clearml_task_name)
     pass
 
