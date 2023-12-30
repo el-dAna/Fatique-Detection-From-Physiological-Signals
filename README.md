@@ -44,7 +44,7 @@ Runs and generated models can be compared.
 Automatic logging of artifcacts.
 Models could be hosted here but I just wanted to use diverse tools.
 
-<div><img width="800" height='600' alt="image" src=src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/b24b1712-63c2-4cbe-9520-a01077dcdda8"></div>
+<div><img width="800" height='600' alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/b24b1712-63c2-4cbe-9520-a01077dcdda8"></div>
 
 
 
@@ -63,7 +63,7 @@ Entry is the App.py
      - Train_Model.py
     These call other modules from other libs.
 For an interactive display visit the figma file [here](https://www.figma.com/file/qAkiRCvXSZOOgIAfwgJiNY/Tuseb?type=design&node-id=13%3A2&mode=design&t=8ijg5b9MX6MiBvID-1).
-<div><img width="900" height='600' alt="image" src=src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/45780569-f974-49b6-ba12-7e8b4e7fad44"></div>
+<div><img width="900" height='600' alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/45780569-f974-49b6-ba12-7e8b4e7fad44"></div>
 
 
 ### RUNNING APP (On LINUX)
