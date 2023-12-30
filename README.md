@@ -33,7 +33,7 @@ Users can later load specific trained model to run infererence.
 ### S3
 This is storage for this project. 
 Subject data and models are hosted here.
-<img width="940" alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/6a8d6621-6b60-4c58-9c77-5e5eb2709741">
+<div><img width="800" height='600' alt="image" src=src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/6a8d6621-6b60-4c58-9c77-5e5eb2709741"></div>
 
 
 
@@ -43,7 +43,8 @@ Old runs can be cloned and rerun to simulate results.(not available on Mlflow)
 Runs and generated models can be compared.
 Automatic logging of artifcacts.
 Models could be hosted here but I just wanted to use diverse tools.
-<img width="959" alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/b24b1712-63c2-4cbe-9520-a01077dcdda8">
+
+<div><img width="800" height='600' alt="image" src=src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/b24b1712-63c2-4cbe-9520-a01077dcdda8"></div>
 
 
 
@@ -61,7 +62,8 @@ Entry is the App.py
      - Model_Inference.py
      - Train_Model.py
     These call other modules from other libs.
-<img width="594" alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/45780569-f974-49b6-ba12-7e8b4e7fad44">
+For an interactive display visit the figma file [here](https://www.figma.com/file/qAkiRCvXSZOOgIAfwgJiNY/Tuseb?type=design&node-id=13%3A2&mode=design&t=8ijg5b9MX6MiBvID-1).
+<div><img width="900" height='600' alt="image" src=src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/45780569-f974-49b6-ba12-7e8b4e7fad44"></div>
 
 
 ### RUNNING APP (On LINUX)
@@ -70,7 +72,7 @@ Entry is the App.py
 3. Run `source st_portfolio/bin/activate` to activate
 4. Run `pip install -r requirements.txt` to install packages
 5. Create a ClearML account [here](https://clear.ml/docs/latest/)
-6. Follow easy-to-understand steps (here)[https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps/] to authenticate environment to ClearML server.
+6. Follow easy-to-understand steps [here(https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps/) to authenticate environment to ClearML server.
 7. Run `streamlit run App.py` to run app hosted at port `8501`
 Enjoy locally. To have full experence download the dataset from the link and upload files when requested or host on s3 and grant the necessary policies to an IAM role, generate keys, authenticate your environment and that's it!
 
