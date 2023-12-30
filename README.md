@@ -22,7 +22,7 @@ MAIN DEMONSTRATIONS.
 ## Data
 More information on data can be obtained from the official PhysionNet [here](https://physionet.org/content/noneeg/1.0.0/). For a visual representaion visit the Figma visual representation [here](https://www.figma.com/file/qAkiRCvXSZOOgIAfwgJiNY/Tuseb?type=design&node-id=13%3A2&mode=design&t=8ijg5b9MX6MiBvID-1).
 To get indepth analysis of the data and how it was 'organised'(no major preprocessing yet) for the model, visit the Data_Preprocessing Page of the Streamlit App.
-<img width="574" alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/c7cce69f-cf71-4ffb-8a3a-47ea2c475b92">
+<div><img width="574" alt="image" src="https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/c7cce69f-cf71-4ffb-8a3a-47ea2c475b92"></div>
 
 
 ### Model
@@ -72,7 +72,7 @@ For an interactive display visit the figma file [here](https://www.figma.com/fil
 3. Run `source st_portfolio/bin/activate` to activate
 4. Run `pip install -r requirements.txt` to install packages
 5. Create a ClearML account [here](https://clear.ml/docs/latest/)
-6. Follow easy-to-understand steps [here(https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps/) to authenticate environment to ClearML server.
+6. Follow easy-to-understand steps [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps/) to authenticate environment to ClearML server.
 7. Run `streamlit run App.py` to run app hosted at port `8501`
 Enjoy locally. To have full experence download the dataset from the link and upload files when requested or host on s3 and grant the necessary policies to an IAM role, generate keys, authenticate your environment and that's it!
 
