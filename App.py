@@ -3,7 +3,6 @@ import datetime
 import tensorflow as tf
 
 session_states = {
-    "current_datetime": str(datetime.datetime.now()),
     "files_upload": False,
     "uploaded_files_dict": 0,
     "uploaded_files_dict_keys": 0,
@@ -56,6 +55,8 @@ def initialise_session_states():
 
 
 initialise_session_states()
+#st.write("All session states", st.session_state)
+
 
 st.markdown("# Fatigue Detection from Physiological Signals🎈")
 st.sidebar.markdown("# Home Page 🎈")

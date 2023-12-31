@@ -63,23 +63,11 @@ class RNN_TRAIN_DATACLASS:
 
     NUMBER_CLASSES = 4
 
-        
-    # Get the current date and time
-    clearml_project_name = "portfolioproject"
-    current_datetime = str(datetime.datetime.now())
-    clearml_task_name= f"task-{current_datetime}"
+    clearml_project_name = "portfolioproject"    
     model_local_path= str("./temp/models/model.h5")
     bucket_name=str("physiologicalsignalsbucket"),
-    model_s3_name= str(f"Model-{current_datetime}")
+
     
-
-
-
-
-def init_clearml_task(project_name=RNN_TRAIN_DATACLASS.clearml_project_name, task_name=RNN_TRAIN_DATACLASS.clearml_task_name):
-    task_name = Task.init(project_name=project_name, task_name=task_name)
-    return task_name
-
 
 def initialise_training_variables(sample_window=100, degree_of_overlap=0.5, WHOLE_DICT=RNN_TRAIN_DATACLASS.WHOLE_DICT,
                                   PERCENT_OF_TRAIN=0.8):
@@ -216,7 +204,7 @@ def train_model(model_to_train, TRAIN_FEATURES, TRAIN_LABELS, TRAIN_STEPS, PREDI
     return model_to_train, history
 
 
-def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, window, overlap, model_local_path=RNN_TRAIN_DATACLASS.model_local_path, bucket_name=RNN_TRAIN_DATACLASS.bucket_name[0], model_s3_name=RNN_TRAIN_DATACLASS.model_s3_name):
+def save_trained_model_s3bucket_and_log_artifacts(trained_model, history, window, overlap, model_local_path=RNN_TRAIN_DATACLASS.model_local_path, bucket_name=RNN_TRAIN_DATACLASS.bucket_name[0], model_s3_name=f"Model-{str(datetime.datetime.now())}"):
 
     trained_model.save(model_local_path)
     try:
@@ -256,9 +244,13 @@ def get_trained_model_confusionM(trained_model, TRAIN_FEATURES, TRAIN_LABELS, PR
     # train_task.close()
     
 
+def train_new_model_from_streamlit_ui(sample_window,degree_of_overlap,PERCENT_OF_TRAIN,learning_rate,
+                                model_s3_name=None,LOSS=tf.keras.losses.Huber(),EPOCHS=10):
+    
+    current_datetime = datetime.datetime.now()
+    if model_s3_name == None:
+        model_s3_name=f"Model-{str(current_datetime)}"
 
-def train_new_model_from_streamlit_ui(train_task, clearml_task_name,sample_window,degree_of_overlap,PERCENT_OF_TRAIN,learning_rate,
-                                model_s3_name,LOSS=tf.keras.losses.Huber(),EPOCHS=10):
     (
         TRAIN_FEATURES,
         TRAIN_LABELS,
@@ -315,7 +307,7 @@ def train_new_model_from_streamlit_ui(train_task, clearml_task_name,sample_windo
 
     st.write("Done training and uploading")
 
-    return train_task.close()
+    # return train_task.close()
 
 
 

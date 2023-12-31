@@ -1,8 +1,7 @@
 import streamlit as st
-
-# import tensorflow as tf
-# import tensorflow as tf
-# import datetime
+import datetime
+from clearml import Task
+from dataclasses import dataclass
 
 from utils.rnn_train import (
     # init_clearml_task,
@@ -11,9 +10,15 @@ from utils.rnn_train import (
     # train_model,
     # save_trained_model_s3bucket_and_log_artifacts,
     # get_trained_model_confusionM,
-    init_clearml_task,
     train_new_model_from_streamlit_ui,
 )
+
+
+
+@dataclass
+class TRAIN_MODEL_DATACLASS:
+    clearml_project_name = "portfolioproject"    
+
 
 st.set_page_config(page_title="Train New Model", page_icon="💪")
 
@@ -22,11 +27,6 @@ st.sidebar.header("Variables to track")
 st.write(
     """This page is for training customised brand new models from the samples of subjects loaded from s3 bucket"""
 )
-
-st.session_state.clearml_task_name = f"Task-{st.session_state.current_datetime}"
-st.session_state.model_s3_name = f"Model-{st.session_state.current_datetime}"
-# st.write("All session states", st.session_state)
-
 
 st.session_state.PERCENT_OF_TRAIN = st.slider(
     "Percentage of train samples:",
@@ -55,8 +55,8 @@ st.session_state.EPOCHS = st.number_input(
 col1, col2, col3 = st.columns(3)
 
 # Create text input widgets in each column
-st.session_state.clearml_task_name = col1.text_input("Clearml task name:")
-st.session_state.model_s3_name = col2.text_input("Name of model to save in s3:")
+st.session_state.clearml_task_name = col1.text_input(label="Clearml task name:")
+st.session_state.model_s3_name = col2.text_input(label="Name of model to save in s3:")
 st.session_state.LOSS = st.selectbox(
     "Select tf loss function to use",
     options=st.session_state.LOSSES.keys(),
@@ -65,23 +65,16 @@ st.session_state.learning_rate = col3.number_input(
     "Enter the learning rate:", min_value=0.0, max_value=1.0, value=0.0002, step=0.0001
 )
 
+
 try:
-    st.session_state.train_task.close()
-    st.session_state.train_task = init_clearml_task(
-        task_name=st.session_state.clearml_task_name
-    )
-    st.write("Here1")
-except Exception:
-    st.write("Here2")
-    st.session_state.train_task = init_clearml_task(
-        task_name=st.session_state.clearml_task_name
-    )
-    # pass
+    st.session_state.train_task.close()   
+except AttributeError as e:
+    pass
 
 if st.button("Train model", type="primary"):
-    st.session_state.train_task = train_new_model_from_streamlit_ui(
-        train_task=st.session_state.train_task,
-        clearml_task_name=st.session_state.clearml_task_name,
+    st.session_state.train_task = task = Task.init(project_name=TRAIN_MODEL_DATACLASS.clearml_project_name, task_name=st.session_state.clearml_task_name)
+
+    train_new_model_from_streamlit_ui(
         sample_window=st.session_state.sample_window,
         degree_of_overlap=st.session_state.degree_of_overlap,
         PERCENT_OF_TRAIN=st.session_state.PERCENT_OF_TRAIN,
@@ -90,3 +83,5 @@ if st.button("Train model", type="primary"):
         EPOCHS=st.session_state.EPOCHS,
         model_s3_name=st.session_state.model_s3_name,
     )
+
+    st.session_state.train_task.close()
