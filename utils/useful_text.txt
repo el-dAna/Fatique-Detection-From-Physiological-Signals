@@ -43,6 +43,11 @@ smooth linkage b/n pages. Currently some part of data preprocessing has to work 
 
 ---------------------------------------------------------------
 ## TO DOs before full deployment
-put physilogicalsignalsbuket in a global variable, preferably in a dataclass in app.py
-automatic model/task naming if no mame is passed
-put access key and secrete access key of generated policy and environment vars.
+put access key and secrete access key of generated policy and environment vars. can os... access env variables in any server
+
+why not deployed on streaamlit-> clearml would need to authentication. Maybe a script to execute terminal commands and pass in values saved as env vars accessed using os
+same issue with Apprunner
+will deploy on ec2 since these can be done from terminal and app kept running
+
+
+

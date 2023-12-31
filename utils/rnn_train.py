@@ -45,6 +45,9 @@ from mylib.appfunctions import upload_file_to_s3
 
 tf.keras.backend.clear_session()  # clears internal variables so we start all initiations and assignments afresh
 
+# def authenticate():
+#     s3_authnticate = 
+
 
 @dataclass
 class RNN_TRAIN_DATACLASS:

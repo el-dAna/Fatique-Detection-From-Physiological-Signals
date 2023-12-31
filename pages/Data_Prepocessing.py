@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_extras.switch_page_button import switch_page
 
 from mylib.appfunctions import (
     upload_files,
@@ -48,6 +49,9 @@ if uploaded_files_dict:
 
         st.markdown("### Step 2. Visualise Data")
         read_files(uploaded_files_dict=st.session_state.uploaded_files_dict)
+        
+        if st.button("More EDA on files👀", type="primary"):
+            switch_page("More EDA")
 
         write_expandable_text_app(
             title="More info on graphs", detailed_description=TEXT.dataset_description1

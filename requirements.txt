@@ -10,6 +10,7 @@ pylint
 black
 pytest==7.4.3
 jsons==1.6.3
+dataprep
 
 #fastapi
 fastapi==0.103.2

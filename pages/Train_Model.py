@@ -10,7 +10,7 @@ from utils.rnn_train import (
     # train_model,
     # save_trained_model_s3bucket_and_log_artifacts,
     # get_trained_model_confusionM,
-    train_new_model_from_streamlit_ui,
+    train_new_model_from_streamlit_ui
 )
 
 
