@@ -10,7 +10,7 @@ pylint
 black
 pytest
 jsons
-streamlit-ydata-profiling
+#streamlit-ydata-profiling
 
 
 #fastapi
