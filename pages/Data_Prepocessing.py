@@ -49,7 +49,7 @@ if uploaded_files_dict:
 
         st.markdown("### Step 2. Visualise Data")
         read_files(uploaded_files_dict=st.session_state.uploaded_files_dict)
-        
+
         if st.button("More EDA on files👀", type="primary"):
             switch_page("More EDA")
 

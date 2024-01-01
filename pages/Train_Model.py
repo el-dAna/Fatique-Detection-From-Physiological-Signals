@@ -1,5 +1,6 @@
 import streamlit as st
-import datetime
+
+# import datetime
 from clearml import Task
 from dataclasses import dataclass
 
@@ -10,14 +11,13 @@ from utils.rnn_train import (
     # train_model,
     # save_trained_model_s3bucket_and_log_artifacts,
     # get_trained_model_confusionM,
-    train_new_model_from_streamlit_ui
+    train_new_model_from_streamlit_ui,
 )
-
 
 
 @dataclass
 class TRAIN_MODEL_DATACLASS:
-    clearml_project_name = "portfolioproject"    
+    clearml_project_name = "portfolioproject"
 
 
 st.set_page_config(page_title="Train New Model", page_icon="💪")
@@ -67,12 +67,15 @@ st.session_state.learning_rate = col3.number_input(
 
 
 try:
-    st.session_state.train_task.close()   
+    st.session_state.train_task.close()
 except AttributeError as e:
     pass
 
 if st.button("Train model", type="primary"):
-    st.session_state.train_task = task = Task.init(project_name=TRAIN_MODEL_DATACLASS.clearml_project_name, task_name=st.session_state.clearml_task_name)
+    st.session_state.train_task = task = Task.init(
+        project_name=TRAIN_MODEL_DATACLASS.clearml_project_name,
+        task_name=st.session_state.clearml_task_name,
+    )
 
     train_new_model_from_streamlit_ui(
         sample_window=st.session_state.sample_window,

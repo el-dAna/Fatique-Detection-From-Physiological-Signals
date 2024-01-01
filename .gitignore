@@ -5,6 +5,7 @@ credentials.txt
 /utils/mlruns
 /mlartifacts
 /mlruns
+/~/.mlops
 
 /.venv/
 

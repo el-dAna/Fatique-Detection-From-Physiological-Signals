@@ -10,7 +10,9 @@ pylint
 black
 pytest
 jsons
-dataprep
+#dataprep
+streamlit-ydata-profiling
+sweetviz
 
 #fastapi
 #fastapi
@@ -24,7 +26,7 @@ boto3
 
 # wl module
 #PyWavelets
-#scikit-learn
+scikit-learn
 
 #general
 #mlflow==2.8.1

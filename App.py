@@ -1,5 +1,6 @@
 import streamlit as st
-import datetime
+
+# import datetime
 import tensorflow as tf
 
 session_states = {
@@ -55,7 +56,7 @@ def initialise_session_states():
 
 
 initialise_session_states()
-#st.write("All session states", st.session_state)
+# st.write("All session states", st.session_state)
 
 
 st.markdown("# Fatigue Detection from Physiological Signals🎈")

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 import streamlit as st
+from ydata_profiling import ProfileReport
+from streamlit_ydata_profiling import st_profile_report
 
 # import os
 import pandas as pd
@@ -60,6 +62,11 @@ class DATA_VARIABLES:
     @property
     def freq_eda_files(self) -> float:
         return 18230 / self.Total_time_seconds
+
+
+def get_eda_using_profiling(dataframe):
+    pr = ProfileReport(dataframe, minimal=True, orange_mode=True, explorative=True)
+    st_profile_report(pr, navbar=True)
 
 
 def write_expandable_text_app(

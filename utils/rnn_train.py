@@ -4,9 +4,9 @@ import numpy as np
 #from typing import Tuple
 import tensorflow as tf
 import pandas as pd
-import mlflow
-from mlflow.models import infer_signature
-from mlflow import MlflowClient
+# import mlflow
+# from mlflow.models import infer_signature
+# from mlflow import MlflowClient
 from pprint import pprint
 import datetime
 import matplotlib.pyplot as plt
