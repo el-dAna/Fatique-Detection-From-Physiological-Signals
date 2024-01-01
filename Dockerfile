@@ -7,7 +7,9 @@ COPY pages/ /app/pages/
 COPY utils/ /app/utils/
 COPY ./requirements.txt /app/requirements.txt
 
-RUN pip install --upgrade -r /app/requirements.txt
+RUN python -m pip install --upgrade pip
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+
 WORKDIR /app
 
 EXPOSE 8501
