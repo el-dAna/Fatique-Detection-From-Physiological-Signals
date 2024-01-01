@@ -3,6 +3,12 @@
 [![Python application test with Github Actions](https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/actions/workflows/main.yml/badge.svg)](https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/actions/workflows/main.yml)
 
 [![DockerImage 2 ECR Repo](https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/actions/workflows/docker_img2ecr.yml/badge.svg)](https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/actions/workflows/docker_img2ecr.yml)
+
+
+
+https://github.com/el-dAna/Fatique-Detection-From-Physiological-Signals/assets/100404513/2dff8d8c-881c-4ec3-8c88-b19b6f4f1c7c
+
+
 ### ABOUT REPO
 This is more of an MLOPS orchestration than a useful ML model. This project classifies physiological signals into for stress categories. Users can upload from local environment or from data on s3 bucket.
 
