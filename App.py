@@ -70,7 +70,7 @@ st.markdown(
     """
 )
 
-st.markdown("### The structure if the orchestration is shown by the figma embed below")
+st.markdown("### The structure of the orchestration is shown by the figma embed below")
 figma_project_structure = """
         <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FqAkiRCvXSZOOgIAfwgJiNY%2FTuseb%3Ftype%3Ddesign%26node-id%3D13%253A2%26mode%3Ddesign%26t%3Dh9lQy5zVoYmXZDEA-1" allowfullscreen></iframe>
     """
@@ -129,8 +129,8 @@ st.markdown(
 )
 
 
-st.sidebar.markdown("# Data Preprocessing ❄️")
+# st.sidebar.markdown("# Data Preprocessing ❄️")
 
-st.sidebar.markdown("# Model Taining❄️")
+# st.sidebar.markdown("# Model Taining❄️")
 
-st.sidebar.markdown("# Inference❄️")
+# st.sidebar.markdown("# Inference❄️")
