@@ -14,14 +14,17 @@ from tensorflow.keras import layers
 
 def model(MODEL_INPUT_SHAPE, dp1=0, dp2=0, dp3=0, dp4=0, learning_rate=1e-05,LOSS=tf.keras.losses.Huber(), NUMBER_CLASSES=4):
     """
-    This function defines the model to be used for the raw sequence data
-
-    INPUTS:
-    dp1, dp2, dp3, dp4: ints -> tunable drop out rates for various layers in the model
-
-    RETURNS:
-    model1: keras model -> this model is compiled within this fucntion!!!!!!!!11
-
+        Create a Convolutional Neural Network (CNN) with Long Short-Term Memory (LSTM) layers for classification.
+    
+        Parameters:
+        - MODEL_INPUT_SHAPE: tuple, shape of the input data.
+        - dp1, dp2, dp3, dp4: float, dropout rates for different layers.
+        - learning_rate: float, learning rate for the Adam optimizer.
+        - LOSS: loss function, default is Huber loss.
+        - NUMBER_CLASSES: int, number of output classes.
+    
+        Returns:
+        - tf.keras.Model: compiled model for training and evaluation.
     """
     optimiser = tf.keras.optimizers.Adam(learning_rate=learning_rate)  # (1e-05 == 0.00001)
 
